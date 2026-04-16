@@ -274,11 +274,52 @@ function contact(req, res) {
   return res.render('contact');
 }
 
+function seoKaosOversizePria(req, res) {
+  const allProducts = getVisibleProducts();
+
+  const oversizeProducts = allProducts
+    .filter(item => {
+      const haystack = normalizeSearchText(item);
+      return haystack.includes('oversize') || safeText(item.fit).toLowerCase() === 'oversize';
+    })
+    .slice(0, 12);
+
+  const articles = getVisibleArticles().slice(0, 3);
+
+  const pageTitle = 'Kaos Oversize Pria - Rekomendasi Model Nyaman dan Stylish';
+  const pageDescription =
+    'Temukan rekomendasi kaos oversize pria dengan tampilan clean, bahan nyaman, dan pilihan model yang cocok untuk kebutuhan harian serta gaya casual modern.';
+  const canonicalUrl = `${res.locals.baseUrl}/kaos-oversize-pria`;
+
+  res.locals.meta = buildMetaPayload(res, {
+    title: pageTitle,
+    description: pageDescription,
+    image: `${res.locals.baseUrl}/assets/images/og-image.jpg`,
+    url: canonicalUrl,
+    keywords: 'kaos oversize pria, rekomendasi kaos oversize pria, kaos oversize pria terbaik, kaos oversize pria premium'
+  });
+
+  applySeoLocals(res, {
+    title: pageTitle,
+    description: pageDescription,
+    keywords: 'kaos oversize pria, rekomendasi kaos oversize pria, kaos oversize pria terbaik, kaos oversize pria premium',
+    image: `${res.locals.baseUrl}/assets/images/og-image.jpg`,
+    canonical: canonicalUrl,
+    type: 'website'
+  });
+
+  return res.render('seo-kaos-oversize', {
+    products: oversizeProducts,
+    articles
+  });
+}
+
 module.exports = {
   home,
   shop,
   productDetail,
   articles,
   articleDetail,
-  contact
+  contact,
+  seoKaosOversizePria
 };
