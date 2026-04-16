@@ -23,14 +23,15 @@ function normalizeSearchText(p = {}) {
 }
 
 function applySeo(res, seo = {}) {
-  const base = res.locals.baseUrl;
+  const base = res.locals.baseUrl || '';
 
   res.locals.seo = {
-    title: seo.title,
-    description: seo.description,
-    keywords: seo.keywords,
+    ...res.locals.seo,
+    title: seo.title || res.locals.seo?.title || '',
+    description: seo.description || res.locals.seo?.description || '',
+    keywords: seo.keywords || res.locals.seo?.keywords || '',
     image: seo.image || `${base}/assets/images/og-image.jpg`,
-    canonical: seo.canonical,
+    canonical: seo.canonical || `${base}/`,
     type: seo.type || 'website',
     robots: seo.robots || 'index,follow'
   };
@@ -44,13 +45,18 @@ function home(req, res) {
   const articles = getVisibleArticles().slice(0, 3);
 
   applySeo(res, {
-    title: `Kaos Oversize Pria & Distro Premium Terbaru`,
-    description: `Jual kaos oversize pria, kaos distro premium dan outfit pria kekinian.`,
+    title: `Kaos Oversize Pria & Distro Premium Terbaru - ${res.locals.appName}`,
+    description: 'Jual kaos oversize pria, kaos distro premium, dan outfit pria kekinian.',
     keywords: 'kaos oversize pria, kaos distro pria, outfit pria',
     canonical: `${res.locals.baseUrl}/`
   });
 
-  return res.render('home', { products, featured, recommended, articles });
+  return res.render('home', {
+    products,
+    featured,
+    recommended,
+    articles
+  });
 }
 
 /* ================= SHOP ================= */
@@ -71,77 +77,84 @@ function shop(req, res) {
     products = products.filter(p => normalizeSearchText(p).includes(query));
   }
 
-  const isFiltered = query || cat;
+  const isFiltered = Boolean(query || cat);
 
   const title = cat
     ? `Kaos ${cat} Pria Terbaru`
     : query
-    ? `Hasil Pencarian ${q}`
-    : `Shop Kaos Oversize & Distro Pria`;
+      ? `Hasil Pencarian ${safeText(q)}`
+      : 'Shop Kaos Oversize & Distro Pria';
 
   const desc = cat
     ? `Temukan kaos ${cat} pria terbaik dengan bahan nyaman.`
     : query
-    ? `Hasil pencarian ${q}.`
-    : `Jelajahi koleksi kaos oversize pria terbaik.`;
+      ? `Hasil pencarian ${safeText(q)}.`
+      : 'Jelajahi koleksi kaos oversize pria terbaik.';
 
   applySeo(res, {
     title: `${title} - ${res.locals.appName}`,
     description: desc,
-    keywords: `${cat}, ${q}, kaos pria`,
+    keywords: `${cat}, ${safeText(q)}, kaos pria`,
     canonical: `${res.locals.baseUrl}/shop`,
     robots: isFiltered ? 'noindex,follow' : 'index,follow'
   });
 
-  return res.render('shop', { products, query: q, category });
+  return res.render('shop', {
+    products,
+    query: q,
+    category
+  });
 }
 
-/* ================= PRODUCT (FIX ERROR) ================= */
+/* ================= PRODUCT DETAIL ================= */
 function productDetail(req, res, next) {
   const product = getProductBySlug(req.params.slug);
   if (!product) return next();
 
-  // 🔥 FIX: wajib ada recommended
   const recommended = getVisibleProducts()
     .filter(p => p.slug !== product.slug)
     .slice(0, 4);
 
   const name = safeText(product.name);
-  const category = safeText(product.category);
+  const category = safeText(product.category || 'pria');
+  const material = safeText(product.material || 'premium');
+  const fit = safeText(product.fit || 'nyaman');
 
-  const title = `${name} - Kaos ${category} Pria Premium`;
-  const desc = `${name} adalah kaos ${category} pria dengan bahan ${product.material || 'premium'} dan fit ${product.fit || 'nyaman'}.`;
+  const title = `${name} - Kaos ${category} Premium`;
+  const desc = `${name} adalah kaos ${category} dengan bahan ${material} dan fit ${fit}.`;
 
   applySeo(res, {
     title,
     description: desc,
     keywords: `${name}, kaos ${category}, kaos pria`,
     canonical: `${res.locals.baseUrl}/product/${product.slug}`,
-    type: 'product'
+    type: 'product',
+    image: product.image || `${res.locals.baseUrl}/assets/images/og-image.jpg`
   });
 
-  // 🔥 schema aman
   res.locals.structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": name,
-    "image": product.image || '',
-    "description": desc,
-    "brand": {
-      "@type": "Brand",
-      "name": res.locals.appName
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name,
+    image: product.image || '',
+    description: desc,
+    brand: {
+      '@type': 'Brand',
+      name: safeText(product.brand || res.locals.appName)
     },
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "IDR",
-      "price": product.price || "0",
-      "availability": "https://schema.org/InStock"
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'IDR',
+      price: String(product.price || 0),
+      availability: product.status === 'sold_out'
+        ? 'https://schema.org/OutOfStock'
+        : 'https://schema.org/InStock'
     }
   };
 
   return res.render('product-detail', {
     product,
-    recommended // 🔥 ini yang bikin error tadi
+    recommended
   });
 }
 
@@ -150,8 +163,8 @@ function articles(req, res) {
   const articles = getVisibleArticles();
 
   applySeo(res, {
-    title: `Artikel Fashion Pria`,
-    description: `Tips outfit dan rekomendasi kaos oversize pria.`,
+    title: `Artikel Fashion Pria - ${res.locals.appName}`,
+    description: 'Tips outfit dan rekomendasi kaos oversize pria.',
     keywords: 'artikel fashion pria, outfit pria',
     canonical: `${res.locals.baseUrl}/articles`
   });
@@ -165,21 +178,30 @@ function articleDetail(req, res, next) {
   if (!article) return next();
 
   applySeo(res, {
-    title: article.title || '',
-    description: article.description || '',
+    title: `${safeText(article.title)} - ${res.locals.appName}`,
+    description: article.description || article.excerpt || '',
     keywords: article.keywords || '',
     canonical: `${res.locals.baseUrl}/article/${article.slug}`,
-    type: 'article'
+    type: 'article',
+    image: article.image || `${res.locals.baseUrl}/assets/images/og-image.jpg`
   });
 
   res.locals.structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": article.title,
-    "image": article.image || '',
-    "author": {
-      "@type": "Organization",
-      "name": res.locals.appName
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    image: article.image || '',
+    author: {
+      '@type': 'Organization',
+      name: res.locals.appName
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: res.locals.appName,
+      logo: {
+        '@type': 'ImageObject',
+        url: res.locals.site?.logo || `${res.locals.baseUrl}/assets/images/logo.png`
+      }
     }
   };
 
@@ -190,7 +212,7 @@ function articleDetail(req, res, next) {
 function contact(req, res) {
   applySeo(res, {
     title: `Kontak ${res.locals.appName}`,
-    description: `Hubungi kami.`,
+    description: 'Hubungi kami.',
     keywords: 'kontak',
     canonical: `${res.locals.baseUrl}/contact`
   });
@@ -198,20 +220,29 @@ function contact(req, res) {
   return res.render('contact');
 }
 
-/* ================= LANDING ================= */
+/* ================= LANDING SEO ================= */
 function seoKaosOversizePria(req, res) {
-  const products = getVisibleProducts()
-    .filter(p => normalizeSearchText(p).includes('oversize'))
+  const allProducts = getVisibleProducts();
+  const articles = getVisibleArticles().slice(0, 3);
+
+  const products = allProducts
+    .filter(p => {
+      const haystack = normalizeSearchText(p);
+      return haystack.includes('oversize');
+    })
     .slice(0, 12);
 
   applySeo(res, {
-    title: 'Kaos Oversize Pria Terbaik 2026',
-    description: 'Rekomendasi kaos oversize pria terbaik.',
-    keywords: 'kaos oversize pria',
+    title: `Kaos Oversize Pria Terbaik 2026 - ${res.locals.appName}`,
+    description: 'Rekomendasi kaos oversize pria terbaik dengan bahan nyaman dan model kekinian.',
+    keywords: 'kaos oversize pria, kaos oversize terbaik, outfit pria',
     canonical: `${res.locals.baseUrl}/kaos-oversize-pria`
   });
 
-  return res.render('seo-kaos-oversize', { products });
+  return res.render('seo-kaos-oversize', {
+    products,
+    articles
+  });
 }
 
 module.exports = {
