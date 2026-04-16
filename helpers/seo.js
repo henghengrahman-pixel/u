@@ -1,95 +1,101 @@
 const { stripHtml } = require('./format');
 
-function cleanString(val = '') {
-  return String(val || '').trim();
+function clean(v = '') {
+  return String(v || '').trim();
 }
 
-function truncate(text = '', max = 160) {
+function truncate(text = '', max = 155) {
+  text = clean(stripHtml(text));
   if (text.length <= max) return text;
   return text.slice(0, max).replace(/\s+\S*$/, '') + '...';
 }
 
+function absoluteUrl(url = '') {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const base = (process.env.BASE_URL || '').replace(/\/+$/, '');
+  return base + '/' + url.replace(/^\/+/, '');
+}
+
+/* ================= CORE META ================= */
 function makeMeta(input = {}, settings = {}) {
-  const defaults = settings?.seo || {};
   const storeName = settings?.storeName || process.env.APP_NAME || 'Store';
 
-  const rawTitle = cleanString(input.title);
-  const rawDescription = cleanString(input.description);
-  const rawKeywords = cleanString(input.keywords);
+  const titleRaw = clean(input.title);
+  const descRaw = clean(input.description);
+  const keywordsRaw = clean(input.keywords);
 
-  const metaTitle = rawTitle
-    ? `${rawTitle} | ${storeName}`
-    : (defaults.metaTitle || storeName);
+  const title = titleRaw
+    ? `${titleRaw} | ${storeName}`
+    : storeName;
 
-  const metaDescription = truncate(
-    stripHtml(rawDescription || defaults.metaDescription || storeName),
-    155
-  );
+  const description = truncate(descRaw || storeName);
 
-  const ogImage = cleanString(
+  const image = absoluteUrl(
     input.image ||
-    defaults.ogImage ||
-    `${process.env.BASE_URL || ''}/assets/images/og-image.jpg`
+    settings?.seo?.ogImage ||
+    '/assets/images/og-image.jpg'
   );
 
-  const canonicalUrl = cleanString(input.url || '');
-
-  const keywords = rawKeywords || defaults.keywords || '';
+  const url = absoluteUrl(input.url || '');
 
   return {
-    title: metaTitle,
-    description: metaDescription,
-    image: ogImage,
-    url: canonicalUrl,
-    keywords,
+    title,
+    description,
+    keywords: keywordsRaw,
+    image,
+    canonical: url,
+    url,
     robots: 'index,follow'
   };
 }
 
-/*
-|--------------------------------------------------------------------------
-| OPTIONAL: AUTO META UNTUK PRODUCT
-|--------------------------------------------------------------------------
-*/
+/* ================= PRODUCT META ================= */
 function productMeta(product = {}, baseUrl = '', settings = {}) {
   if (!product) return makeMeta({}, settings);
 
+  const name = clean(product.name);
+  const category = clean(product.category);
+  const material = clean(product.material);
+  const fit = clean(product.fit);
+
+  const title = product.seoTitle ||
+    `${name} - Kaos ${category} Pria Premium`;
+
+  const description = product.seoDescription ||
+    `${name} adalah kaos ${category} pria dengan bahan ${material || 'premium'} dan fit ${fit || 'nyaman'}. Cocok untuk outfit harian.`;
+
+  const keywords = product.keywords ||
+    `${name}, kaos ${category}, kaos pria, outfit pria`;
+
   return makeMeta({
-    title: product.seoTitle || product.name,
-    description:
-      product.seoDescription ||
-      product.shortDescription ||
-      product.short_description ||
-      '',
-    image:
-      product.image ||
-      (product.images && product.images[0]) ||
-      '',
+    title,
+    description,
+    image: product.image || (product.images && product.images[0]),
     url: `${baseUrl}/product/${product.slug}`,
-    keywords: product.keywords || ''
+    keywords
   }, settings);
 }
 
-/*
-|--------------------------------------------------------------------------
-| OPTIONAL: AUTO META UNTUK ARTICLE
-|--------------------------------------------------------------------------
-*/
+/* ================= ARTICLE META ================= */
 function articleMeta(article = {}, baseUrl = '', settings = {}) {
   if (!article) return makeMeta({}, settings);
 
+  const title = article.seoTitle || article.title;
+
+  const description = article.seoDescription ||
+    article.excerpt ||
+    `Baca ${article.title} lengkap hanya di ${settings?.storeName || 'website kami'}.`;
+
+  const keywords = article.keywords ||
+    `${article.title}, artikel fashion pria, outfit pria`;
+
   return makeMeta({
-    title: article.seoTitle || article.title,
-    description:
-      article.seoDescription ||
-      article.excerpt ||
-      '',
-    image:
-      article.image ||
-      article.thumbnail ||
-      '',
+    title,
+    description,
+    image: article.image || article.thumbnail,
     url: `${baseUrl}/article/${article.slug}`,
-    keywords: article.keywords || ''
+    keywords
   }, settings);
 }
 
