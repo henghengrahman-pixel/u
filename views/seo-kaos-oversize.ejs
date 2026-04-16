@@ -1,0 +1,111 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section shop-page-section seo-landing-section">
+  <div class="container">
+    <div class="shop-page-header">
+      <div class="section-title">
+        <h1 class="title">Kaos Oversize Pria</h1>
+      </div>
+
+      <p class="shop-page-subtitle">
+        Temukan rekomendasi kaos oversize pria dengan tampilan clean, bahan nyaman, dan model yang cocok untuk dipakai harian maupun gaya casual modern.
+      </p>
+    </div>
+
+    <div class="admin-card" style="margin-bottom:30px;">
+      <div class="article-content">
+        <h2>Rekomendasi Kaos Oversize Pria untuk Gaya Harian</h2>
+        <p>
+          Kaos oversize pria menjadi salah satu pilihan favorit karena nyaman dipakai, mudah dipadukan, dan cocok untuk berbagai gaya. Potongan yang lebih longgar memberi kesan santai, modern, dan tetap rapi saat dipakai untuk aktivitas sehari-hari.
+        </p>
+        <p>
+          Saat memilih kaos oversize pria, perhatikan bahan, potongan, dan kenyamanan saat dipakai. Bahan yang adem seperti cotton combed biasanya lebih nyaman untuk iklim tropis. Selain itu, pilih model yang memiliki jahitan rapi dan ukuran yang pas agar tetap terlihat proporsional.
+        </p>
+        <p>
+          Di halaman ini kamu bisa melihat beberapa pilihan kaos oversize pria yang cocok untuk kebutuhan harian. Setiap produk memiliki tampilan yang clean dan bisa dicek lebih lanjut untuk melihat detail, variasi, maupun ulasan.
+        </p>
+
+        <h2>Cara Memilih Kaos Oversize Pria yang Bagus</h2>
+        <ul>
+          <li>Pilih bahan yang nyaman dan tidak panas saat dipakai.</li>
+          <li>Pastikan ukuran oversize tetap proporsional di badan.</li>
+          <li>Pilih warna netral agar mudah dipadukan dengan outfit lain.</li>
+          <li>Cek detail produk untuk melihat material, fit, dan tampilan secara keseluruhan.</li>
+        </ul>
+      </div>
+    </div>
+
+    <% if (products && products.length) { %>
+      <div class="row">
+        <% products.forEach(function(product){ %>
+          <div class="col-md-3 col-sm-6 col-xs-6">
+            <%- include('partials/product-card', { product: product }) %>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-box text-center">
+        <h3>Produk belum tersedia</h3>
+        <p>Produk kaos oversize pria akan segera ditampilkan di halaman ini.</p>
+      </div>
+    <% } %>
+
+    <div class="admin-card" style="margin-top:30px;">
+      <div class="article-content">
+        <h2>Kenapa Kaos Oversize Pria Banyak Dicari?</h2>
+        <p>
+          Kaos oversize pria banyak dicari karena memberikan kesan modern, effortless, dan tetap nyaman dipakai dalam berbagai situasi. Model ini cocok dipadukan dengan jeans, chino, maupun short pants, sehingga fleksibel untuk gaya santai sehari-hari.
+        </p>
+        <p>
+          Selain itu, banyak orang menyukai kaos oversize karena memberi ruang gerak lebih nyaman dan terlihat lebih stylish. Untuk hasil terbaik, pilih produk dengan bahan yang lembut, warna yang mudah dipadukan, dan detail yang sederhana namun tetap menarik.
+        </p>
+      </div>
+    </div>
+
+    <% if (articles && articles.length) { %>
+      <section class="section home-articles-section" style="padding-bottom:0;">
+        <div class="home-section-head">
+          <div class="section-title">
+            <h2 class="title">Artikel Terkait</h2>
+          </div>
+          <p class="home-section-subtitle">
+            Baca juga panduan dan rekomendasi lain untuk membantu menemukan pilihan yang paling sesuai.
+          </p>
+        </div>
+
+        <div class="row">
+          <% articles.forEach(function(article){ %>
+            <div class="col-md-4 col-sm-6 col-xs-12">
+              <article class="admin-card article-card home-article-card">
+                <a href="/article/<%= article.slug %>" class="article-thumb-link" aria-label="<%= article.title %>">
+                  <img
+                    src="<%= article.image || article.thumbnail || '' %>"
+                    alt="<%= article.title %>"
+                    loading="lazy"
+                  >
+                </a>
+
+                <div class="article-card-content">
+                  <h3 class="article-card-title">
+                    <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                  </h3>
+
+                  <% if (article.excerpt) { %>
+                    <p class="article-card-excerpt"><%= article.excerpt %></p>
+                  <% } %>
+
+                  <a href="/article/<%= article.slug %>" class="article-read-more" aria-label="Baca artikel <%= article.title %>">
+                    Baca Selengkapnya <i class="fa fa-arrow-right"></i>
+                  </a>
+                </div>
+              </article>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
