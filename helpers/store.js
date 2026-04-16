@@ -25,6 +25,13 @@ function cleanNumber(value = 0) {
   return Number.isFinite(num) ? num : 0;
 }
 
+function cleanBoolean(value, fallback = true) {
+  if (typeof value === 'boolean') return value;
+  if (value === 'true' || value === 'on' || value === '1' || value === 1) return true;
+  if (value === 'false' || value === 'off' || value === '0' || value === 0) return false;
+  return fallback;
+}
+
 function slugify(text = '') {
   return String(text || '')
     .toLowerCase()
@@ -35,13 +42,6 @@ function slugify(text = '') {
     .replace(/^-+|-+$/g, '');
 }
 
-function pickPrimaryImage(product = {}) {
-  if (Array.isArray(product.images) && product.images.length > 0) {
-    return cleanUrl(product.images[0]);
-  }
-  return cleanUrl(product.image);
-}
-
 function normalizeImageList(payload = {}) {
   if (Array.isArray(payload.images)) {
     return payload.images.map(cleanUrl).filter(Boolean);
@@ -49,7 +49,7 @@ function normalizeImageList(payload = {}) {
 
   if (typeof payload.images === 'string') {
     return payload.images
-      .split('\n')
+      .split(/\r?\n|,/)
       .map(cleanUrl)
       .filter(Boolean);
   }
@@ -61,13 +61,28 @@ function normalizeImageList(payload = {}) {
   return [];
 }
 
+function pickPrimaryImage(item = {}) {
+  const images = normalizeImageList(item);
+  if (images.length > 0) return images[0];
+  return cleanUrl(item.image || item.thumbnail || '');
+}
+
+/*
+|--------------------------------------------------------------------------
+| SEO BUILDERS
+|--------------------------------------------------------------------------
+*/
 function buildProductSeo(product = {}) {
   const name = cleanString(product.name);
-  const category = cleanString(product.category || 'fashion');
+  const category = cleanString(product.category || 'fashion pria');
   const brand = cleanString(product.brand || process.env.APP_NAME || 'Ozerra');
   const material = cleanString(product.material);
   const fit = cleanString(product.fit);
-  const shortDescription = cleanString(product.shortDescription || product.description);
+  const shortDescription = cleanString(
+    product.shortDescription ||
+    product.short_description ||
+    product.description
+  );
   const baseTitle = name || 'Produk Pilihan';
 
   const seoTitle =
@@ -101,9 +116,38 @@ function buildProductSeo(product = {}) {
   };
 }
 
+function buildArticleSeo(article = {}) {
+  const title = cleanString(article.title);
+
+  const seoTitle =
+    cleanString(article.seoTitle || article.seo_title) ||
+    title;
+
+  const seoDescription =
+    cleanString(article.seoDescription || article.seo_description) ||
+    cleanString(article.description) ||
+    cleanString(article.excerpt) ||
+    `Baca artikel ${title} secara lengkap.`;
+
+  const keywords =
+    cleanString(article.keywords) ||
+    title;
+
+  return {
+    seoTitle,
+    seoDescription,
+    keywords
+  };
+}
+
+/*
+|--------------------------------------------------------------------------
+| PREPARE PRODUCT
+|--------------------------------------------------------------------------
+*/
 function prepareProduct(item = {}) {
   const images = normalizeImageList(item);
-  const primaryImage = images[0] || cleanUrl(item.image);
+  const primaryImage = pickPrimaryImage(item);
   const brand = cleanString(item.brand || process.env.APP_NAME || 'Ozerra');
   const category = cleanString(item.category || item.categorySlug || '');
   const fit = cleanString(item.fit || '');
@@ -119,6 +163,7 @@ function prepareProduct(item = {}) {
     slug: cleanString(item.slug) || slugify(item.name),
     shortDescription: cleanString(item.shortDescription || item.short_description),
     description: cleanString(item.description),
+    details: cleanString(item.details),
     brand,
     category,
     fit,
@@ -126,10 +171,14 @@ function prepareProduct(item = {}) {
     image: primaryImage,
     images,
     affiliateLink,
-    visible: typeof item.visible === 'boolean' ? item.visible : true,
+    visible: cleanBoolean(item.visible, true),
+    featured: cleanBoolean(item.featured, false),
+    recommended: cleanBoolean(item.recommended, false),
+    is_new: cleanBoolean(item.is_new, false),
+    status: cleanString(item.status || 'ready'),
     badge: cleanString(item.badge || ''),
     price: cleanNumber(item.price || item.price_idr),
-    compareAtPrice: cleanNumber(item.compareAtPrice || item.compare_at_price || 0),
+    compareAtPrice: cleanNumber(item.compareAtPrice || item.compare_at_price || item.compare_price_idr || 0),
     currency: cleanString(item.currency || 'IDR'),
     source: cleanString(item.source || 'affiliate'),
     created_at: item.created_at || nowIso(),
@@ -142,46 +191,41 @@ function prepareProduct(item = {}) {
   prepared.seoDescription = seo.seoDescription;
   prepared.keywords = cleanString(item.keywords) || seo.keywords;
   prepared.ogImage = cleanUrl(item.ogImage || item.og_image || prepared.image);
-  prepared.canonical =
-    cleanString(item.canonical) ||
-    `/product/${prepared.slug}`;
+  prepared.canonical = cleanString(item.canonical) || `/product/${prepared.slug}`;
 
   return prepared;
 }
 
+/*
+|--------------------------------------------------------------------------
+| PREPARE ARTICLE
+|--------------------------------------------------------------------------
+*/
 function prepareArticle(item = {}) {
+  const primaryImage = pickPrimaryImage(item);
+
   const prepared = {
     ...item,
     id: cleanString(item.id || uid()),
     title: cleanString(item.title),
     slug: cleanString(item.slug) || slugify(item.title),
     excerpt: cleanString(item.excerpt),
+    description: cleanString(item.description || item.excerpt),
     content: cleanString(item.content),
-    image: cleanUrl(item.image),
-    visible: typeof item.visible === 'boolean' ? item.visible : true,
+    thumbnail: cleanUrl(item.thumbnail || primaryImage),
+    image: cleanUrl(item.image || item.thumbnail || primaryImage),
+    visible: cleanBoolean(item.visible, true),
     created_at: item.created_at || nowIso(),
     updated_at: nowIso()
   };
 
-  prepared.seoTitle =
-    cleanString(item.seoTitle) ||
-    cleanString(item.seo_title) ||
-    prepared.title;
+  const seo = buildArticleSeo(prepared);
 
-  prepared.seoDescription =
-    cleanString(item.seoDescription) ||
-    cleanString(item.seo_description) ||
-    prepared.excerpt ||
-    `Baca artikel ${prepared.title} secara lengkap.`;
-
-  prepared.keywords =
-    cleanString(item.keywords) ||
-    prepared.title;
-
+  prepared.seoTitle = seo.seoTitle;
+  prepared.seoDescription = seo.seoDescription;
+  prepared.keywords = seo.keywords;
   prepared.ogImage = cleanUrl(item.ogImage || item.og_image || prepared.image);
-  prepared.canonical =
-    cleanString(item.canonical) ||
-    `/article/${prepared.slug}`;
+  prepared.canonical = cleanString(item.canonical) || `/article/${prepared.slug}`;
 
   return prepared;
 }
@@ -192,15 +236,15 @@ function prepareArticle(item = {}) {
 |--------------------------------------------------------------------------
 */
 function getSettings() {
-  return getCollection('settings.json');
+  return getCollection('settings.json') || {};
 }
 
 function saveSettings(settings) {
-  return saveCollection('settings.json', settings);
+  return saveCollection('settings.json', settings || {});
 }
 
 function getCategories() {
-  return getCollection('categories.json');
+  return getCollection('categories.json') || [];
 }
 
 /*
@@ -209,7 +253,7 @@ function getCategories() {
 |--------------------------------------------------------------------------
 */
 function getProducts() {
-  const items = getCollection('products.json');
+  const items = getCollection('products.json') || [];
   return items.map(prepareProduct);
 }
 
@@ -279,7 +323,7 @@ function deleteProduct(id) {
 |--------------------------------------------------------------------------
 */
 function getArticles() {
-  const items = getCollection('articles.json');
+  const items = getCollection('articles.json') || [];
   return items.map(prepareArticle);
 }
 
@@ -346,16 +390,13 @@ function deleteArticle(id) {
 |--------------------------------------------------------------------------
 | ORDERS
 |--------------------------------------------------------------------------
-| Dipertahankan untuk kompatibilitas admin/log lama.
-| Tapi untuk flow affiliate, ini bukan alur utama lagi.
-|--------------------------------------------------------------------------
 */
 function getOrders() {
-  return getCollection('orders.json');
+  return getCollection('orders.json') || [];
 }
 
 function saveOrders(items) {
-  return saveCollection('orders.json', items);
+  return saveCollection('orders.json', Array.isArray(items) ? items : []);
 }
 
 function getOrderById(id) {
@@ -432,5 +473,6 @@ module.exports = {
   prepareProduct,
   prepareArticle,
   buildProductSeo,
+  buildArticleSeo,
   slugify
 };
