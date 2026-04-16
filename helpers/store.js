@@ -7,26 +7,23 @@ const {
   nowIso
 } = require('./jsonDb');
 
-/*
-|--------------------------------------------------------------------------
-| SMALL HELPERS
-|--------------------------------------------------------------------------
-*/
-function cleanString(value = '') {
-  return String(value || '').trim();
+/* ================= HELPERS ================= */
+
+function cleanString(v = '') {
+  return String(v || '').trim();
 }
 
-function cleanUrl(value = '') {
-  return String(value || '').trim();
+function cleanUrl(v = '') {
+  return String(v || '').trim();
 }
 
-function cleanNumber(value = 0) {
-  const num = Number(value || 0);
-  return Number.isFinite(num) ? num : 0;
+function cleanNumber(v = 0) {
+  const n = Number(v || 0);
+  return Number.isFinite(n) ? n : 0;
 }
 
 function slugify(text = '') {
-  return String(text || '')
+  return String(text)
     .toLowerCase()
     .trim()
     .replace(/['"]/g, '')
@@ -35,49 +32,23 @@ function slugify(text = '') {
     .replace(/^-+|-+$/g, '');
 }
 
-function pickPrimaryImage(product = {}) {
-  if (Array.isArray(product.images) && product.images.length > 0) {
-    return cleanUrl(product.images[0]);
-  }
-  return cleanUrl(product.image);
-}
-
-function normalizeImageList(payload = {}) {
-  if (Array.isArray(payload.images)) {
-    return payload.images.map(cleanUrl).filter(Boolean);
-  }
-
-  if (typeof payload.images === 'string') {
-    return payload.images
-      .split('\n')
-      .map(cleanUrl)
-      .filter(Boolean);
-  }
-
-  if (payload.image) {
-    return [cleanUrl(payload.image)].filter(Boolean);
-  }
-
-  return [];
-}
+/* ================= SEO GENERATOR ================= */
 
 function buildProductSeo(product = {}) {
   const name = cleanString(product.name);
-  const category = cleanString(product.category || 'fashion');
-  const brand = cleanString(product.brand || process.env.APP_NAME || 'Ozerra');
+  const category = cleanString(product.category || 'kaos pria');
+  const brand = cleanString(product.brand || process.env.APP_NAME || 'Store');
   const material = cleanString(product.material);
   const fit = cleanString(product.fit);
-  const shortDescription = cleanString(product.shortDescription || product.description);
-  const baseTitle = name || 'Produk Pilihan';
 
   const seoTitle =
     cleanString(product.seoTitle) ||
-    `${baseTitle} - ${brand}`;
+    `${name} ${category} Premium - ${brand}`;
 
   const seoDescription =
     cleanString(product.seoDescription) ||
-    shortDescription ||
-    `${baseTitle} dengan tampilan rapi, nyaman dipakai, dan cocok untuk kebutuhan harian.`;
+    cleanString(product.shortDescription) ||
+    `${name} adalah ${category} dengan bahan ${material || 'premium'} dan model ${fit || 'modern'}. Cocok untuk outfit harian.`;
 
   const keywords = [
     name,
@@ -85,160 +56,132 @@ function buildProductSeo(product = {}) {
     brand,
     material,
     fit,
-    cleanString(product.targetKeyword),
-    'fashion pria',
     'kaos pria',
     'kaos oversize',
-    'rekomendasi kaos'
+    'outfit pria'
   ]
     .filter(Boolean)
     .join(', ');
 
-  return {
-    seoTitle,
-    seoDescription,
-    keywords
-  };
+  return { seoTitle, seoDescription, keywords };
 }
 
-function prepareProduct(item = {}) {
-  const images = normalizeImageList(item);
-  const primaryImage = images[0] || cleanUrl(item.image);
-  const brand = cleanString(item.brand || process.env.APP_NAME || 'Ozerra');
-  const category = cleanString(item.category || item.categorySlug || '');
-  const fit = cleanString(item.fit || '');
-  const material = cleanString(item.material || '');
-  const affiliateLink = cleanUrl(
-    item.affiliateLink || item.affiliate_link || item.marketplaceLink || item.link
-  );
+function buildArticleSeo(article = {}) {
+  const title = cleanString(article.title);
 
-  const prepared = {
+  const seoTitle =
+    cleanString(article.seoTitle) ||
+    `${title} - ${process.env.APP_NAME || 'Blog'}`;
+
+  const seoDescription =
+    cleanString(article.seoDescription) ||
+    cleanString(article.description) ||
+    cleanString(article.excerpt) ||
+    `Baca ${title} secara lengkap.`;
+
+  const keywords =
+    cleanString(article.keywords) ||
+    title;
+
+  return { seoTitle, seoDescription, keywords };
+}
+
+/* ================= NORMALIZER ================= */
+
+function prepareProduct(item = {}) {
+  const images =
+    Array.isArray(item.images)
+      ? item.images
+      : String(item.images || '')
+          .split('\n')
+          .map(cleanUrl)
+          .filter(Boolean);
+
+  const image = images[0] || cleanUrl(item.image);
+
+  const base = {
     ...item,
     id: cleanString(item.id || uid()),
     name: cleanString(item.name),
     slug: cleanString(item.slug) || slugify(item.name),
-    shortDescription: cleanString(item.shortDescription || item.short_description),
-    description: cleanString(item.description),
-    brand,
-    category,
-    fit,
-    material,
-    image: primaryImage,
+    category: cleanString(item.category),
+    brand: cleanString(item.brand || process.env.APP_NAME),
+    material: cleanString(item.material),
+    fit: cleanString(item.fit),
+    image,
     images,
-    affiliateLink,
+    affiliateLink: cleanUrl(item.affiliateLink),
+    shortDescription: cleanString(item.shortDescription),
+    description: cleanString(item.description),
     visible: typeof item.visible === 'boolean' ? item.visible : true,
-    badge: cleanString(item.badge || ''),
-    price: cleanNumber(item.price || item.price_idr),
-    compareAtPrice: cleanNumber(item.compareAtPrice || item.compare_at_price || 0),
-    currency: cleanString(item.currency || 'IDR'),
-    source: cleanString(item.source || 'affiliate'),
+    price: cleanNumber(item.price),
+    compareAtPrice: cleanNumber(item.compareAtPrice),
     created_at: item.created_at || nowIso(),
     updated_at: nowIso()
   };
 
-  const seo = buildProductSeo(prepared);
+  const seo = buildProductSeo(base);
 
-  prepared.seoTitle = seo.seoTitle;
-  prepared.seoDescription = seo.seoDescription;
-  prepared.keywords = cleanString(item.keywords) || seo.keywords;
-  prepared.ogImage = cleanUrl(item.ogImage || item.og_image || prepared.image);
-  prepared.canonical =
-    cleanString(item.canonical) ||
-    `/product/${prepared.slug}`;
+  base.seoTitle = seo.seoTitle;
+  base.seoDescription = seo.seoDescription;
+  base.keywords = cleanString(item.keywords) || seo.keywords;
+  base.ogImage = cleanUrl(item.ogImage || base.image);
+  base.canonical = `/product/${base.slug}`;
 
-  return prepared;
+  return base;
 }
 
 function prepareArticle(item = {}) {
-  const prepared = {
+  const base = {
     ...item,
     id: cleanString(item.id || uid()),
     title: cleanString(item.title),
     slug: cleanString(item.slug) || slugify(item.title),
     excerpt: cleanString(item.excerpt),
+    description: cleanString(item.description || item.excerpt),
     content: cleanString(item.content),
-    image: cleanUrl(item.image),
+    image: cleanUrl(item.image || item.thumbnail),
     visible: typeof item.visible === 'boolean' ? item.visible : true,
     created_at: item.created_at || nowIso(),
     updated_at: nowIso()
   };
 
-  prepared.seoTitle =
-    cleanString(item.seoTitle) ||
-    cleanString(item.seo_title) ||
-    prepared.title;
+  const seo = buildArticleSeo(base);
 
-  prepared.seoDescription =
-    cleanString(item.seoDescription) ||
-    cleanString(item.seo_description) ||
-    prepared.excerpt ||
-    `Baca artikel ${prepared.title} secara lengkap.`;
+  base.seoTitle = seo.seoTitle;
+  base.seoDescription = seo.seoDescription;
+  base.keywords = seo.keywords;
+  base.ogImage = cleanUrl(item.ogImage || base.image);
+  base.canonical = `/article/${base.slug}`;
 
-  prepared.keywords =
-    cleanString(item.keywords) ||
-    prepared.title;
-
-  prepared.ogImage = cleanUrl(item.ogImage || item.og_image || prepared.image);
-  prepared.canonical =
-    cleanString(item.canonical) ||
-    `/article/${prepared.slug}`;
-
-  return prepared;
+  return base;
 }
 
-/*
-|--------------------------------------------------------------------------
-| SETTINGS & CATEGORIES
-|--------------------------------------------------------------------------
-*/
-function getSettings() {
-  return getCollection('settings.json');
-}
+/* ================= PRODUCTS ================= */
 
-function saveSettings(settings) {
-  return saveCollection('settings.json', settings);
-}
-
-function getCategories() {
-  return getCollection('categories.json');
-}
-
-/*
-|--------------------------------------------------------------------------
-| PRODUCTS
-|--------------------------------------------------------------------------
-*/
 function getProducts() {
-  const items = getCollection('products.json');
-  return items.map(prepareProduct);
+  return getCollection('products.json').map(prepareProduct);
 }
 
 function saveProducts(items) {
-  const normalizedItems = (Array.isArray(items) ? items : []).map(prepareProduct);
-  return saveCollection('products.json', normalizedItems);
+  return saveCollection('products.json', items.map(prepareProduct));
 }
 
 function getVisibleProducts() {
-  return getProducts().filter(item => item.visible);
+  return getProducts().filter(p => p.visible);
 }
 
 function getProductBySlug(slug) {
-  return getProducts().find(item => item.slug === slug && item.visible);
+  return getProducts().find(p => p.slug === slug && p.visible);
 }
 
 function getProductById(id) {
-  return getProducts().find(item => item.id === id);
+  return getProducts().find(p => p.id === id);
 }
 
 function createProduct(payload) {
   const items = getProducts();
-
-  let item = typeof normalizeProduct === 'function'
-    ? normalizeProduct(payload)
-    : payload;
-
-  item = prepareProduct(item);
-
+  const item = prepareProduct(payload);
   items.unshift(item);
   saveProducts(items);
   return item;
@@ -246,69 +189,43 @@ function createProduct(payload) {
 
 function updateProduct(id, payload) {
   const items = getProducts();
-  const index = items.findIndex(item => item.id === id);
+  const i = items.findIndex(p => p.id === id);
+  if (i === -1) return null;
 
-  if (index === -1) return null;
-
-  const existing = items[index];
-
-  let merged = {
-    ...existing,
-    ...payload,
-    id: existing.id,
-    created_at: existing.created_at
-  };
-
-  merged = typeof normalizeProduct === 'function'
-    ? normalizeProduct(merged, existing)
-    : merged;
-
-  items[index] = prepareProduct(merged);
+  items[i] = prepareProduct({ ...items[i], ...payload });
   saveProducts(items);
-  return items[index];
+  return items[i];
 }
 
 function deleteProduct(id) {
-  const items = getProducts().filter(item => item.id !== id);
-  saveProducts(items);
+  saveProducts(getProducts().filter(p => p.id !== id));
 }
 
-/*
-|--------------------------------------------------------------------------
-| ARTICLES
-|--------------------------------------------------------------------------
-*/
+/* ================= ARTICLES ================= */
+
 function getArticles() {
-  const items = getCollection('articles.json');
-  return items.map(prepareArticle);
+  return getCollection('articles.json').map(prepareArticle);
 }
 
 function saveArticles(items) {
-  const normalizedItems = (Array.isArray(items) ? items : []).map(prepareArticle);
-  return saveCollection('articles.json', normalizedItems);
+  return saveCollection('articles.json', items.map(prepareArticle));
 }
 
 function getVisibleArticles() {
-  return getArticles().filter(item => item.visible);
+  return getArticles().filter(a => a.visible);
 }
 
 function getArticleBySlug(slug) {
-  return getArticles().find(item => item.slug === slug && item.visible);
+  return getArticles().find(a => a.slug === slug && a.visible);
 }
 
 function getArticleById(id) {
-  return getArticles().find(item => item.id === id);
+  return getArticles().find(a => a.id === id);
 }
 
 function createArticle(payload) {
   const items = getArticles();
-
-  let item = typeof normalizeArticle === 'function'
-    ? normalizeArticle(payload)
-    : payload;
-
-  item = prepareArticle(item);
-
+  const item = prepareArticle(payload);
   items.unshift(item);
   saveArticles(items);
   return item;
@@ -316,97 +233,30 @@ function createArticle(payload) {
 
 function updateArticle(id, payload) {
   const items = getArticles();
-  const index = items.findIndex(item => item.id === id);
+  const i = items.findIndex(a => a.id === id);
+  if (i === -1) return null;
 
-  if (index === -1) return null;
-
-  const existing = items[index];
-
-  let merged = {
-    ...existing,
-    ...payload,
-    id: existing.id,
-    created_at: existing.created_at
-  };
-
-  merged = typeof normalizeArticle === 'function'
-    ? normalizeArticle(merged, existing)
-    : merged;
-
-  items[index] = prepareArticle(merged);
+  items[i] = prepareArticle({ ...items[i], ...payload });
   saveArticles(items);
-  return items[index];
+  return items[i];
 }
 
 function deleteArticle(id) {
-  saveArticles(getArticles().filter(item => item.id !== id));
+  saveArticles(getArticles().filter(a => a.id !== id));
 }
 
-/*
-|--------------------------------------------------------------------------
-| ORDERS
-|--------------------------------------------------------------------------
-| Dipertahankan untuk kompatibilitas admin/log lama.
-| Tapi untuk flow affiliate, ini bukan alur utama lagi.
-|--------------------------------------------------------------------------
-*/
-function getOrders() {
-  return getCollection('orders.json');
+/* ================= SETTINGS ================= */
+
+function getSettings() {
+  return getCollection('settings.json');
 }
 
-function saveOrders(items) {
-  return saveCollection('orders.json', items);
-}
-
-function getOrderById(id) {
-  return getOrders().find(item => item.id === id);
-}
-
-function createOrder(payload) {
-  const items = getOrders();
-
-  const order = {
-    id: `ORD-${Date.now()}`,
-    customer_name: cleanString(payload.customer_name),
-    whatsapp: cleanString(payload.whatsapp),
-    telegram: cleanString(payload.telegram).replace(/^@+/, ''),
-    address: cleanString(payload.address),
-    note: cleanString(payload.note),
-    items: Array.isArray(payload.items) ? payload.items : [],
-    total_items: cleanNumber(payload.total_items),
-    total_idr: cleanNumber(payload.total_idr || payload.total),
-    total_thb: 0,
-    status: cleanString(payload.status || 'pending'),
-    source: cleanString(payload.source || 'manual'),
-    created_at: nowIso(),
-    updated_at: nowIso()
-  };
-
-  items.unshift(order);
-  saveOrders(items);
-  return order;
-}
-
-function updateOrderStatus(id, status) {
-  const items = getOrders();
-  const index = items.findIndex(item => item.id === id);
-
-  if (index === -1) return null;
-
-  items[index].status = cleanString(status || items[index].status || 'pending');
-  items[index].updated_at = nowIso();
-
-  saveOrders(items);
-  return items[index];
+function saveSettings(data) {
+  return saveCollection('settings.json', data);
 }
 
 module.exports = {
-  getSettings,
-  saveSettings,
-  getCategories,
-
   getProducts,
-  saveProducts,
   getVisibleProducts,
   getProductBySlug,
   getProductById,
@@ -415,7 +265,6 @@ module.exports = {
   deleteProduct,
 
   getArticles,
-  saveArticles,
   getVisibleArticles,
   getArticleBySlug,
   getArticleById,
@@ -423,14 +272,8 @@ module.exports = {
   updateArticle,
   deleteArticle,
 
-  getOrders,
-  saveOrders,
-  getOrderById,
-  createOrder,
-  updateOrderStatus,
+  getSettings,
+  saveSettings,
 
-  prepareProduct,
-  prepareArticle,
-  buildProductSeo,
   slugify
 };
