@@ -3,31 +3,33 @@
 
 <section class="section product-detail-section">
   <div class="container">
-
-    <!-- BREADCRUMB -->
     <div class="product-breadcrumb">
       <a href="/">Home</a>
       <span>/</span>
       <a href="/shop">Shop</a>
-
       <% if (product.category) { %>
         <span>/</span>
         <a href="/shop?category=<%= encodeURIComponent(product.category) %>">
           <%= product.category %>
         </a>
       <% } %>
-
       <span>/</span>
       <span><%= product.name %></span>
     </div>
 
     <div class="row product-detail-row">
-
-      <!-- IMAGE -->
-      <div class="col-md-7 col-sm-12 col-xs-12">
+      <div class="col-md-7 col-sm-12 col-xs-12 product-gallery-column">
         <div class="product-gallery-wrap">
-
           <div class="product-main-preview" id="product-main-preview">
+            <button
+              type="button"
+              class="product-zoom-btn"
+              id="open-image-popup"
+              aria-label="Lihat gambar lebih besar"
+            >
+              <i class="fa fa-search-plus"></i>
+            </button>
+
             <img
               id="main-product-image"
               src="<%= product.image || (product.images && product.images[0]) || '' %>"
@@ -36,132 +38,182 @@
             >
           </div>
 
-          <div class="thumb-list">
+          <div class="mobile-swipe-hint">Geser kiri / kanan untuk melihat foto lain</div>
+
+          <div class="thumb-list" id="product-thumb-list">
+            <button
+              type="button"
+              class="product-thumb-item active"
+              data-image="<%= product.image || (product.images && product.images[0]) || '' %>"
+              aria-label="Gambar utama <%= product.name %>"
+            >
+              <img
+                src="<%= product.image || (product.images && product.images[0]) || '' %>"
+                alt="<%= product.name %>"
+                loading="lazy"
+              >
+            </button>
+
             <% if (product.images && product.images.length) { %>
               <% product.images.forEach(function(img){ %>
-                <% if (img) { %>
-                  <img
-                    src="<%= img %>"
-                    alt="<%= product.name %>"
-                    style="width:60px; cursor:pointer;"
-                    onclick="document.getElementById('main-product-image').src='<%= img %>'"
+                <% if (img && img !== product.image) { %>
+                  <button
+                    type="button"
+                    class="product-thumb-item"
+                    data-image="<%= img %>"
+                    aria-label="Thumbnail <%= product.name %>"
                   >
+                    <img src="<%= img %>" alt="<%= product.name %>" loading="lazy">
+                  </button>
                 <% } %>
               <% }) %>
             <% } %>
           </div>
-
         </div>
       </div>
 
-      <!-- INFO -->
-      <div class="col-md-5 col-sm-12 col-xs-12">
+      <div class="col-md-5 col-sm-12 col-xs-12 product-info-column">
         <div class="product-details">
 
+          <!-- H1 SEO -->
           <h1 class="product-name"><%= product.name %></h1>
 
-          <% if (product.price) { %>
-            <h2>
-              IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
-            </h2>
-          <% } %>
+          <div class="product-price-wrap">
+            <% if (product.price) { %>
+              <h2 class="product-price">
+                IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
 
-          <!-- SHORT -->
+                <% if (product.compareAtPrice) { %>
+                  <del class="product-old-price">
+                    IDR <%= Number(product.compareAtPrice || 0).toLocaleString('id-ID') %>
+                  </del>
+                <% } %>
+              </h2>
+            <% } %>
+
+            <span class="product-available">
+              <%= product.status === 'sold_out' ? 'Sold Out' : 'Tersedia' %>
+            </span>
+          </div>
+
           <% if (product.shortDescription) { %>
-            <p><%= product.shortDescription %></p>
+            <p class="product-short-description"><%= product.shortDescription %></p>
           <% } %>
 
-          <!-- SEO TEXT -->
-          <p>
+          <!-- 🔥 SEO TEXT (INVISIBLE DESIGN CHANGE, IMPACT BESAR) -->
+          <p style="margin-top:10px;">
             <%= product.name %> adalah kaos <%= product.category || 'pria' %> dengan bahan 
-            <%= product.material || 'premium' %> dan model 
-            <%= product.fit || 'oversize' %>.
+            <%= product.material || 'premium' %> dan model <%= product.fit || 'oversize' %>.
             Cocok untuk outfit harian dan gaya casual modern.
           </p>
 
-          <!-- CTA -->
-          <div style="margin-top:20px;">
+          <div class="product-buy-actions">
             <% if (product.status === 'sold_out') { %>
-              <button disabled>Sold Out</button>
+              <button class="add-to-cart-btn" type="button" disabled>Sold Out</button>
+              <button class="buy-now-btn" type="button" disabled>Sold Out</button>
             <% } else { %>
-              <a href="/go/<%= product.slug %>" target="_blank"
-                 rel="nofollow sponsored noopener"
-                 class="primary-btn">
-                 Lihat di Marketplace
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn">
+                <i class="fa fa-external-link"></i> Cek Detail Produk
+              </a>
+
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+                Lihat di Marketplace
               </a>
             <% } %>
           </div>
 
-          <!-- INFO -->
-          <ul style="margin-top:20px;">
-            <% if (product.category) { %>
-              <li>Kategori: <%= product.category %></li>
-            <% } %>
-            <% if (product.brand) { %>
-              <li>Brand: <%= product.brand %></li>
-            <% } %>
-            <% if (product.material) { %>
-              <li>Material: <%= product.material %></li>
-            <% } %>
-            <% if (product.fit) { %>
-              <li>Fit: <%= product.fit %></li>
-            <% } %>
-          </ul>
+          <% if (product.status !== 'sold_out') { %>
+            <div class="product-trust mt-15">
+              <ul class="product-trust-list">
+                <li>✔ Produk pilihan dengan tampilan rapi dan nyaman dipakai</li>
+                <li>✔ Bisa cek detail dan ulasan langsung di marketplace</li>
+                <li>✔ Lebih mudah membandingkan stok</li>
+              </ul>
+            </div>
+          <% } %>
 
-          <!-- INTERNAL LINK -->
-          <div style="margin-top:15px;">
-            <a href="/kaos-oversize-pria">
-              Lihat koleksi kaos oversize pria lainnya
-            </a>
+          <% if (product.category) { %>
+            <ul class="product-links">
+              <li>Category:</li>
+              <li>
+                <a href="/shop?category=<%= encodeURIComponent(product.category) %>">
+                  <%= product.category %>
+                </a>
+              </li>
+            </ul>
+          <% } %>
+
+          <% if (product.brand) { %>
+            <ul class="product-links">
+              <li>Brand:</li>
+              <li><span><%= product.brand %></span></li>
+            </ul>
+          <% } %>
+
+          <% if (product.fit) { %>
+            <ul class="product-links">
+              <li>Fit:</li>
+              <li><span><%= product.fit %></span></li>
+            </ul>
+          <% } %>
+
+          <% if (product.material) { %>
+            <ul class="product-links">
+              <li>Material:</li>
+              <li><span><%= product.material %></span></li>
+            </ul>
+          <% } %>
+
+          <% if (product.description) { %>
+            <div class="product-description-content mt-15">
+              <%- product.description %>
+            </div>
+          <% } %>
+
+          <% if (product.details) { %>
+            <div class="product-details-content mt-15">
+              <%- product.details %>
+            </div>
+          <% } %>
+
+          <!-- 🔥 INTERNAL LINK -->
+          <div class="mt-15">
+            <a href="/kaos-oversize-pria">Lihat koleksi kaos oversize pria lainnya</a>
           </div>
 
         </div>
       </div>
     </div>
-
-    <!-- DESKRIPSI -->
-    <div style="margin-top:40px;">
-      <h2>Deskripsi Produk</h2>
-
-      <p>
-        <%= product.name %> merupakan pilihan terbaik untuk kamu yang mencari kaos 
-        <%= product.category || 'pria' %> berkualitas dengan bahan nyaman dan desain modern.
-      </p>
-
-      <% if (product.description) { %>
-        <div>
-          <%- product.description %>
-        </div>
-      <% } %>
-    </div>
-
-    <!-- FAQ SEO -->
-    <div style="margin-top:40px;">
-      <h2>FAQ</h2>
-
-      <h3>Apakah bahan nyaman?</h3>
-      <p>Ya, menggunakan bahan <%= product.material || 'premium' %> yang adem.</p>
-
-      <h3>Apakah cocok untuk harian?</h3>
-      <p>Sangat cocok untuk outfit harian.</p>
-
-      <h3>Apakah tersedia ukuran lengkap?</h3>
-      <p>Silakan cek detail di marketplace.</p>
-    </div>
-
   </div>
 </section>
 
-<!-- RECOMMENDED -->
+<!-- 🔥 FAQ SEO -->
 <section class="section">
   <div class="container">
-    <h2>Produk Rekomendasi</h2>
+    <h2>FAQ Produk</h2>
+
+    <h3>Apakah bahan nyaman?</h3>
+    <p>Ya, menggunakan bahan <%= product.material || 'premium' %> yang adem.</p>
+
+    <h3>Apakah cocok untuk harian?</h3>
+    <p>Sangat cocok untuk outfit harian.</p>
+
+    <h3>Apakah tersedia ukuran lengkap?</h3>
+    <p>Silakan cek detail di marketplace.</p>
+  </div>
+</section>
+
+<section class="section recommended-products-section">
+  <div class="container">
+    <div class="section-title">
+      <h2 class="title">Produk Rekomendasi</h2>
+    </div>
 
     <div class="row">
       <% if (Array.isArray(recommended) && recommended.length) { %>
-        <% recommended.forEach(function(p){ %>
+        <% recommended.forEach(function(product){ %>
           <div class="col-md-3 col-sm-6 col-xs-6">
-            <%- include('partials/product-card', { product: p }) %>
+            <%- include('partials/product-card', { product: product }) %>
           </div>
         <% }) %>
       <% } %>
