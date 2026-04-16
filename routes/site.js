@@ -16,7 +16,7 @@ router.get('/contact', siteController.contact);
 
 /*
 |--------------------------------------------------------------------------
-| SEO LANDING PAGE (🔥 PENTING BANGET)
+| SEO LANDING PAGE
 |--------------------------------------------------------------------------
 */
 router.get('/kaos-oversize-pria', siteController.seoKaosOversizePria);
@@ -35,17 +35,16 @@ router.get('/go/:slug', (req, res) => {
     }
 
     console.log(`Affiliate click: ${product.slug}`);
-
     return res.redirect(product.affiliateLink);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error('[AFFILIATE REDIRECT ERROR]', error);
     return res.redirect('/');
   }
 });
 
 /*
 |--------------------------------------------------------------------------
-| LEGACY ROUTES (DISABLE)
+| LEGACY ROUTES (DISABLE / REDIRECT)
 |--------------------------------------------------------------------------
 */
 router.get('/cart', (req, res) => res.redirect('/'));
