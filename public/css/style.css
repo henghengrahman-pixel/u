@@ -3359,3 +3359,36 @@ body {
     line-height: normal !important;
   }
 }
+/* FIX GAMBAR PRODUCT CARD BIAR TIDAK KEPOTONG */
+.product-card-clean .product-img,
+.product .product-img {
+  background: #f8fafc !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.product-card-clean .product-img > a > img,
+.product-card-clean .product-img > img,
+.product-card-clean .product-img > span > img,
+.product .product-img > a > img,
+.product .product-img > img {
+  width: 100% !important;
+  height: 230px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #f8fafc !important;
+}
+
+/* mobile */
+@media (max-width: 767px) {
+  .product-card-clean .product-img > a > img,
+  .product-card-clean .product-img > img,
+  .product-card-clean .product-img > span > img,
+  .product .product-img > a > img,
+  .product .product-img > img {
+    height: 170px !important;
+    object-fit: contain !important;
+  }
+}
