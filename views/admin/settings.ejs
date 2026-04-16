@@ -37,24 +37,24 @@
 
           <div class="col-md-4">
             <div class="form-group">
-              <label>WhatsApp</label>
+              <label>Phone</label>
               <input
                 class="input"
-                name="whatsapp"
-                value="<%= settings.whatsapp || '' %>"
-                placeholder="628xxxx / 08xxxx"
+                name="phone"
+                value="<%= settings.phone || '' %>"
+                placeholder="+62xxxx atau 08xxxx"
               >
             </div>
           </div>
 
           <div class="col-md-4">
             <div class="form-group">
-              <label>Telegram Username</label>
+              <label>WhatsApp</label>
               <input
                 class="input"
-                name="telegram"
-                value="<%= settings.telegram || '' %>"
-                placeholder="@namatoko atau namatoko"
+                name="whatsapp"
+                value="<%= settings.whatsapp || '' %>"
+                placeholder="628xxxx / 08xxxx"
               >
             </div>
           </div>
@@ -74,6 +74,18 @@
 
           <div class="col-md-6">
             <div class="form-group">
+              <label>Telegram Username</label>
+              <input
+                class="input"
+                name="telegram"
+                value="<%= settings.telegram || '' %>"
+                placeholder="@namatoko atau namatoko"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
               <label>Telegram Channel / Grup</label>
               <input
                 class="input"
@@ -84,7 +96,7 @@
             </div>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-md-12">
             <div class="form-group">
               <label>Address</label>
               <input
@@ -118,6 +130,14 @@
             <label>Nama Brand</label>
             <div class="text-muted-2">
               <strong><%= settings.storeName || 'Store Name' %></strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Kontak</label>
+            <div class="text-muted-2">
+              <%= settings.phone || '-' %><br>
+              <%= settings.email || '-' %>
             </div>
           </div>
 
@@ -180,6 +200,47 @@
             value="<%= settings.seo && settings.seo.keywords ? settings.seo.keywords : '' %>"
             placeholder="kaos oversize, kaos pria, fashion pria, rekomendasi kaos"
           >
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <hr>
+        <h4>Advanced SEO</h4>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Google Verification</label>
+          <input
+            class="input"
+            name="googleVerification"
+            value="<%= settings.googleVerification || '' %>"
+            placeholder="kode dari Google Search Console"
+          >
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Favicon URL</label>
+          <input
+            class="input"
+            type="url"
+            name="favicon"
+            value="<%= settings.favicon || '' %>"
+            placeholder="https://..."
+          >
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Google Analytics / GTM</label>
+          <textarea
+            class="input"
+            name="analytics"
+            placeholder="Paste script Google Analytics atau GTM"
+          ><%= settings.analytics || '' %></textarea>
         </div>
       </div>
 
