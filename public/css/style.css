@@ -3392,3 +3392,88 @@ body {
     object-fit: contain !important;
   }
 }
+/* FIX SPACE KOSONG PRODUCT CARD */
+.product-card-clean,
+.product {
+  height: auto !important;
+  min-height: unset !important;
+}
+
+.product-card-clean .product-body,
+.product .product-body {
+  height: auto !important;
+  min-height: unset !important;
+  padding: 12px 14px 14px !important;
+}
+
+.product-card-clean .product-category,
+.product .product-category {
+  min-height: auto !important;
+  margin-bottom: 6px !important;
+}
+
+.product-card-clean .product-name,
+.product .product-name {
+  min-height: auto !important;
+  max-height: none !important;
+  margin-bottom: 8px !important;
+}
+
+.product-card-clean .product-price,
+.product .product-price {
+  min-height: auto !important;
+  margin-bottom: 10px !important;
+}
+
+.product-card-clean .product-actions,
+.product .product-actions {
+  margin-top: 12px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid #edf2f7 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.product-card-clean .detail-btn,
+.product .detail-btn {
+  margin-top: 2px !important;
+}
+
+/* biar card grid tetap rapi */
+.home-products-section .row,
+.shop-page-section .row,
+.recommended-products-section .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.home-products-section .col-md-3,
+.shop-page-section .col-md-3,
+.recommended-products-section .col-md-3 {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.home-products-section .col-md-3 > .product,
+.home-products-section .col-md-3 > .product-card-clean,
+.shop-page-section .col-md-3 > .product,
+.shop-page-section .col-md-3 > .product-card-clean,
+.recommended-products-section .col-md-3 > .product,
+.recommended-products-section .col-md-3 > .product-card-clean {
+  width: 100%;
+}
+
+/* mobile */
+@media (max-width: 767px) {
+  .product-card-clean .product-body,
+  .product .product-body {
+    padding: 10px 10px 12px !important;
+  }
+
+  .product-card-clean .product-actions,
+  .product .product-actions {
+    margin-top: 10px !important;
+    gap: 6px !important;
+  }
+}
