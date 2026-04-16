@@ -2,6 +2,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const https = require('https');
 
 const { ensureDataFiles } = require('./helpers/jsonDb');
 const { viewGlobals } = require('./middleware');
@@ -14,56 +15,31 @@ const PORT = Number(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = NODE_ENV === 'production';
 
-/*
-|--------------------------------------------------------------------------
-| APP CONFIG
-|--------------------------------------------------------------------------
-*/
+/* ================= CONFIG ================= */
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
-/*
-|--------------------------------------------------------------------------
-| VIEW ENGINE
-|--------------------------------------------------------------------------
-*/
+/* ================= VIEW ================= */
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-/*
-|--------------------------------------------------------------------------
-| BODY PARSER
-|--------------------------------------------------------------------------
-*/
+/* ================= BODY ================= */
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(express.json({ limit: '2mb' }));
 
-/*
-|--------------------------------------------------------------------------
-| STATIC FILES
-|--------------------------------------------------------------------------
-| Public files served under /assets
-*/
+/* ================= STATIC ================= */
 app.use('/assets', express.static(path.join(__dirname, 'public'), {
   maxAge: IS_PROD ? '7d' : 0,
   etag: true,
   lastModified: true
 }));
 
-/*
-|--------------------------------------------------------------------------
-| SESSION
-|--------------------------------------------------------------------------
-| Current project still uses session because some old logic may still
-| depend on cart/admin flow. We keep it stable for now, then later we can
-| reduce unused cart/checkout logic when site is fully switched to affiliate.
-*/
+/* ================= SESSION ================= */
 app.use(session({
   name: process.env.SESSION_NAME || 'store.sid',
   secret: process.env.SESSION_SECRET || 'change-this-session-secret',
   resave: false,
   saveUninitialized: false,
-  rolling: false,
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
@@ -72,16 +48,7 @@ app.use(session({
   }
 }));
 
-/*
-|--------------------------------------------------------------------------
-| GLOBAL VARIABLES FOR ALL VIEWS
-|--------------------------------------------------------------------------
-| We prepare common values here so later all pages can share:
-| - brand/app name
-| - base url
-| - basic SEO defaults
-| - cart count (for old UI compatibility)
-*/
+/* ================= GLOBAL SEO ================= */
 app.use((req, res, next) => {
   const cart = Array.isArray(req.session.cart) ? req.session.cart : [];
 
@@ -94,109 +61,73 @@ app.use((req, res, next) => {
   res.locals.currentPath = req.originalUrl || '/';
   res.locals.currentUrl = `${baseUrl}${req.originalUrl || '/'}`;
 
-  /*
-  |--------------------------------------------------------------------------
-  | DEFAULT SEO
-  |--------------------------------------------------------------------------
-  | Individual pages can override these values later from routes/controllers.
-  */
   res.locals.seo = {
-    title: process.env.DEFAULT_SEO_TITLE || `${appName} - Koleksi Fashion Pilihan`,
-    description:
-      process.env.DEFAULT_SEO_DESCRIPTION ||
-      'Temukan koleksi fashion pilihan dengan tampilan rapi, informasi lengkap, dan pengalaman belanja yang nyaman.',
-    keywords:
-      process.env.DEFAULT_SEO_KEYWORDS ||
-      'kaos oversize, kaos pria, fashion pria, rekomendasi kaos, outfit harian',
-    image: process.env.DEFAULT_OG_IMAGE || `${baseUrl}/assets/images/og-image.jpg`,
+    title: `${appName} - Kaos Oversize Pria & Distro Premium`,
+    description: 'Jual kaos oversize pria, kaos distro premium, dan outfit pria kekinian.',
+    keywords: 'kaos oversize pria, kaos distro pria, outfit pria',
+    image: `${baseUrl}/assets/images/og-image.jpg`,
     canonical: `${baseUrl}${req.path}`,
     type: 'website',
-    robots: 'index,follow'
+    robots: req.originalUrl.startsWith('/admin')
+      ? 'noindex,nofollow'
+      : 'index,follow'
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | SITE META / BRAND INFO
-  |--------------------------------------------------------------------------
-  */
   res.locals.site = {
     name: appName,
     url: baseUrl,
     locale: 'id_ID',
-    currency: process.env.SITE_CURRENCY || 'IDR',
-    logo: process.env.SITE_LOGO || `${baseUrl}/assets/images/logo.png`,
-    email: process.env.SITE_EMAIL || '',
-    phone: process.env.SITE_PHONE || '',
-    instagram: process.env.SITE_INSTAGRAM || '',
-    facebook: process.env.SITE_FACEBOOK || '',
-    tiktok: process.env.SITE_TIKTOK || ''
+    currency: 'IDR',
+    logo: `${baseUrl}/assets/images/logo.png`
   };
 
   next();
 });
 
-/*
-|--------------------------------------------------------------------------
-| VIEW GLOBALS
-|--------------------------------------------------------------------------
-| Flash / helpers from existing middleware
-*/
+/* ================= GLOBAL VIEW ================= */
 app.use(viewGlobals);
 
-/*
-|--------------------------------------------------------------------------
-| ROUTES
-|--------------------------------------------------------------------------
-*/
+/* ================= ROUTES ================= */
 app.use('/', require('./routes/system'));
 app.use('/', require('./routes/site'));
 app.use('/admin', require('./routes/admin'));
 
-/*
-|--------------------------------------------------------------------------
-| 404 HANDLER
-|--------------------------------------------------------------------------
-*/
+/* ================= 404 ================= */
 app.use((req, res) => {
   res.status(404);
 
-  if (typeof res.locals.seo === 'object' && res.locals.seo) {
-    res.locals.seo.title = `Halaman Tidak Ditemukan - ${res.locals.appName}`;
-    res.locals.seo.description = 'Halaman yang kamu cari tidak ditemukan.';
-    res.locals.seo.robots = 'noindex,follow';
-    res.locals.seo.canonical = `${res.locals.baseUrl}${req.originalUrl || req.path}`;
-  }
+  res.locals.seo.title = `Halaman Tidak Ditemukan - ${res.locals.appName}`;
+  res.locals.seo.robots = 'noindex,follow';
 
   return res.render('404');
 });
 
-/*
-|--------------------------------------------------------------------------
-| ERROR HANDLER
-|--------------------------------------------------------------------------
-*/
-app.use((error, req, res, next) => {
-  console.error('[SERVER ERROR]', error);
+/* ================= ERROR ================= */
+app.use((err, req, res, next) => {
+  console.error(err);
 
-  res.status(error.status || 500);
+  res.status(500);
 
-  if (typeof res.locals.seo === 'object' && res.locals.seo) {
-    res.locals.seo.title = `Terjadi Kesalahan - ${res.locals.appName}`;
-    res.locals.seo.description = 'Terjadi kesalahan pada server.';
-    res.locals.seo.robots = 'noindex,follow';
-    res.locals.seo.canonical = `${res.locals.baseUrl}${req.originalUrl || req.path}`;
-  }
+  res.locals.seo.title = `Server Error - ${res.locals.appName}`;
+  res.locals.seo.robots = 'noindex,follow';
 
-  return res.render('500', {
-    error: IS_PROD ? null : error
-  });
+  return res.render('500');
 });
 
-/*
-|--------------------------------------------------------------------------
-| START SERVER
-|--------------------------------------------------------------------------
-*/
+/* ================= AUTO INDEX ================= */
+function pingGoogle() {
+  const base = process.env.BASE_URL;
+  if (!base) return;
+
+  const url = `https://www.google.com/ping?sitemap=${base}/sitemap.xml`;
+
+  https.get(url, () => {
+    console.log('Ping Google OK');
+  }).on('error', () => {});
+}
+
+/* ================= START ================= */
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} (${NODE_ENV})`);
+  console.log(`Server running on port ${PORT}`);
+  pingGoogle();
 });
