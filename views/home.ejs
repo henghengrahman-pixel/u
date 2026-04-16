@@ -1,16 +1,24 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
+<!-- HERO SEO -->
+<section class="section home-hero">
+  <div class="container text-center">
+    <h1>Kaos Oversize Pria & Kaos Distro Premium Terbaru</h1>
+    <p>
+      Jual kaos oversize pria, kaos distro premium, dan outfit pria kekinian dengan bahan nyaman dan desain modern.
+    </p>
+
+    <div style="margin-top:20px;">
+      <a href="/shop" class="primary-btn">Shop Sekarang</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED -->
 <section class="section home-featured-slider-section">
   <div class="container">
-    <div class="home-section-head">
-      <div class="section-title">
-        <h1 class="title">Koleksi Pilihan</h1>
-      </div>
-      <p class="home-section-subtitle">
-        Pilihan produk terbaik dengan tampilan rapi, nyaman dipakai, dan mudah dicek detailnya.
-      </p>
-    </div>
+    <h2 class="title text-center">Rekomendasi Kaos Oversize Pria</h2>
 
     <% if (featured && featured.length) { %>
       <div class="featured-slider-wrap">
@@ -20,33 +28,16 @@
               <%- include('partials/product-card', { product: product }) %>
             </div>
           <% }) %>
-
-          <% featured.forEach(function(product){ %>
-            <div class="featured-slide-item">
-              <%- include('partials/product-card', { product: product }) %>
-            </div>
-          <% }) %>
         </div>
-      </div>
-    <% } else { %>
-      <div class="empty-state-box text-center">
-        <h3>Belum ada produk unggulan</h3>
-        <p>Produk unggulan akan tampil di sini setelah ditambahkan.</p>
       </div>
     <% } %>
   </div>
 </section>
 
+<!-- PRODUCTS -->
 <section class="section home-products-section">
   <div class="container">
-    <div class="home-section-head">
-      <div class="section-title">
-        <h2 class="title">Shop</h2>
-      </div>
-      <p class="home-section-subtitle">
-        Temukan produk pilihan dengan informasi yang lebih lengkap, tampilan ringan, dan pengalaman menjelajah yang nyaman di desktop maupun mobile.
-      </p>
-    </div>
+    <h2 class="title text-center">Shop Kaos Pria Terbaru</h2>
 
     <% if (recommended && recommended.length) { %>
       <div class="row">
@@ -57,68 +48,48 @@
         <% }) %>
       </div>
 
-      <div class="text-center home-shop-more">
+      <div class="text-center" style="margin-top:25px;">
         <a href="/shop" class="primary-btn">Lihat Semua Produk</a>
-      </div>
-    <% } else { %>
-      <div class="empty-state-box text-center">
-        <h3>Belum ada produk</h3>
-        <p>Produk akan segera ditampilkan di halaman ini.</p>
       </div>
     <% } %>
   </div>
 </section>
 
+<!-- TRUST / SEO CONTENT -->
 <section class="section home-trust-section">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 col-sm-4 col-xs-12">
-        <div class="admin-card home-trust-card text-center">
-          <h3>Produk Pilihan</h3>
-          <p>
-            Koleksi dipilih agar lebih mudah dibandingkan dan dilihat detailnya sebelum membeli.
-          </p>
-        </div>
+  <div class="container text-center">
+    <h2>Kenapa Pilih Kaos Oversize Kami?</h2>
+
+    <div class="row" style="margin-top:25px;">
+      <div class="col-md-4">
+        <h3>Bahan Nyaman</h3>
+        <p>Kaos dibuat dari bahan premium yang adem dan nyaman dipakai seharian.</p>
       </div>
 
-      <div class="col-md-4 col-sm-4 col-xs-12">
-        <div class="admin-card home-trust-card text-center">
-          <h3>Tampilan Nyaman</h3>
-          <p>
-            Halaman dibuat ringan, bersih, dan tetap enak dijelajahi dari mobile maupun desktop.
-          </p>
-        </div>
+      <div class="col-md-4">
+        <h3>Model Kekinian</h3>
+        <p>Desain modern cocok untuk outfit casual dan gaya anak muda.</p>
       </div>
 
-      <div class="col-md-4 col-sm-4 col-xs-12">
-        <div class="admin-card home-trust-card text-center">
-          <h3>Informasi Lebih Jelas</h3>
-          <p>
-            Detail produk, kategori, dan artikel disusun rapi agar lebih mudah dipahami customer.
-          </p>
-        </div>
+      <div class="col-md-4">
+        <h3>Harga Terjangkau</h3>
+        <p>Dapatkan kaos distro berkualitas dengan harga yang tetap ramah.</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ARTICLES -->
 <section class="section home-articles-section">
   <div class="container">
-    <div class="home-section-head">
-      <div class="section-title">
-        <h2 class="title">Artikel</h2>
-      </div>
-      <p class="home-section-subtitle">
-        Baca informasi, panduan, dan rekomendasi terbaru seputar produk serta inspirasi pilihan yang relevan.
-      </p>
-    </div>
+    <h2 class="text-center">Artikel Fashion Pria</h2>
 
     <% if (articles && articles.length) { %>
       <div class="row">
         <% articles.forEach(function(article){ %>
           <div class="col-md-4 col-sm-6 col-xs-12">
-            <article class="admin-card article-card home-article-card">
-              <a href="/article/<%= article.slug %>" class="article-thumb-link" aria-label="<%= article.title %>">
+            <article class="article-card">
+              <a href="/article/<%= article.slug %>">
                 <img
                   src="<%= article.image || article.thumbnail || '' %>"
                   alt="<%= article.title %>"
@@ -126,27 +97,33 @@
                 >
               </a>
 
-              <div class="article-card-content">
-                <h3 class="article-card-title">
-                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
-                </h3>
+              <h3>
+                <a href="/article/<%= article.slug %>"><%= article.title %></a>
+              </h3>
 
-                <p class="article-card-excerpt"><%= article.excerpt %></p>
+              <p><%= article.excerpt %></p>
 
-                <a href="/article/<%= article.slug %>" class="article-read-more" aria-label="Baca artikel <%= article.title %>">
-                  Baca Selengkapnya <i class="fa fa-arrow-circle-right"></i>
-                </a>
-              </div>
+              <a href="/article/<%= article.slug %>">
+                Baca Selengkapnya →
+              </a>
             </article>
           </div>
         <% }) %>
       </div>
-    <% } else { %>
-      <div class="empty-state-box text-center">
-        <h3>Belum ada artikel</h3>
-        <p>Artikel terbaru akan segera ditampilkan di halaman ini.</p>
-      </div>
     <% } %>
+  </div>
+</section>
+
+<!-- INTERNAL LINK SEO -->
+<section class="section">
+  <div class="container text-center">
+    <h2>Kategori Populer</h2>
+
+    <div style="margin-top:15px;">
+      <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+      <a href="/shop?category=men">Kaos Pria</a> |
+      <a href="/articles">Artikel Fashion</a>
+    </div>
   </div>
 </section>
 
