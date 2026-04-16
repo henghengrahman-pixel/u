@@ -49,7 +49,7 @@
             >
               <img
                 src="<%= product.image || (product.images && product.images[0]) || '' %>"
-                alt="<%= product.name %>"
+                alt="<%= product.name %> thumbnail utama"
                 loading="lazy"
               >
             </button>
@@ -63,7 +63,7 @@
                     data-image="<%= img %>"
                     aria-label="Thumbnail <%= product.name %>"
                   >
-                    <img src="<%= img %>" alt="<%= product.name %>" loading="lazy">
+                    <img src="<%= img %>" alt="<%= product.name %> thumbnail" loading="lazy">
                   </button>
                 <% } %>
               <% }) %>
@@ -74,8 +74,6 @@
 
       <div class="col-md-5 col-sm-12 col-xs-12 product-info-column">
         <div class="product-details">
-
-          <!-- H1 SEO -->
           <h1 class="product-name"><%= product.name %></h1>
 
           <div class="product-price-wrap">
@@ -100,17 +98,21 @@
             <p class="product-short-description"><%= product.shortDescription %></p>
           <% } %>
 
-          <!-- 🔥 SEO TEXT (INVISIBLE DESIGN CHANGE, IMPACT BESAR) -->
-          <p style="margin-top:10px;">
-            <%= product.name %> adalah kaos <%= product.category || 'pria' %> dengan bahan 
+          <p class="product-short-description">
+            <%= product.name %> adalah kaos <%= product.category || 'pria' %> dengan bahan
             <%= product.material || 'premium' %> dan model <%= product.fit || 'oversize' %>.
             Cocok untuk outfit harian dan gaya casual modern.
           </p>
 
           <div class="product-buy-actions">
             <% if (product.status === 'sold_out') { %>
-              <button class="add-to-cart-btn" type="button" disabled>Sold Out</button>
-              <button class="buy-now-btn" type="button" disabled>Sold Out</button>
+              <button class="add-to-cart-btn" type="button" disabled>
+                Sold Out
+              </button>
+
+              <button class="buy-now-btn" type="button" disabled>
+                Sold Out
+              </button>
             <% } else { %>
               <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn">
                 <i class="fa fa-external-link"></i> Cek Detail Produk
@@ -126,8 +128,8 @@
             <div class="product-trust mt-15">
               <ul class="product-trust-list">
                 <li>✔ Produk pilihan dengan tampilan rapi dan nyaman dipakai</li>
-                <li>✔ Bisa cek detail dan ulasan langsung di marketplace</li>
-                <li>✔ Lebih mudah membandingkan stok</li>
+                <li>✔ Bisa cek detail, variasi, dan ulasan langsung di marketplace</li>
+                <li>✔ Lebih mudah membandingkan stok dan pembelian</li>
               </ul>
             </div>
           <% } %>
@@ -164,6 +166,10 @@
             </ul>
           <% } %>
 
+          <div class="mt-15">
+            <a href="/kaos-oversize-pria">Lihat koleksi kaos oversize pria lainnya</a>
+          </div>
+
           <% if (product.description) { %>
             <div class="product-description-content mt-15">
               <%- product.description %>
@@ -175,31 +181,24 @@
               <%- product.details %>
             </div>
           <% } %>
-
-          <!-- 🔥 INTERNAL LINK -->
-          <div class="mt-15">
-            <a href="/kaos-oversize-pria">Lihat koleksi kaos oversize pria lainnya</a>
-          </div>
-
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 🔥 FAQ SEO -->
 <section class="section">
   <div class="container">
     <h2>FAQ Produk</h2>
 
     <h3>Apakah bahan nyaman?</h3>
-    <p>Ya, menggunakan bahan <%= product.material || 'premium' %> yang adem.</p>
+    <p>Ya, menggunakan bahan <%= product.material || 'premium' %> yang adem dan nyaman.</p>
 
     <h3>Apakah cocok untuk harian?</h3>
-    <p>Sangat cocok untuk outfit harian.</p>
+    <p>Sangat cocok untuk outfit harian dan gaya casual modern.</p>
 
     <h3>Apakah tersedia ukuran lengkap?</h3>
-    <p>Silakan cek detail di marketplace.</p>
+    <p>Silakan cek detail ukuran di marketplace melalui tombol di atas.</p>
   </div>
 </section>
 
@@ -216,9 +215,155 @@
             <%- include('partials/product-card', { product: product }) %>
           </div>
         <% }) %>
+      <% } else { %>
+        <div class="col-md-12">
+          <div class="empty-box text-center">
+            Belum ada produk rekomendasi.
+          </div>
+        </div>
       <% } %>
     </div>
   </div>
 </section>
+
+<div class="product-image-modal" id="product-image-modal" aria-hidden="true">
+  <div class="product-image-modal-backdrop" id="product-image-modal-backdrop"></div>
+  <div class="product-image-modal-dialog" role="dialog" aria-modal="true" aria-label="Preview gambar produk">
+    <button type="button" class="product-image-modal-close" id="close-image-popup" aria-label="Tutup preview">
+      <i class="fa fa-times"></i>
+    </button>
+    <img
+      id="popup-product-image"
+      src="<%= product.image || (product.images && product.images[0]) || '' %>"
+      alt="<%= product.name %> preview gambar besar"
+    >
+  </div>
+</div>
+
+<% if (product.status !== 'sold_out') { %>
+  <div class="mobile-buy-bar">
+    <div class="mobile-buy-bar-inner">
+      <div class="mobile-buy-price">
+        <% if (product.price) { %>
+          IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
+        <% } %>
+      </div>
+
+      <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="mobile-add-cart">
+        Lihat
+      </a>
+
+      <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="mobile-buy-now">
+        Beli Sekarang
+      </a>
+    </div>
+  </div>
+<% } %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var mainImage = document.getElementById('main-product-image');
+    var popupImage = document.getElementById('popup-product-image');
+    var thumbs = Array.prototype.slice.call(document.querySelectorAll('.product-thumb-item'));
+    var modal = document.getElementById('product-image-modal');
+    var openPopupBtn = document.getElementById('open-image-popup');
+    var closePopupBtn = document.getElementById('close-image-popup');
+    var modalBackdrop = document.getElementById('product-image-modal-backdrop');
+    var mainPreview = document.getElementById('product-main-preview');
+
+    if (!mainImage || !thumbs.length || !mainPreview) return;
+
+    var currentIndex = 0;
+    var touchStartX = 0;
+    var touchEndX = 0;
+
+    function updateActiveThumb(index) {
+      currentIndex = index;
+
+      thumbs.forEach(function (item, i) {
+        item.classList.toggle('active', i === index);
+      });
+
+      var newImage = thumbs[index].getAttribute('data-image');
+      mainImage.setAttribute('src', newImage);
+
+      if (popupImage) {
+        popupImage.setAttribute('src', newImage);
+      }
+
+      if (window.innerWidth <= 767) {
+        thumbs[index].scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest'
+        });
+      }
+    }
+
+    thumbs.forEach(function (thumb, index) {
+      thumb.addEventListener('click', function () {
+        updateActiveThumb(index);
+      });
+    });
+
+    function showNextImage() {
+      var nextIndex = currentIndex + 1;
+      if (nextIndex >= thumbs.length) nextIndex = 0;
+      updateActiveThumb(nextIndex);
+    }
+
+    function showPrevImage() {
+      var prevIndex = currentIndex - 1;
+      if (prevIndex < 0) prevIndex = thumbs.length - 1;
+      updateActiveThumb(prevIndex);
+    }
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.add('is-open');
+      document.body.classList.add('modal-open');
+
+      if (popupImage) {
+        popupImage.setAttribute('src', mainImage.getAttribute('src'));
+      }
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      document.body.classList.remove('modal-open');
+    }
+
+    if (openPopupBtn) openPopupBtn.addEventListener('click', openModal);
+    mainImage.addEventListener('click', openModal);
+    if (closePopupBtn) closePopupBtn.addEventListener('click', closeModal);
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') showNextImage();
+      if (e.key === 'ArrowLeft') showPrevImage();
+    });
+
+    mainPreview.addEventListener('touchstart', function (e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    mainPreview.addEventListener('touchend', function (e) {
+      touchEndX = e.changedTouches[0].screenX;
+      var diff = touchEndX - touchStartX;
+
+      if (Math.abs(diff) < 40) return;
+
+      if (diff < 0) {
+        showNextImage();
+      } else {
+        showPrevImage();
+      }
+    }, { passive: true });
+
+    updateActiveThumb(0);
+  });
+</script>
 
 <%- include('partials/footer') %>
