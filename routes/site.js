@@ -16,7 +16,7 @@ router.get('/contact', siteController.contact);
 
 /*
 |--------------------------------------------------------------------------
-| SEO LANDING PAGE
+| SEO LANDING PAGES
 |--------------------------------------------------------------------------
 */
 router.get('/kaos-oversize-pria', siteController.seoKaosOversizePria);
@@ -44,7 +44,7 @@ router.get('/go/:slug', (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| LEGACY ROUTES (DISABLE / REDIRECT)
+| LEGACY ROUTES
 |--------------------------------------------------------------------------
 */
 router.get('/cart', (req, res) => res.redirect('/'));
