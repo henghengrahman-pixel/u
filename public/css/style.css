@@ -3235,3 +3235,92 @@ body {
     font-size: 10px;
   }
 }
+/* =========================
+   PRODUCT CARD ACTION FIX
+========================= */
+
+.product-card-clean .product-actions,
+.product .product-actions {
+  display: grid !important;
+  grid-template-rows: 40px 40px 22px !important;
+  gap: 8px !important;
+  align-content: start !important;
+  margin-top: auto !important;
+  padding-top: 10px !important;
+}
+
+.product-card-clean .buy-now-btn,
+.product .buy-now-btn,
+.product-card-clean .add-to-cart-btn,
+.product .add-to-cart-btn {
+  width: 100% !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.product-card-clean .detail-btn,
+.product .detail-btn {
+  width: 100% !important;
+  min-height: 22px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.product-card-clean .product-body,
+.product .product-body {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.product-card-clean .product-price,
+.product .product-price {
+  margin-bottom: 10px !important;
+}
+
+.product-card-clean .product-name,
+.product .product-name {
+  margin-bottom: 8px !important;
+}
+
+/* mobile */
+@media (max-width: 767px) {
+  .product-card-clean .product-actions,
+  .product .product-actions {
+    grid-template-rows: 34px 34px 20px !important;
+    gap: 6px !important;
+  }
+
+  .product-card-clean .buy-now-btn,
+  .product .buy-now-btn,
+  .product-card-clean .add-to-cart-btn,
+  .product .add-to-cart-btn {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    font-size: 10px !important;
+    padding: 0 8px !important;
+  }
+
+  .product-card-clean .detail-btn,
+  .product .detail-btn {
+    height: 20px !important;
+    min-height: 20px !important;
+    font-size: 10px !important;
+  }
+}
