@@ -4,7 +4,7 @@ const { getProductBySlug } = require('../helpers/store');
 
 /*
 |--------------------------------------------------------------------------
-| MAIN PAGES (TETAP)
+| MAIN PAGES
 |--------------------------------------------------------------------------
 */
 router.get('/', siteController.home);
@@ -16,9 +16,15 @@ router.get('/contact', siteController.contact);
 
 /*
 |--------------------------------------------------------------------------
-| AFFILIATE REDIRECT (PENTING)
+| SEO LANDING PAGE (🔥 PENTING BANGET)
 |--------------------------------------------------------------------------
-| Ini pengganti checkout/cart
+*/
+router.get('/kaos-oversize-pria', siteController.seoKaosOversizePria);
+
+/*
+|--------------------------------------------------------------------------
+| AFFILIATE REDIRECT
+|--------------------------------------------------------------------------
 */
 router.get('/go/:slug', (req, res) => {
   try {
@@ -28,7 +34,6 @@ router.get('/go/:slug', (req, res) => {
       return res.redirect('/');
     }
 
-    // (Optional) tracking klik
     console.log(`Affiliate click: ${product.slug}`);
 
     return res.redirect(product.affiliateLink);
@@ -40,9 +45,8 @@ router.get('/go/:slug', (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| LEGACY ROUTES (DISABLE / REDIRECT)
+| LEGACY ROUTES (DISABLE)
 |--------------------------------------------------------------------------
-| Supaya tidak error kalau masih ada link lama
 */
 router.get('/cart', (req, res) => res.redirect('/'));
 router.post('/cart/add', (req, res) => res.redirect('/'));
