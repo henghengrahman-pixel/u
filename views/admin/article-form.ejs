@@ -1,33 +1,204 @@
-<%- include('partials-top', { pageTitle: item ? 'Edit Article' : 'Create Article', pageDescription: 'Tulis artikel blog untuk memperkuat SEO dan halaman konten.' }) %>
+<%- include('partials-top', {
+  pageTitle: item ? 'Edit Article' : 'Create Article',
+  pageDescription: 'Tulis artikel blog untuk memperkuat SEO, internal link, dan halaman konten website.'
+}) %>
+
 <div class="admin-card">
   <form method="post" action="<%= item ? '/admin/articles/' + item.id + '/edit' : '/admin/articles/create' %>" class="admin-form">
-    <div class="form-group">
-      <label>Title</label>
-      <input class="input" name="title" value="<%= item?.title || '' %>" required>
-    </div>
-    <div class="form-group">
-      <label>Slug</label>
-      <input class="input" name="slug" value="<%= item?.slug || '' %>" placeholder="otomatis jika kosong">
-    </div>
-    <div class="form-group">
-      <label>Excerpt</label>
-      <textarea class="input" name="excerpt"><%= item?.excerpt || '' %></textarea>
-    </div>
-    <div class="form-group">
-      <label>Thumbnail URL</label>
-      <input class="input" type="url" name="thumbnail" value="<%= item?.thumbnail || '' %>">
-    </div>
-    <div class="form-group">
-      <label>Content HTML</label>
-      <textarea class="input textarea-lg" name="content"><%= item?.content || '' %></textarea>
-    </div>
-    <div class="admin-check-grid">
-      <label class="admin-check"><input type="checkbox" name="visible" <%= item?.visible !== false ? 'checked' : '' %>> Visible</label>
-    </div>
-    <div class="admin-actions mt-15">
-      <button class="primary-btn" type="submit"><%= item ? 'Update Article' : 'Save Article' %></button>
-      <a href="/admin/articles" class="btn btn-default">Back</a>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-group">
+              <label>Title</label>
+              <input
+                class="input"
+                name="title"
+                value="<%= item?.title || '' %>"
+                placeholder="Contoh: Cara Memilih Kaos Oversize Pria yang Nyaman"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Slug</label>
+              <input
+                class="input"
+                name="slug"
+                value="<%= item?.slug || '' %>"
+                placeholder="otomatis jika kosong"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>Excerpt</label>
+              <textarea
+                class="input"
+                name="excerpt"
+                placeholder="Ringkasan artikel singkat untuk card dan halaman artikel."
+              ><%= item?.excerpt || '' %></textarea>
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>Description</label>
+              <textarea
+                class="input"
+                name="description"
+                placeholder="Deskripsi singkat artikel untuk meta description dan ringkasan SEO."
+              ><%= item?.description || item?.excerpt || '' %></textarea>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Thumbnail URL</label>
+              <input
+                class="input"
+                type="url"
+                name="thumbnail"
+                value="<%= item?.thumbnail || '' %>"
+                placeholder="https://..."
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Image URL</label>
+              <input
+                class="input"
+                type="url"
+                name="image"
+                value="<%= item?.image || item?.thumbnail || '' %>"
+                placeholder="https://..."
+                id="adminArticleImageInput"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>Content HTML</label>
+              <textarea
+                class="input textarea-lg"
+                name="content"
+                placeholder="<p>Isi artikel...</p>"
+              ><%= item?.content || '' %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="admin-card" style="margin-bottom:0;background:#fafbff;">
+          <div class="admin-card-title">
+            <h4>Visibility & Preview</h4>
+          </div>
+
+          <div class="admin-check-grid">
+            <label class="admin-check">
+              <input type="checkbox" name="visible" <%= item?.visible !== false ? 'checked' : '' %>>
+              Visible
+            </label>
+          </div>
+
+          <hr>
+
+          <div class="form-group">
+            <label>Preview Image</label>
+            <img
+              id="adminArticleImagePreview"
+              class="admin-thumb-preview"
+              src="<%= item?.image || item?.thumbnail || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Article+Preview' %>"
+              alt="Article Preview"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Tips</label>
+            <p class="text-muted-2" style="margin-bottom:0;">
+              Pakai judul yang jelas, slug pendek, image yang bagus, dan isi artikel yang relevan ke produk biar SEO lebih kuat.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="admin-card" style="background:#fafbff;">
+          <div class="admin-card-title">
+            <h4>SEO Article</h4>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>SEO Title</label>
+                <input
+                  class="input"
+                  name="seoTitle"
+                  value="<%= item?.seoTitle || '' %>"
+                  placeholder="Contoh: Cara Memilih Kaos Oversize Pria yang Nyaman - MWG Oversize"
+                >
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>SEO Description</label>
+                <textarea
+                  class="input"
+                  name="seoDescription"
+                  placeholder="Deskripsi SEO singkat yang tampil di Google."
+                ><%= item?.seoDescription || item?.description || item?.excerpt || '' %></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Keywords</label>
+                <input
+                  class="input"
+                  name="keywords"
+                  value="<%= item?.keywords || '' %>"
+                  placeholder="kaos oversize pria, tips outfit pria, artikel fashion pria"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="admin-actions mt-15">
+          <button class="primary-btn" type="submit"><%= item ? 'Update Article' : 'Save Article' %></button>
+          <a href="/admin/articles" class="btn btn-default">Back</a>
+        </div>
+      </div>
     </div>
   </form>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var imageInput = document.getElementById('adminArticleImageInput');
+    var preview = document.getElementById('adminArticleImagePreview');
+
+    if (!imageInput || !preview) return;
+
+    function updatePreview() {
+      var value = String(imageInput.value || '').trim();
+      preview.src = value || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Article+Preview';
+    }
+
+    imageInput.addEventListener('input', updatePreview);
+    updatePreview();
+  });
+</script>
+
 <%- include('partials-bottom') %>
