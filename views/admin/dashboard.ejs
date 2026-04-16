@@ -1,0 +1,51 @@
+<%- include('partials-top', { pageTitle: 'Dashboard', pageDescription: 'Ringkasan cepat aktivitas toko dan order terbaru.' }) %>
+<div class="row">
+  <div class="col-md-4">
+    <div class="admin-card admin-stat">
+      <div class="admin-stat-label">Total Products</div>
+      <div class="admin-stat-value"><%= totalProducts %></div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="admin-card admin-stat">
+      <div class="admin-stat-label">Total Orders</div>
+      <div class="admin-stat-value"><%= totalOrders %></div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="admin-card admin-stat">
+      <div class="admin-stat-label">Total Articles</div>
+      <div class="admin-stat-value"><%= totalArticles %></div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div class="admin-card">
+      <div class="admin-card-title">
+        <h3>Recent Orders</h3>
+      </div>
+      <% if (recentOrders.length) { %>
+      <div class="table-responsive">
+        <table class="table admin-table">
+          <thead>
+            <tr><th>Order ID</th><th>Customer</th><th>Status</th><th>Total THB</th><th>Created</th></tr>
+          </thead>
+          <tbody>
+            <% recentOrders.forEach(function(order){ %>
+              <tr>
+                <td><strong><%= order.id %></strong></td>
+                <td><%= order.customer_name %></td>
+                <td><span class="admin-badge <%= order.status %>"><%= order.status %></span></td>
+                <td>THB <%= Number(order.total_thb || 0).toLocaleString('en-US') %></td>
+                <td><%= new Date(order.created_at).toLocaleString('id-ID') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } else { %>
+        <div class="admin-empty">Belum ada order masuk.</div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<%- include('partials-bottom') %>

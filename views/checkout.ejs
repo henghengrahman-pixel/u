@@ -1,0 +1,224 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section checkout-page-section">
+  <div class="container">
+    <div class="checkout-page-header">
+      <div class="section-title">
+        <h1 class="title">Checkout</h1>
+      </div>
+      <p class="checkout-page-subtitle">
+        Lengkapi data pesananmu untuk melanjutkan proses checkout dengan cepat dan nyaman.
+      </p>
+    </div>
+
+    <% if (!cart || !cart.length) { %>
+      <div class="empty-box text-center checkout-empty-state">
+        <h3>Keranjang kosong</h3>
+        <p>Belum ada produk di keranjang. Silakan pilih produk terlebih dahulu.</p>
+        <a href="/shop" class="primary-btn">Belanja Sekarang</a>
+      </div>
+    <% } else { %>
+      <div class="row checkout-page-row">
+        <div class="col-md-7 col-sm-12 col-xs-12">
+          <div class="checkout-form-card">
+            <div class="section-title">
+              <h3 class="title">Data Pembeli</h3>
+            </div>
+
+            <form method="post" action="/checkout" class="checkout-form" id="checkout-form">
+              <div class="form-group">
+                <label class="checkout-label" for="customer_name">Nama Lengkap</label>
+                <input
+                  id="customer_name"
+                  class="input"
+                  type="text"
+                  name="customer_name"
+                  placeholder="Masukkan nama lengkap"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="checkout-label">Kontak Pembeli</label>
+                <p class="checkout-helper-text">
+                  Isi salah satu: WhatsApp atau Telegram.
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label class="checkout-label" for="whatsapp">Nomor WhatsApp</label>
+                <input
+                  id="whatsapp"
+                  class="input"
+                  type="text"
+                  name="whatsapp"
+                  placeholder="Contoh: 085xxxx / +62xxxx"
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="checkout-label" for="telegram">Username Telegram</label>
+                <input
+                  id="telegram"
+                  class="input"
+                  type="text"
+                  name="telegram"
+                  placeholder="Contoh: username atau @username"
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="checkout-label" for="address">Alamat Lengkap</label>
+                <textarea
+                  id="address"
+                  class="input"
+                  name="address"
+                  placeholder="Masukkan alamat lengkap"
+                  required
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="checkout-label" for="note">Catatan Pesanan</label>
+                <textarea
+                  id="note"
+                  class="input"
+                  name="note"
+                  placeholder="Catatan tambahan untuk pesanan (opsional)"
+                ></textarea>
+              </div>
+
+              <div class="checkout-form-actions">
+                <a href="/cart" class="cart-continue-link">Kembali ke Keranjang</a>
+                <button class="primary-btn checkout-submit-btn" type="submit">
+                  Buat Pesanan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-md-5 col-sm-12 col-xs-12">
+          <div class="checkout-summary-card">
+            <div class="section-title text-center">
+              <h3 class="title">Ringkasan Pesanan</h3>
+            </div>
+
+            <div class="order-summary desktop-checkout-summary">
+              <div class="order-col order-head">
+                <div><strong>Produk</strong></div>
+                <div><strong>Total</strong></div>
+              </div>
+
+              <div class="order-products">
+                <% cart.forEach(function(item) { %>
+                  <div class="order-col">
+                    <div class="checkout-order-product">
+                      <span class="checkout-order-qty"><%= Number(item.qty || 0) %>x</span>
+                      <span><%= item.name %></span>
+                    </div>
+                    <div>
+                      THB <%= Number(item.line_total_thb || 0).toLocaleString('en-US') %>
+                    </div>
+                  </div>
+
+                  <% if (item.price_idr) { %>
+                    <div class="order-col order-col-sub">
+                      <div class="checkout-order-product checkout-order-subprice">
+                        IDR <%= Number(item.price_idr || 0).toLocaleString('en-US') %> / pcs
+                      </div>
+                      <div>
+                        IDR <%= Number(item.line_total_idr || 0).toLocaleString('en-US') %>
+                      </div>
+                    </div>
+                  <% } %>
+                <% }) %>
+              </div>
+
+              <div class="order-col">
+                <div><strong>Total THB</strong></div>
+                <div>
+                  <strong class="order-total">
+                    THB <%= Number(cartTotals.total_thb || 0).toLocaleString('en-US') %>
+                  </strong>
+                </div>
+              </div>
+
+              <div class="order-col">
+                <div><strong>Total IDR</strong></div>
+                <div>
+                  <strong class="order-total">
+                    IDR <%= Number(cartTotals.total_idr || 0).toLocaleString('en-US') %>
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="mobile-checkout-summary">
+              <% cart.forEach(function(item) { %>
+                <div class="mobile-checkout-card">
+                  <div class="mobile-checkout-row">
+                    <div class="mobile-checkout-name">
+                      <span class="checkout-order-qty"><%= Number(item.qty || 0) %>x</span>
+                      <span><%= item.name %></span>
+                    </div>
+                    <div class="mobile-checkout-total">
+                      THB <%= Number(item.line_total_thb || 0).toLocaleString('en-US') %>
+                    </div>
+                  </div>
+
+                  <% if (item.price_idr) { %>
+                    <div class="mobile-checkout-sub">
+                      IDR <%= Number(item.price_idr || 0).toLocaleString('en-US') %> / pcs
+                      <span>IDR <%= Number(item.line_total_idr || 0).toLocaleString('en-US') %></span>
+                    </div>
+                  <% } %>
+                </div>
+              <% }) %>
+
+              <div class="mobile-checkout-grand">
+                <div class="mobile-checkout-grand-line">
+                  <span>Total THB</span>
+                  <strong>THB <%= Number(cartTotals.total_thb || 0).toLocaleString('en-US') %></strong>
+                </div>
+                <div class="mobile-checkout-grand-line">
+                  <span>Total IDR</span>
+                  <strong>IDR <%= Number(cartTotals.total_idr || 0).toLocaleString('en-US') %></strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="checkout-summary-note">
+              Pastikan minimal satu kontak terisi agar pesanan bisa kami proses lebih cepat.
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('checkout-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      var whatsapp = document.getElementById('whatsapp');
+      var telegram = document.getElementById('telegram');
+
+      var whatsappValue = whatsapp ? whatsapp.value.trim() : '';
+      var telegramValue = telegram ? telegram.value.trim() : '';
+
+      if (!whatsappValue && !telegramValue) {
+        e.preventDefault();
+        alert('Isi minimal salah satu kontak: Nomor WhatsApp atau Username Telegram.');
+        if (whatsapp) whatsapp.focus();
+        return;
+      }
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

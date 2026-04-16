@@ -1,0 +1,40 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section shop-page-section">
+  <div class="container">
+    <div class="shop-page-header">
+      <div class="section-title">
+        <h1 class="title">Shop</h1>
+      </div>
+
+      <p class="shop-page-subtitle">
+        Temukan produk pilihan dengan tampilan rapi, informasi yang lebih jelas, dan pengalaman menjelajah yang nyaman di desktop maupun mobile.
+      </p>
+    </div>
+
+    <% if (products && products.length) { %>
+      <div class="row">
+        <% products.forEach(function(product){ %>
+          <div class="col-md-3 col-sm-6 col-xs-6">
+            <%- include('partials/product-card', { product: product }) %>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="empty-box text-center shop-empty-state">
+            <h3>Produk belum tersedia</h3>
+            <p>
+              Tidak ada produk ditemukan saat ini. Silakan coba lagi nanti atau kembali ke beranda untuk melihat koleksi lainnya.
+            </p>
+            <a href="/" class="primary-btn">Kembali ke Beranda</a>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

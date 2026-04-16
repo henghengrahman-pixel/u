@@ -1,0 +1,203 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section cart-page-section">
+  <div class="container">
+    <div class="cart-page-header">
+      <div class="section-title">
+        <h1 class="title">Keranjang Belanja</h1>
+      </div>
+      <p class="cart-page-subtitle">
+        Cek kembali produk pilihanmu sebelum lanjut ke checkout.
+      </p>
+    </div>
+
+    <% if (!cart || !cart.length) { %>
+      <div class="empty-box text-center cart-empty-state">
+        <h3>Keranjang kosong</h3>
+        <p>Belum ada produk di keranjang. Yuk pilih produk terbaik untuk kamu.</p>
+        <a href="/shop" class="primary-btn">Mulai Belanja</a>
+      </div>
+    <% } else { %>
+      <div class="row cart-page-row">
+        <div class="col-md-8 col-sm-12 col-xs-12">
+          <form method="post" action="/cart/update" class="cart-update-form">
+            <div class="cart-items-card">
+
+              <div class="cart-table-responsive desktop-cart-view">
+                <table class="table cart-table">
+                  <thead>
+                    <tr>
+                      <th>Produk</th>
+                      <th>Harga</th>
+                      <th>Qty</th>
+                      <th>Total</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% cart.forEach(function(item){ %>
+                      <tr>
+                        <td>
+                          <div class="cart-product-cell">
+                            <% if (item.slug) { %>
+                              <a href="/product/<%= item.slug %>" class="cart-product-thumb" aria-label="<%= item.name %>">
+                                <img src="<%= item.thumbnail %>" alt="<%= item.name %>">
+                              </a>
+                            <% } else { %>
+                              <span class="cart-product-thumb">
+                                <img src="<%= item.thumbnail %>" alt="<%= item.name %>">
+                              </span>
+                            <% } %>
+
+                            <div class="cart-product-info">
+                              <h3 class="cart-product-name">
+                                <% if (item.slug) { %>
+                                  <a href="/product/<%= item.slug %>"><%= item.name %></a>
+                                <% } else { %>
+                                  <span><%= item.name %></span>
+                                <% } %>
+                              </h3>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div class="cart-price-block">
+                            <span>THB <%= Number(item.price_thb || 0).toLocaleString('en-US') %></span>
+                            <small>IDR <%= Number(item.price_idr || 0).toLocaleString('en-US') %></small>
+                          </div>
+                        </td>
+
+                        <td>
+                          <input
+                            type="number"
+                            class="input cart-qty-input"
+                            name="qty[<%= item.product_id %>]"
+                            min="1"
+                            value="<%= Number(item.qty || 1) %>"
+                          >
+                        </td>
+
+                        <td>
+                          <div class="cart-price-block">
+                            <strong>THB <%= Number(item.line_total_thb || 0).toLocaleString('en-US') %></strong>
+                            <small>IDR <%= Number(item.line_total_idr || 0).toLocaleString('en-US') %></small>
+                          </div>
+                        </td>
+
+                        <td>
+                          <button
+                            type="submit"
+                            class="cart-remove-btn"
+                            formaction="/cart/remove/<%= item.product_id %>"
+                            formmethod="post"
+                          >
+                            Hapus
+                          </button>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mobile-cart-list">
+                <% cart.forEach(function(item){ %>
+                  <div class="mobile-cart-card">
+                    <div class="mobile-cart-top">
+                      <% if (item.slug) { %>
+                        <a href="/product/<%= item.slug %>" class="mobile-cart-thumb" aria-label="<%= item.name %>">
+                          <img src="<%= item.thumbnail %>" alt="<%= item.name %>">
+                        </a>
+                      <% } else { %>
+                        <span class="mobile-cart-thumb">
+                          <img src="<%= item.thumbnail %>" alt="<%= item.name %>">
+                        </span>
+                      <% } %>
+
+                      <div class="mobile-cart-info">
+                        <h3 class="mobile-cart-name">
+                          <% if (item.slug) { %>
+                            <a href="/product/<%= item.slug %>"><%= item.name %></a>
+                          <% } else { %>
+                            <span><%= item.name %></span>
+                          <% } %>
+                        </h3>
+
+                        <div class="mobile-cart-price">
+                          <span>THB <%= Number(item.price_thb || 0).toLocaleString('en-US') %></span>
+                          <small>IDR <%= Number(item.price_idr || 0).toLocaleString('en-US') %></small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mobile-cart-bottom">
+                      <div class="mobile-cart-qty-wrap">
+                        <label for="mobile-qty-<%= item.product_id %>">Qty</label>
+                        <input
+                          id="mobile-qty-<%= item.product_id %>"
+                          type="number"
+                          class="input cart-qty-input"
+                          name="qty[<%= item.product_id %>]"
+                          min="1"
+                          value="<%= Number(item.qty || 1) %>"
+                        >
+                      </div>
+
+                      <div class="mobile-cart-total">
+                        <span>Total</span>
+                        <strong>THB <%= Number(item.line_total_thb || 0).toLocaleString('en-US') %></strong>
+                        <small>IDR <%= Number(item.line_total_idr || 0).toLocaleString('en-US') %></small>
+                      </div>
+                    </div>
+
+                    <div class="mobile-cart-actions">
+                      <button
+                        type="submit"
+                        class="cart-remove-btn"
+                        formaction="/cart/remove/<%= item.product_id %>"
+                        formmethod="post"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+
+              <div class="cart-actions-bottom">
+                <button type="submit" class="primary-btn">Update Keranjang</button>
+                <a href="/shop" class="cart-continue-link">Lanjut Belanja</a>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-md-4 col-sm-12 col-xs-12">
+          <div class="cart-summary-card">
+            <h3 class="cart-summary-title">Ringkasan Belanja</h3>
+
+            <div class="cart-summary-line">
+              <span>Total THB</span>
+              <strong><%= Number(cartTotals.total_thb || 0).toLocaleString('en-US') %></strong>
+            </div>
+
+            <div class="cart-summary-line">
+              <span>Total IDR</span>
+              <strong><%= Number(cartTotals.total_idr || 0).toLocaleString('en-US') %></strong>
+            </div>
+
+            <div class="cart-summary-actions">
+              <a href="/checkout" class="primary-btn cart-checkout-btn">
+                Lanjut ke Checkout
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

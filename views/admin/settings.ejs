@@ -1,0 +1,212 @@
+<%- include('partials-top', {
+  pageTitle: 'Settings',
+  pageDescription: 'Atur identitas brand, kontak, dan SEO default website.'
+}) %>
+
+<div class="admin-card">
+  <form method="post" action="/admin/settings" class="admin-form">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Store Name</label>
+              <input
+                class="input"
+                name="storeName"
+                value="<%= settings.storeName || '' %>"
+                placeholder="Contoh: Ozerra"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Logo URL</label>
+              <input
+                class="input"
+                type="url"
+                name="logo"
+                value="<%= settings.logo || '' %>"
+                placeholder="https://..."
+                id="adminLogoInput"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>WhatsApp</label>
+              <input
+                class="input"
+                name="whatsapp"
+                value="<%= settings.whatsapp || '' %>"
+                placeholder="628xxxx / 08xxxx"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Telegram Username</label>
+              <input
+                class="input"
+                name="telegram"
+                value="<%= settings.telegram || '' %>"
+                placeholder="@namatoko atau namatoko"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                class="input"
+                type="email"
+                name="email"
+                value="<%= settings.email || '' %>"
+                placeholder="hello@example.com"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Telegram Channel / Grup</label>
+              <input
+                class="input"
+                name="telegramChannel"
+                value="<%= settings.telegramChannel || '' %>"
+                placeholder="@channeltoko atau channeltoko"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Address</label>
+              <input
+                class="input"
+                name="address"
+                value="<%= settings.address || '' %>"
+                placeholder="Contoh: Indonesia"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="admin-card" style="margin-bottom:0;background:#fafbff;">
+          <div class="admin-card-title">
+            <h4>Preview Brand</h4>
+          </div>
+
+          <div class="form-group">
+            <label>Preview Logo</label>
+            <img
+              id="adminLogoPreview"
+              class="admin-thumb-preview"
+              src="<%= settings.logo || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Logo+Preview' %>"
+              alt="Logo Preview"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Nama Brand</label>
+            <div class="text-muted-2">
+              <strong><%= settings.storeName || 'Store Name' %></strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Catatan</label>
+            <p class="text-muted-2" style="margin-bottom:0;">
+              Gunakan logo URL dan identitas brand yang konsisten agar storefront terlihat lebih profesional dan lebih dipercaya customer.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <hr>
+        <h4>SEO Default</h4>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>Meta Title</label>
+          <input
+            class="input"
+            name="metaTitle"
+            value="<%= settings.seo && settings.seo.metaTitle ? settings.seo.metaTitle : '' %>"
+            placeholder="Contoh: Ozerra - Koleksi Fashion Pilihan"
+          >
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>OG Image</label>
+          <input
+            class="input"
+            type="url"
+            name="ogImage"
+            value="<%= settings.seo && settings.seo.ogImage ? settings.seo.ogImage : '' %>"
+            placeholder="https://..."
+          >
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Meta Description</label>
+          <textarea
+            class="input"
+            name="metaDescription"
+            placeholder="Deskripsi default website yang akan dipakai untuk homepage dan halaman umum."
+          ><%= settings.seo && settings.seo.metaDescription ? settings.seo.metaDescription : '' %></textarea>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Keywords</label>
+          <input
+            class="input"
+            name="keywords"
+            value="<%= settings.seo && settings.seo.keywords ? settings.seo.keywords : '' %>"
+            placeholder="kaos oversize, kaos pria, fashion pria, rekomendasi kaos"
+          >
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="admin-actions">
+          <button class="primary-btn" type="submit">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var logoInput = document.getElementById('adminLogoInput');
+    var logoPreview = document.getElementById('adminLogoPreview');
+
+    if (!logoInput || !logoPreview) return;
+
+    function updateLogoPreview() {
+      var value = String(logoInput.value || '').trim();
+      logoPreview.src = value || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Logo+Preview';
+    }
+
+    logoInput.addEventListener('input', updateLogoPreview);
+    updateLogoPreview();
+  });
+</script>
+
+<%- include('partials-bottom') %>

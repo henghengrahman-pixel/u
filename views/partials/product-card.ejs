@@ -1,0 +1,114 @@
+<%
+  const productSlug = product && product.slug ? product.slug : '';
+  const productUrl = productSlug ? `/product/${productSlug}` : '#';
+  const productGoUrl = productSlug ? `/go/${productSlug}` : '#';
+
+  const productImage =
+    (product && product.image) ||
+    (product && product.images && product.images.length ? product.images[0] : '') ||
+    '';
+
+  const price = Number(product.price || 0);
+  const compareAtPrice = Number(product.compareAtPrice || 0);
+
+  const hasDiscount = compareAtPrice > price && price > 0;
+  const discountPercent = hasDiscount
+    ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+    : 0;
+
+  const isSoldOut = product.status === 'sold_out';
+%>
+
+<div class="product product-card-clean">
+  <div class="product-img">
+    <% if (productSlug) { %>
+      <a href="<%= productUrl %>" class="product-image-link" aria-label="<%= product.name %>">
+        <img src="<%= productImage %>" alt="<%= product.name %>" loading="lazy">
+      </a>
+    <% } else { %>
+      <span class="product-image-link">
+        <img src="<%= productImage %>" alt="<%= product.name %>" loading="lazy">
+      </span>
+    <% } %>
+
+    <% if (product.is_new) { %>
+      <div class="product-label">
+        <span class="new">NEW</span>
+      </div>
+    <% } else if (hasDiscount) { %>
+      <div class="product-label">
+        <span class="sale">-<%= discountPercent %>%</span>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="product-body">
+    <% if (product.category) { %>
+      <p class="product-category"><%= product.category %></p>
+    <% } %>
+
+    <h3 class="product-name">
+      <% if (productSlug) { %>
+        <a href="<%= productUrl %>"><%= product.name %></a>
+      <% } else { %>
+        <span><%= product.name %></span>
+      <% } %>
+    </h3>
+
+    <% if (price > 0) { %>
+      <h4 class="product-price">
+        IDR <%= price.toLocaleString('id-ID') %>
+
+        <% if (compareAtPrice > 0) { %>
+          <del class="product-old-price">
+            IDR <%= compareAtPrice.toLocaleString('id-ID') %>
+          </del>
+        <% } %>
+      </h4>
+    <% } %>
+
+    <div class="product-actions">
+      <% if (isSoldOut) { %>
+        <button class="buy-now-btn" type="button" disabled>
+          Sold Out
+        </button>
+
+        <button class="add-to-cart-btn" type="button" disabled>
+          Sold Out
+        </button>
+      <% } else { %>
+        <% if (productSlug) { %>
+          <a href="<%= productGoUrl %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+            Lihat di Marketplace
+          </a>
+        <% } else { %>
+          <button class="buy-now-btn" type="button" disabled>
+            Lihat di Marketplace
+          </button>
+        <% } %>
+
+        <% if (productSlug) { %>
+          <a href="<%= productUrl %>" class="add-to-cart-btn">
+            Cek Detail
+          </a>
+        <% } else { %>
+          <button class="add-to-cart-btn" type="button" disabled>
+            Cek Detail
+          </button>
+        <% } %>
+      <% } %>
+
+      <% if (productSlug) { %>
+        <a href="<%= productUrl %>" class="detail-btn" aria-label="Lihat detail <%= product.name %>">
+          <i class="fa fa-eye"></i>
+          <span>Detail</span>
+        </a>
+      <% } else { %>
+        <span class="detail-btn" aria-hidden="true">
+          <i class="fa fa-eye"></i>
+          <span>Detail</span>
+        </span>
+      <% } %>
+    </div>
+  </div>
+</div>

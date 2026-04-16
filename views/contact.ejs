@@ -1,0 +1,128 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section contact-page-section">
+  <div class="container">
+    <div class="contact-page-header">
+      <div class="section-title">
+        <h1 class="title">Kontak Kami</h1>
+      </div>
+      <p class="contact-page-subtitle">
+        Jika ada pertanyaan atau ingin informasi lebih lanjut, silakan hubungi kami melalui kontak yang tersedia di bawah ini.
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="admin-card contact-page-card">
+          <h3 class="contact-card-title">Informasi Kontak</h3>
+
+          <ul class="contact-info-list">
+            <% if (settings.whatsapp) { %>
+              <li>
+                <span class="contact-icon"><i class="fa fa-whatsapp"></i></span>
+                <div class="contact-text">
+                  <span class="contact-label">WhatsApp</span>
+                  <a
+                    href="https://wa.me/<%= String(settings.whatsapp).replace(/\D/g, '') %>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <%= settings.whatsapp %>
+                  </a>
+                </div>
+              </li>
+            <% } %>
+
+            <% if (settings.telegram) { %>
+              <li>
+                <span class="contact-icon telegram-icon"><i class="fa fa-telegram"></i></span>
+                <div class="contact-text">
+                  <span class="contact-label">Telegram</span>
+                  <a
+                    href="https://t.me/<%= String(settings.telegram).replace(/^@/, '') %>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    @<%= String(settings.telegram).replace(/^@/, '') %>
+                  </a>
+                </div>
+              </li>
+            <% } %>
+
+            <% if (settings.email) { %>
+              <li>
+                <span class="contact-icon"><i class="fa fa-envelope-o"></i></span>
+                <div class="contact-text">
+                  <span class="contact-label">Email</span>
+                  <a href="mailto:<%= settings.email %>"><%= settings.email %></a>
+                </div>
+              </li>
+            <% } %>
+
+            <% if (settings.address) { %>
+              <li>
+                <span class="contact-icon"><i class="fa fa-map-marker"></i></span>
+                <div class="contact-text">
+                  <span class="contact-label">Alamat</span>
+                  <span><%= settings.address %></span>
+                </div>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="admin-card contact-page-card">
+          <h3 class="contact-card-title">Tentang Toko</h3>
+          <p class="contact-about-text">
+            <%= settings.seo && settings.seo.metaDescription
+              ? settings.seo.metaDescription
+              : 'Kami menghadirkan pilihan produk dengan tampilan yang rapi, informasi yang lebih jelas, dan pengalaman menjelajah yang nyaman untuk membantu customer menemukan produk yang sesuai.' %>
+          </p>
+
+          <div class="contact-action-box contact-action-stack">
+            <% if (settings.whatsapp) { %>
+              <a
+                href="https://wa.me/<%= String(settings.whatsapp).replace(/\D/g, '') %>"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="primary-btn contact-action-btn"
+              >
+                <i class="fa fa-whatsapp"></i>
+                <span>Chat WhatsApp</span>
+              </a>
+            <% } %>
+
+            <% if (settings.telegram) { %>
+              <a
+                href="https://t.me/<%= String(settings.telegram).replace(/^@/, '') %>"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="telegram-btn contact-action-btn"
+              >
+                <i class="fa fa-telegram"></i>
+                <span>Chat Telegram</span>
+              </a>
+            <% } %>
+
+            <% if (settings.telegramChannel) { %>
+              <a
+                href="https://t.me/<%= String(settings.telegramChannel).replace(/^@/, '') %>"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="telegram-outline-btn contact-action-btn"
+              >
+                <i class="fa fa-telegram"></i>
+                <span>Gabung Channel Store</span>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

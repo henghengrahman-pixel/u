@@ -1,0 +1,46 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section article-detail-page-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
+        <article class="admin-card article-detail-card article-content">
+          <% if (article.image || article.thumbnail) { %>
+            <div class="article-detail-thumb">
+              <img
+                src="<%= article.image || article.thumbnail %>"
+                alt="<%= article.title %>"
+                loading="eager"
+              >
+            </div>
+          <% } %>
+
+          <div class="article-detail-body">
+            <p class="article-detail-breadcrumb">
+              <a href="/articles">Artikel</a>
+              <span>/</span>
+              <span><%= article.title %></span>
+            </p>
+
+            <h1 class="article-detail-title"><%= article.title %></h1>
+
+            <% if (article.excerpt) { %>
+              <p class="article-detail-excerpt text-muted-2"><%= article.excerpt %></p>
+            <% } %>
+
+            <div class="article-detail-content">
+              <%- article.content %>
+            </div>
+
+            <div class="article-detail-actions">
+              <a href="/articles" class="secondary-success-btn">Kembali ke Artikel</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

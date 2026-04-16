@@ -1,0 +1,308 @@
+<%- include('partials-top', {
+  pageTitle: item ? 'Edit Product' : 'Create Product',
+  pageDescription: 'Isi data produk affiliate dengan lengkap. Slug akan otomatis dibuat jika dikosongkan.'
+}) %>
+
+<div class="admin-card">
+  <form method="post" action="<%= item ? '/admin/products/' + item.id + '/edit' : '/admin/products/create' %>" class="admin-form">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Nama Produk</label>
+              <input
+                class="input"
+                name="name"
+                value="<%= item?.name || '' %>"
+                placeholder="Contoh: Kaos Oversize Pria Premium Hitam"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Slug</label>
+              <input
+                class="input"
+                name="slug"
+                value="<%= item?.slug || '' %>"
+                placeholder="Otomatis jika dikosongkan"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Kategori</label>
+              <input
+                class="input"
+                name="category"
+                value="<%= item?.category || '' %>"
+                placeholder="Contoh: Oversize"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Brand</label>
+              <input
+                class="input"
+                name="brand"
+                value="<%= item?.brand || '' %>"
+                placeholder="Contoh: Ozerra"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Status</label>
+              <select class="input" name="status">
+                <option value="ready" <%= item?.status === 'ready' || !item?.status ? 'selected' : '' %>>ready</option>
+                <option value="sold_out" <%= item?.status === 'sold_out' ? 'selected' : '' %>>sold_out</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Harga IDR</label>
+              <input
+                class="input"
+                type="number"
+                min="0"
+                step="1"
+                name="price"
+                value="<%= item?.price ?? item?.price_idr ?? 0 %>"
+                placeholder="129000"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Harga Coret IDR</label>
+              <input
+                class="input"
+                type="number"
+                min="0"
+                step="1"
+                name="compareAtPrice"
+                value="<%= item?.compareAtPrice ?? item?.compare_price_idr ?? 0 %>"
+                placeholder="159000"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Material</label>
+              <input
+                class="input"
+                name="material"
+                value="<%= item?.material || '' %>"
+                placeholder="Contoh: Cotton Combed 24s"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Fit</label>
+              <input
+                class="input"
+                name="fit"
+                value="<%= item?.fit || '' %>"
+                placeholder="Contoh: Oversize / Regular"
+              >
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>Link Affiliate</label>
+              <input
+                class="input"
+                type="url"
+                name="affiliateLink"
+                value="<%= item?.affiliateLink || item?.affiliate_link || '' %>"
+                placeholder="https://shopee.co.id/..."
+              >
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>Gambar Utama (URL)</label>
+              <input
+                class="input"
+                type="url"
+                name="image"
+                value="<%= item?.image || item?.thumbnail || '' %>"
+                placeholder="https://..."
+              >
+            </div>
+          </div>
+
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>Gallery Gambar (URL, pisahkan dengan baris baru atau koma)</label>
+              <textarea
+                class="input textarea-lg"
+                name="images"
+                placeholder="https://image-1.com&#10;https://image-2.com"
+              ><%= item?.images?.join('\n') || '' %></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="admin-card" style="margin-bottom:0;background:#fafbff;">
+          <div class="admin-card-title">
+            <h4>Visibility & Flags</h4>
+          </div>
+
+          <div class="admin-check-grid">
+            <label class="admin-check">
+              <input type="checkbox" name="featured" <%= item?.featured ? 'checked' : '' %>>
+              Featured
+            </label>
+
+            <label class="admin-check">
+              <input type="checkbox" name="recommended" <%= item?.recommended ? 'checked' : '' %>>
+              Recommended
+            </label>
+
+            <label class="admin-check">
+              <input type="checkbox" name="visible" <%= item?.visible !== false ? 'checked' : '' %>>
+              Visible
+            </label>
+          </div>
+
+          <hr>
+
+          <div class="form-group">
+            <label>Preview Gambar</label>
+            <img
+              class="admin-thumb-preview"
+              src="<%= item?.image || item?.thumbnail || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Preview' %>"
+              alt="Preview"
+              id="adminImagePreview"
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Short Description</label>
+          <textarea
+            class="input"
+            name="shortDescription"
+            placeholder="Deskripsi singkat produk untuk card dan ringkasan halaman detail."
+          ><%= item?.shortDescription || item?.short_description || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Description HTML</label>
+          <textarea
+            class="input textarea-lg"
+            name="description"
+            placeholder="<p>Deskripsi lengkap produk...</p>"
+          ><%= item?.description || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="form-group">
+          <label>Details HTML</label>
+          <textarea
+            class="input textarea-lg"
+            name="details"
+            placeholder="<ul><li>Detail 1</li><li>Detail 2</li></ul>"
+          ><%= item?.details || '' %></textarea>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="admin-card" style="background:#fafbff;">
+          <div class="admin-card-title">
+            <h4>SEO Produk</h4>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>SEO Title</label>
+                <input
+                  class="input"
+                  name="seoTitle"
+                  value="<%= item?.seoTitle || '' %>"
+                  placeholder="Contoh: Kaos Oversize Pria Premium Hitam - Ozerra"
+                >
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>SEO Description</label>
+                <textarea
+                  class="input"
+                  name="seoDescription"
+                  placeholder="Deskripsi SEO singkat yang tampil di Google."
+                ><%= item?.seoDescription || '' %></textarea>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Keywords</label>
+                <input
+                  class="input"
+                  name="keywords"
+                  value="<%= item?.keywords || '' %>"
+                  placeholder="kaos oversize, kaos pria, fashion pria"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12">
+        <div class="admin-actions">
+          <button class="primary-btn" type="submit">
+            <%= item ? 'Update Product' : 'Save Product' %>
+          </button>
+          <a href="/admin/products" class="btn btn-default">Back</a>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var imageInput = document.querySelector('input[name="image"]');
+    var preview = document.getElementById('adminImagePreview');
+
+    if (!imageInput || !preview) return;
+
+    function updatePreview() {
+      var value = String(imageInput.value || '').trim();
+      preview.src = value || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Preview';
+    }
+
+    imageInput.addEventListener('input', updatePreview);
+    updatePreview();
+  });
+</script>
+
+<%- include('partials-bottom') %>

@@ -1,0 +1,108 @@
+<%- include('partials-top', {
+  pageTitle: 'Products',
+  pageDescription: 'Kelola semua produk affiliate dari satu tempat.',
+  topAction: '<a href="/admin/products/create" class="primary-btn"><i class="fa fa-plus"></i> Add Product</a>'
+}) %>
+
+<div class="admin-card">
+  <% if (products.length) { %>
+    <div class="table-responsive">
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Status</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Affiliate</th>
+            <th>Visible</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% products.forEach(function(item){ %>
+            <tr>
+              <td>
+                <div class="admin-product-cell">
+                  <img
+                    src="<%= item.image || item.thumbnail || 'https://dummyimage.com/120x120/f1f5f9/64748b&text=No+Image' %>"
+                    alt="<%= item.name %>"
+                  >
+                  <div>
+                    <strong><%= item.name %></strong><br>
+                    <small class="text-muted-2"><%= item.slug %></small><br>
+
+                    <% if (item.brand) { %>
+                      <small class="text-muted-2">Brand: <%= item.brand %></small><br>
+                    <% } %>
+
+                    <% if (item.featured || item.recommended) { %>
+                      <small class="text-muted-2">
+                        <% if (item.featured) { %><span>Featured</span><% } %>
+                        <% if (item.featured && item.recommended) { %> • <% } %>
+                        <% if (item.recommended) { %><span>Recommended</span><% } %>
+                      </small>
+                    <% } %>
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                <span class="admin-badge <%= item.status %>"><%= item.status %></span>
+              </td>
+
+              <td><%= item.category || '-' %></td>
+
+              <td>
+                <% if (Number(item.price || 0) > 0) { %>
+                  <strong>IDR <%= Number(item.price || 0).toLocaleString('id-ID') %></strong>
+                  <% if (Number(item.compareAtPrice || 0) > 0) { %>
+                    <br>
+                    <small class="text-muted-2">
+                      <del>IDR <%= Number(item.compareAtPrice || 0).toLocaleString('id-ID') %></del>
+                    </small>
+                  <% } %>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+
+              <td>
+                <% if (item.affiliateLink) { %>
+                  <a
+                    href="<%= item.affiliateLink %>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-default btn-sm"
+                  >
+                    Open Link
+                  </a>
+                <% } else { %>
+                  <span class="text-muted-2">Belum ada</span>
+                <% } %>
+              </td>
+
+              <td><%= item.visible ? 'Yes' : 'No' %></td>
+
+              <td>
+                <div class="admin-actions">
+                  <a class="btn btn-default btn-sm" href="/admin/products/<%= item.id %>/edit">Edit</a>
+
+                  <form method="post" action="/admin/products/<%= item.id %>/delete" onsubmit="return confirm('Hapus produk ini?')">
+                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="admin-empty">
+      Belum ada produk. Klik <strong>Add Product</strong> untuk menambah produk baru.
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials-bottom') %>

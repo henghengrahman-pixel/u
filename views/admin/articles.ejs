@@ -1,0 +1,33 @@
+<%- include('partials-top', { pageTitle: 'Articles', pageDescription: 'Kelola artikel blog untuk kebutuhan SEO dan konten.', topAction: '<a href="/admin/articles/create" class="primary-btn"><i class="fa fa-plus"></i> Add Article</a>' }) %>
+<div class="admin-card">
+  <% if (articles.length) { %>
+  <div class="table-responsive">
+    <table class="table admin-table">
+      <thead>
+        <tr><th>Title</th><th>Slug</th><th>Visible</th><th>Updated</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <% articles.forEach(function(item){ %>
+          <tr>
+            <td><strong><%= item.title %></strong></td>
+            <td><%= item.slug %></td>
+            <td><%= item.visible ? 'Yes' : 'No' %></td>
+            <td><%= new Date(item.updated_at).toLocaleString('id-ID') %></td>
+            <td>
+              <div class="admin-actions">
+                <a class="btn btn-default btn-sm" href="/admin/articles/<%= item.id %>/edit">Edit</a>
+                <form method="post" action="/admin/articles/<%= item.id %>/delete" onsubmit="return confirm('Hapus artikel ini?')">
+                  <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } else { %>
+    <div class="admin-empty">Belum ada artikel.</div>
+  <% } %>
+</div>
+<%- include('partials-bottom') %>

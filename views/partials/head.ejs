@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <%
+    const pageTitle =
+      (typeof seo === 'object' && seo && seo.title) ||
+      (typeof meta === 'object' && meta && meta.title) ||
+      (appName ? `${appName} - Koleksi Fashion Pilihan` : 'Ozerra - Koleksi Fashion Pilihan');
+
+    const pageDescription =
+      (typeof seo === 'object' && seo && seo.description) ||
+      (typeof meta === 'object' && meta && meta.description) ||
+      'Temukan koleksi fashion pilihan dengan informasi lengkap dan tampilan yang nyaman untuk dijelajahi.';
+
+    const pageKeywords =
+      (typeof seo === 'object' && seo && seo.keywords) ||
+      (typeof meta === 'object' && meta && meta.keywords) ||
+      'kaos oversize, kaos pria, fashion pria, rekomendasi kaos, outfit harian';
+
+    const pageUrl =
+      (typeof seo === 'object' && seo && seo.canonical) ||
+      (typeof meta === 'object' && meta && meta.url) ||
+      (baseUrl + currentPath);
+
+    const pageImage =
+      (typeof seo === 'object' && seo && seo.image) ||
+      (typeof meta === 'object' && meta && meta.image) ||
+      ((site && site.logo) ? site.logo : `${baseUrl}/assets/images/og-image.jpg`);
+
+    const pageType =
+      (typeof seo === 'object' && seo && seo.type) ||
+      'website';
+
+    const pageRobots =
+      (typeof seo === 'object' && seo && seo.robots) ||
+      'index,follow';
+
+    const storeName =
+      (site && site.name) ||
+      (settings && settings.storeName) ||
+      appName ||
+      'Ozerra';
+
+    const storeLogo =
+      (site && site.logo) ||
+      (settings && settings.logo) ||
+      `${baseUrl}/assets/images/logo.png`;
+
+    const storePhone =
+      (site && site.phone) ||
+      (settings && settings.phone) ||
+      '';
+
+    const storeEmail =
+      (site && site.email) ||
+      (settings && settings.email) ||
+      '';
+
+    const storeAddress =
+      (settings && settings.address) ||
+      '';
+  %>
+
+  <title><%= pageTitle %></title>
+  <meta name="description" content="<%= pageDescription %>">
+  <meta name="keywords" content="<%= pageKeywords %>">
+  <meta name="robots" content="<%= pageRobots %>">
+  <link rel="canonical" href="<%= pageUrl %>">
+
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="<%= storeName %>">
+  <meta property="og:title" content="<%= pageTitle %>">
+  <meta property="og:description" content="<%= pageDescription %>">
+  <meta property="og:type" content="<%= pageType === 'article' ? 'article' : 'website' %>">
+  <meta property="og:url" content="<%= pageUrl %>">
+  <meta property="og:image" content="<%= pageImage %>">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= pageTitle %>">
+  <meta name="twitter:description" content="<%= pageDescription %>">
+  <meta name="twitter:image" content="<%= pageImage %>">
+
+  <meta name="theme-color" content="#0f1320">
+
+  <script type="application/ld+json">
+    <%- JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": storeName,
+      "url": baseUrl,
+      "logo": storeLogo,
+      "image": storeLogo,
+      "email": storeEmail,
+      "telephone": storePhone,
+      "address": storeAddress
+    }) %>
+  </script>
+
+  <% if (currentPath === '/' || currentPath === '/shop') { %>
+    <script type="application/ld+json">
+      <%- JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": storeName,
+        "url": baseUrl,
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${baseUrl}/shop?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      }) %>
+    </script>
+  <% } %>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  <% if (currentPath.startsWith('/admin')) { %>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+  <% } %>
+
+  <style>
+    .flash-alert {
+      margin: 20px 0;
+    }
+
+    .product-old-price {
+      text-decoration: line-through;
+      opacity: .7;
+    }
+
+    .sold-out-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #15161d;
+      color: #fff;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .text-muted-2 {
+      color: #8d99ae;
+    }
+
+    .mb-15 {
+      margin-bottom: 15px;
+    }
+
+    .mt-15 {
+      margin-top: 15px;
+    }
+
+    .article-content img,
+    .product-description-content img,
+    .product-details-content img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .product-trust-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .product-trust-list li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body class="<%= currentPath.startsWith('/admin') ? 'admin-page' : '' %>">

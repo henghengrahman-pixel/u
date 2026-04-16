@@ -1,0 +1,104 @@
+<%- include('partials-top', {
+  pageTitle: 'Orders',
+  pageDescription: 'Data order lama dan catatan transaksi yang masih tersimpan di sistem.'
+}) %>
+
+<div class="admin-card">
+  <% if (orders.length) { %>
+    <div class="table-responsive">
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Items</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(function(order){ %>
+            <tr>
+              <td>
+                <strong><%= order.id %></strong><br>
+                <small class="text-muted-2">
+                  <%= order.created_at ? new Date(order.created_at).toLocaleString('id-ID') : '-' %>
+                </small>
+                <% if (order.source) { %>
+                  <br>
+                  <small class="text-muted-2">Source: <%= order.source %></small>
+                <% } %>
+              </td>
+
+              <td>
+                <strong><%= order.customer_name || '-' %></strong><br>
+
+                <% if (order.whatsapp) { %>
+                  <small><%= order.whatsapp %></small><br>
+                <% } %>
+
+                <% if (order.address) { %>
+                  <small class="text-muted-2"><%= order.address %></small>
+                <% } else { %>
+                  <small class="text-muted-2">-</small>
+                <% } %>
+              </td>
+
+              <td>
+                <% if (Number(order.total_idr || 0) > 0) { %>
+                  <strong>IDR <%= Number(order.total_idr || 0).toLocaleString('id-ID') %></strong>
+                <% } else { %>
+                  <span>-</span>
+                <% } %>
+
+                <% if (Number(order.total_items || 0) > 0) { %>
+                  <br>
+                  <small class="text-muted-2"><%= Number(order.total_items || 0) %> item</small>
+                <% } %>
+              </td>
+
+              <td>
+                <% if (order.items && order.items.length) { %>
+                  <ul style="margin:0; padding-left:18px;">
+                    <% order.items.forEach(function(item){ %>
+                      <li>
+                        <%= item.name || 'Produk' %>
+                        <% if (item.qty) { %> x<%= item.qty %><% } %>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } else { %>
+                  <span class="text-muted-2">Tidak ada item</span>
+                <% } %>
+              </td>
+
+              <td>
+                <span class="admin-badge <%= order.status %>"><%= order.status || 'pending' %></span>
+              </td>
+
+              <td>
+                <form method="post" action="/admin/orders/<%= order.id %>/status" class="admin-form">
+                  <select class="input" name="status">
+                    <% statuses.forEach(function(status){ %>
+                      <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>>
+                        <%= status %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <button class="btn btn-primary btn-sm mt-15" type="submit">Update</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="admin-empty">
+      Belum ada order tersimpan. Untuk model affiliate, halaman ini bisa dipakai hanya sebagai arsip data lama.
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials-bottom') %>

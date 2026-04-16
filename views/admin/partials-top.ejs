@@ -1,0 +1,65 @@
+<%- include('../partials/head') %>
+<div class="admin-shell">
+  <div class="container">
+    <% const adminTitle = typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel'; %>
+    <% const adminDescription = typeof pageDescription !== 'undefined' ? pageDescription : 'Kelola produk affiliate, artikel, dan pengaturan toko dari satu tempat.'; %>
+
+    <div class="row">
+      <div class="col-md-3">
+        <aside class="admin-sidebar">
+          <div class="admin-brand">
+            <img src="<%= settings.logo %>" alt="<%= settings.storeName %>">
+            <div>
+              <h3 class="admin-brand-title"><%= settings.storeName %></h3>
+              <div class="admin-brand-subtitle">Affiliate Store Admin</div>
+            </div>
+          </div>
+
+          <nav class="admin-nav">
+            <a href="/admin" class="<%= currentPath === '/admin' ? 'active' : '' %>">
+              <i class="fa fa-dashboard"></i> Dashboard
+            </a>
+
+            <a href="/admin/products" class="<%= currentPath.startsWith('/admin/products') ? 'active' : '' %>">
+              <i class="fa fa-cube"></i> Products
+            </a>
+
+            <a href="/admin/orders" class="<%= currentPath.startsWith('/admin/orders') ? 'active' : '' %>">
+              <i class="fa fa-shopping-bag"></i> Orders
+            </a>
+
+            <a href="/admin/articles" class="<%= currentPath.startsWith('/admin/articles') ? 'active' : '' %>">
+              <i class="fa fa-file-text-o"></i> Articles
+            </a>
+
+            <a href="/admin/settings" class="<%= currentPath.startsWith('/admin/settings') ? 'active' : '' %>">
+              <i class="fa fa-cog"></i> Settings
+            </a>
+
+            <a href="/" target="_blank" rel="noopener noreferrer">
+              <i class="fa fa-external-link"></i> View Store
+            </a>
+
+            <a href="/admin/logout">
+              <i class="fa fa-sign-out"></i> Logout
+            </a>
+          </nav>
+        </aside>
+      </div>
+
+      <div class="col-md-9">
+        <main class="admin-main">
+          <div class="admin-toolbar">
+            <div>
+              <h1><%= adminTitle %></h1>
+              <p><%= adminDescription %></p>
+            </div>
+
+            <% if (typeof topAction !== 'undefined' && topAction) { %>
+              <div class="admin-top-actions"><%- topAction %></div>
+            <% } %>
+          </div>
+
+          <% if (flash) { %>
+            <div class="alert alert-<%= flash.type %> flash-alert"><%= flash.message %></div>
+          <% } %>

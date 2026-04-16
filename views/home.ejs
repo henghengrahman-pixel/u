@@ -1,0 +1,153 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<section class="section home-featured-slider-section">
+  <div class="container">
+    <div class="home-section-head">
+      <div class="section-title">
+        <h1 class="title">Koleksi Pilihan</h1>
+      </div>
+      <p class="home-section-subtitle">
+        Pilihan produk terbaik dengan tampilan rapi, nyaman dipakai, dan mudah dicek detailnya.
+      </p>
+    </div>
+
+    <% if (featured && featured.length) { %>
+      <div class="featured-slider-wrap">
+        <div class="featured-slider-track">
+          <% featured.forEach(function(product){ %>
+            <div class="featured-slide-item">
+              <%- include('partials/product-card', { product: product }) %>
+            </div>
+          <% }) %>
+
+          <% featured.forEach(function(product){ %>
+            <div class="featured-slide-item">
+              <%- include('partials/product-card', { product: product }) %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="empty-state-box text-center">
+        <h3>Belum ada produk unggulan</h3>
+        <p>Produk unggulan akan tampil di sini setelah ditambahkan.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section home-products-section">
+  <div class="container">
+    <div class="home-section-head">
+      <div class="section-title">
+        <h2 class="title">Shop</h2>
+      </div>
+      <p class="home-section-subtitle">
+        Temukan produk pilihan dengan informasi yang lebih lengkap, tampilan ringan, dan pengalaman menjelajah yang nyaman di desktop maupun mobile.
+      </p>
+    </div>
+
+    <% if (recommended && recommended.length) { %>
+      <div class="row">
+        <% recommended.forEach(function(product){ %>
+          <div class="col-md-3 col-sm-6 col-xs-6">
+            <%- include('partials/product-card', { product: product }) %>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="text-center home-shop-more">
+        <a href="/shop" class="primary-btn">Lihat Semua Produk</a>
+      </div>
+    <% } else { %>
+      <div class="empty-state-box text-center">
+        <h3>Belum ada produk</h3>
+        <p>Produk akan segera ditampilkan di halaman ini.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<section class="section home-trust-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 col-sm-4 col-xs-12">
+        <div class="admin-card home-trust-card text-center">
+          <h3>Produk Pilihan</h3>
+          <p>
+            Koleksi dipilih agar lebih mudah dibandingkan dan dilihat detailnya sebelum membeli.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-4 col-xs-12">
+        <div class="admin-card home-trust-card text-center">
+          <h3>Tampilan Nyaman</h3>
+          <p>
+            Halaman dibuat ringan, bersih, dan tetap enak dijelajahi dari mobile maupun desktop.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-sm-4 col-xs-12">
+        <div class="admin-card home-trust-card text-center">
+          <h3>Informasi Lebih Jelas</h3>
+          <p>
+            Detail produk, kategori, dan artikel disusun rapi agar lebih mudah dipahami customer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section home-articles-section">
+  <div class="container">
+    <div class="home-section-head">
+      <div class="section-title">
+        <h2 class="title">Artikel</h2>
+      </div>
+      <p class="home-section-subtitle">
+        Baca informasi, panduan, dan rekomendasi terbaru seputar produk serta inspirasi pilihan yang relevan.
+      </p>
+    </div>
+
+    <% if (articles && articles.length) { %>
+      <div class="row">
+        <% articles.forEach(function(article){ %>
+          <div class="col-md-4 col-sm-6 col-xs-12">
+            <article class="admin-card article-card home-article-card">
+              <a href="/article/<%= article.slug %>" class="article-thumb-link" aria-label="<%= article.title %>">
+                <img
+                  src="<%= article.image || article.thumbnail || '' %>"
+                  alt="<%= article.title %>"
+                  loading="lazy"
+                >
+              </a>
+
+              <div class="article-card-content">
+                <h3 class="article-card-title">
+                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                </h3>
+
+                <p class="article-card-excerpt"><%= article.excerpt %></p>
+
+                <a href="/article/<%= article.slug %>" class="article-read-more" aria-label="Baca artikel <%= article.title %>">
+                  Baca Selengkapnya <i class="fa fa-arrow-circle-right"></i>
+                </a>
+              </div>
+            </article>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state-box text-center">
+        <h3>Belum ada artikel</h3>
+        <p>Artikel terbaru akan segera ditampilkan di halaman ini.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
