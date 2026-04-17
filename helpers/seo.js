@@ -1,5 +1,6 @@
 const { stripHtml } = require('./format');
 
+/* ================= BASIC ================= */
 function clean(v = '') {
   return String(v || '').trim();
 }
@@ -19,17 +20,25 @@ function absoluteUrl(url = '') {
 
 /* ================= CORE META ================= */
 function makeMeta(input = {}, settings = {}) {
-  const storeName = settings?.storeName || process.env.APP_NAME || 'Store';
+  const storeName =
+    settings?.storeName ||
+    process.env.APP_NAME ||
+    'MWG Oversize';
 
   const titleRaw = clean(input.title);
   const descRaw = clean(input.description);
   const keywordsRaw = clean(input.keywords);
 
+  // 🔥 FIX TITLE (ANTI MY ONLINE STORE)
   const title = titleRaw
     ? `${titleRaw} | ${storeName}`
-    : storeName;
+    : `${storeName} - Rekomendasi Kaos Pria Terbaik`;
 
-  const description = truncate(descRaw || storeName);
+  // 🔥 FIX DESCRIPTION SEO
+  const description = truncate(
+    descRaw ||
+    'Temukan rekomendasi kaos pria terbaik, oversize dan distro premium pilihan dengan bahan nyaman dan model kekinian.'
+  );
 
   const image = absoluteUrl(
     input.image ||
@@ -55,52 +64,90 @@ function productMeta(product = {}, baseUrl = '', settings = {}) {
   if (!product) return makeMeta({}, settings);
 
   const name = clean(product.name);
-  const category = clean(product.category);
-  const material = clean(product.material);
-  const fit = clean(product.fit);
+  const category = clean(product.category || 'pria');
+  const material = clean(product.material || 'premium');
+  const fit = clean(product.fit || 'nyaman');
 
-  const title = product.seoTitle ||
-    `${name} - Kaos ${category} Pria Premium`;
+  // 🔥 SEO TITLE (REKOMENDASI STYLE)
+  const title =
+    product.seoTitle ||
+    `${name} - Rekomendasi Kaos ${category} Terbaik`;
 
-  const description = product.seoDescription ||
-    `${name} adalah kaos ${category} pria dengan bahan ${material || 'premium'} dan fit ${fit || 'nyaman'}. Cocok untuk outfit harian.`;
+  // 🔥 SEO DESCRIPTION (NARIK + JUALAN HALUS)
+  const description =
+    product.seoDescription ||
+    `${name} merupakan salah satu rekomendasi kaos ${category} terbaik dengan bahan ${material} dan fit ${fit}. Cocok untuk outfit pria kekinian dan nyaman dipakai sehari-hari.`;
 
-  const keywords = product.keywords ||
-    `${name}, kaos ${category}, kaos pria, outfit pria`;
+  const keywords =
+    product.keywords ||
+    `${name}, kaos ${category}, kaos pria terbaik, rekomendasi kaos pria, kaos oversize pria`;
 
   return makeMeta({
     title,
     description,
-    image: product.image || (product.images && product.images[0]),
-    url: `${baseUrl}/product/${product.slug}`,
-    keywords
+    keywords,
+    image: product.image,
+    url: `/product/${product.slug}`
+  }, settings);
+}
+
+/* ================= HOME META ================= */
+function homeMeta(settings = {}) {
+  return makeMeta({
+    title: 'Rekomendasi Kaos Pria Terbaik & Oversize Premium',
+    description:
+      'Temukan rekomendasi kaos pria terbaik mulai dari oversize hingga distro premium pilihan dengan bahan nyaman dan desain kekinian.',
+    keywords:
+      'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik, kaos distro pria'
+  }, settings);
+}
+
+/* ================= SHOP META ================= */
+function shopMeta(settings = {}) {
+  return makeMeta({
+    title: 'Pilihan Kaos Pria Terbaik Hari Ini',
+    description:
+      'Kumpulan rekomendasi kaos pria terbaik yang sudah kami kurasi berdasarkan kualitas bahan, model, dan kenyamanan.',
+    keywords:
+      'kaos pria terbaik, rekomendasi kaos pria, kaos distro pria, kaos oversize'
   }, settings);
 }
 
 /* ================= ARTICLE META ================= */
-function articleMeta(article = {}, baseUrl = '', settings = {}) {
-  if (!article) return makeMeta({}, settings);
+function articleMeta(article = {}, settings = {}) {
+  return makeMeta({
+    title: article.title,
+    description: article.excerpt,
+    keywords: `artikel fashion pria, ${article.title}, outfit pria`
+  }, settings);
+}
 
-  const title = article.seoTitle || article.title;
-
-  const description = article.seoDescription ||
-    article.excerpt ||
-    `Baca ${article.title} lengkap hanya di ${settings?.storeName || 'website kami'}.`;
-
-  const keywords = article.keywords ||
-    `${article.title}, artikel fashion pria, outfit pria`;
-
+/* ================= SEO LANDING ================= */
+function landingMeta({ title, description, keywords }, settings = {}) {
   return makeMeta({
     title,
     description,
-    image: article.image || article.thumbnail,
-    url: `${baseUrl}/article/${article.slug}`,
     keywords
   }, settings);
+}
+
+/* ================= SCHEMA ================= */
+function organizationSchema(settings = {}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: settings?.storeName || 'MWG Oversize',
+    url: process.env.BASE_URL || '',
+    logo: settings?.logo || ''
+  };
 }
 
 module.exports = {
   makeMeta,
   productMeta,
-  articleMeta
+  homeMeta,
+  shopMeta,
+  articleMeta,
+  landingMeta,
+  organizationSchema
 };
