@@ -3918,3 +3918,102 @@ body {
     font-size: 13px !important;
   }
 }
+/* HOME ARTICLE GRID FINAL FIX */
+.article-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-top: 18px !important;
+}
+
+.article-grid-item {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.article-card-modern {
+  width: 100% !important;
+  height: 100% !important;
+  background: #fff !important;
+  border: 1px solid #e8edf4 !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
+}
+
+.article-card-thumb {
+  display: block !important;
+}
+
+.article-card-modern img {
+  width: 100% !important;
+  height: 120px !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.article-card-content {
+  padding: 10px !important;
+}
+
+.article-card-title {
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  margin: 0 0 6px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  overflow: hidden !important;
+}
+
+.article-card-title a {
+  color: var(--text) !important;
+}
+
+.article-card-excerpt {
+  font-size: 11px !important;
+  line-height: 1.55 !important;
+  margin: 0 0 8px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  overflow: hidden !important;
+  color: var(--muted) !important;
+}
+
+.read-more {
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+}
+
+@media (min-width: 768px) {
+  .article-grid {
+    gap: 18px !important;
+  }
+
+  .article-card-modern img {
+    height: 220px !important;
+  }
+
+  .article-card-content {
+    padding: 16px !important;
+  }
+
+  .article-card-title {
+    font-size: 22px !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  .article-card-excerpt {
+    font-size: 14px !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  .read-more {
+    font-size: 13px !important;
+  }
+}
