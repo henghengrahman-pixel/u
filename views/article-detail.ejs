@@ -1,116 +1,382 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
-<section class="section article-detail-page-section">
+<%
+  const galleryImages = [];
+  const mainImage = product.image || '';
+
+  if (mainImage) galleryImages.push(mainImage);
+
+  if (Array.isArray(product.images) && product.images.length) {
+    product.images.forEach(function(img) {
+      if (img && galleryImages.indexOf(img) === -1) {
+        galleryImages.push(img);
+      }
+    });
+  }
+%>
+
+<section class="section product-detail-section">
   <div class="container">
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
-        <article class="admin-card article-detail-card article-content">
-          <div class="article-detail-body">
-            <p class="article-detail-breadcrumb">
-              <a href="/">Home</a>
-              <span>/</span>
-              <a href="/articles">Artikel</a>
-              <span>/</span>
-              <span><%= article.title || '' %></span>
-            </p>
+    <div class="product-breadcrumb">
+      <a href="/">Home</a>
+      <span>/</span>
+      <a href="/shop">Rekomendasi</a>
+      <% if (product.category) { %>
+        <span>/</span>
+        <a href="/shop?category=<%= encodeURIComponent(product.category) %>">
+          <%= product.category %>
+        </a>
+      <% } %>
+      <span>/</span>
+      <span><%= product.name %></span>
+    </div>
 
-            <h1 class="article-detail-title"><%= article.title || '' %></h1>
+    <div class="row product-detail-row">
+      <div class="col-md-7 col-sm-12 col-xs-12 product-gallery-column">
+        <div class="product-gallery-wrap">
+          <div class="product-main-preview" id="product-main-preview">
+            <button
+              type="button"
+              class="product-zoom-btn"
+              id="open-image-popup"
+              aria-label="Lihat gambar lebih besar"
+            >
+              <i class="fa fa-search-plus"></i>
+            </button>
 
-            <% if (article && article.excerpt) { %>
-              <p class="article-detail-excerpt text-muted-2">
-                <%= article.excerpt %>
-              </p>
-            <% } %>
-
-            <% if (article && (article.image || article.thumbnail)) { %>
-              <div class="article-detail-thumb">
-                <img
-                  src="<%= article.image || article.thumbnail %>"
-                  alt="<%= article.title || '' %>"
-                  loading="eager"
-                >
-              </div>
-            <% } %>
-
-            <div class="article-detail-content">
-              <%- article && article.content ? article.content : '' %>
-            </div>
-
-            <div class="article-detail-actions">
-              <a href="/articles" class="secondary-success-btn">Kembali ke Artikel</a>
-            </div>
+            <img
+              id="main-product-image"
+              src="<%= galleryImages[0] || '' %>"
+              alt="<%= product.name %> kaos <%= product.category || 'pria' %> terbaik"
+              loading="eager"
+            >
           </div>
-        </article>
+
+          <div class="mobile-swipe-hint">Geser kiri / kanan untuk melihat foto lainnya</div>
+
+          <div class="thumb-list" id="product-thumb-list">
+            <% if (galleryImages.length) { %>
+              <% galleryImages.forEach(function(img, i){ %>
+                <button
+                  type="button"
+                  class="product-thumb-item <%= i === 0 ? 'active' : '' %>"
+                  data-image="<%= img %>"
+                  aria-label="Lihat foto <%= i + 1 %> dari <%= product.name %>"
+                >
+                  <img src="<%= img %>" alt="<%= product.name %> foto <%= i + 1 %>" loading="lazy">
+                </button>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-5 col-sm-12 col-xs-12 product-info-column">
+        <div class="product-details">
+          <h1 class="product-name"><%= product.name %></h1>
+
+          <div class="product-price-wrap">
+            <h2 class="product-price">
+              IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
+
+              <% if (product.compareAtPrice) { %>
+                <del class="product-old-price">
+                  IDR <%= Number(product.compareAtPrice).toLocaleString('id-ID') %>
+                </del>
+              <% } %>
+            </h2>
+
+            <span class="product-available">
+              <%= product.status === 'sold_out' ? 'Sold Out' : '✔ Stok tersedia' %>
+            </span>
+          </div>
+
+          <p class="product-short-description">
+            <strong><%= product.name %></strong> adalah salah satu pilihan kaos <%= product.category || 'pria' %> terbaik
+            dengan bahan <strong><%= product.material || 'premium' %></strong> yang nyaman dipakai seharian.
+            Model <strong><%= product.fit || 'oversize' %></strong> memberikan tampilan lebih modern,
+            rapi, dan cocok untuk berbagai gaya outfit pria masa kini.
+          </p>
+
+          <p class="product-short-description">
+            Cocok dipakai untuk aktivitas harian, nongkrong, atau tampil lebih percaya diri tanpa ribet mix outfit.
+          </p>
+
+          <div class="product-buy-actions">
+            <% if (product.status === 'sold_out') { %>
+              <button type="button" class="add-to-cart-btn" disabled>Sold Out</button>
+              <button type="button" class="buy-now-btn" disabled>Sold Out</button>
+            <% } else { %>
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn">
+                🔥 Cek Harga & Detail
+              </a>
+
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+                Lihat Review & Variasi
+              </a>
+            <% } %>
+          </div>
+
+          <div class="product-trust mt-15">
+            <ul class="product-trust-list">
+              <li>✔ Produk dipilih dari yang paling banyak diminati</li>
+              <li>✔ Bisa cek langsung ulasan asli pembeli</li>
+              <li>✔ Lebih aman karena beli lewat marketplace</li>
+            </ul>
+          </div>
+
+          <% if (product.category) { %>
+            <ul class="product-links mt-15">
+              <li>Category:</li>
+              <li><%= product.category %></li>
+            </ul>
+          <% } %>
+
+          <ul class="product-links">
+            <li>Fit:</li>
+            <li><%= product.fit || 'Oversize' %></li>
+          </ul>
+
+          <ul class="product-links">
+            <li>Material:</li>
+            <li><%= product.material || 'Premium Cotton' %></li>
+          </ul>
+
+          <div class="mt-15">
+            <a href="/kaos-oversize-pria">👉 Lihat rekomendasi kaos oversize lainnya</a>
+          </div>
+
+          <% if (product.description) { %>
+            <div class="product-description-content mt-15">
+              <%- product.description %>
+            </div>
+          <% } %>
+
+          <% if (product.details) { %>
+            <div class="product-details-content mt-15">
+              <%- product.details %>
+            </div>
+          <% } %>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<% if (Array.isArray(articles) && articles.length) { %>
-  <section class="section home-articles-section">
-    <div class="container">
-      <div class="section-heading text-center">
-        <h2 class="title">Baca Artikel Lainnya</h2>
-        <p class="section-subtitle">
-          Temukan artikel lain seputar kaos pria, outfit casual, tips memilih bahan yang nyaman,
-          dan inspirasi fashion pria yang lebih menarik untuk dipakai sehari-hari.
-        </p>
-      </div>
+<section class="section">
+  <div class="container">
+    <h2>Pertanyaan yang Sering Ditanyakan</h2>
 
-      <div class="article-grid-responsive">
-        <% articles.forEach(function(item){ %>
-          <div class="article-grid-item">
-            <article class="article-card-modern">
-              <a href="/article/<%= item.slug %>" class="article-card-thumb">
-                <img
-                  src="<%= item.image || item.thumbnail || '/assets/images/placeholder-article.jpg' %>"
-                  alt="<%= item.title || '' %>"
-                  loading="lazy"
-                >
-              </a>
+    <h3>Apakah nyaman dipakai?</h3>
+    <p>Ya, bahan <%= product.material || 'premium' %> terkenal adem dan cocok dipakai seharian.</p>
 
-              <div class="article-card-content">
-                <h3 class="article-card-title">
-                  <a href="/article/<%= item.slug %>"><%= item.title || '' %></a>
-                </h3>
+    <h3>Apakah cocok untuk outfit harian?</h3>
+    <p>Sangat cocok untuk gaya casual, santai, hingga semi streetwear.</p>
 
-                <p class="article-card-excerpt">
-                  <%= item.excerpt || 'Baca artikel lengkap untuk mendapatkan referensi fashion pria yang lebih tepat dan mudah diterapkan.' %>
-                </p>
+    <h3>Apakah tersedia ukuran lengkap?</h3>
+    <p>Detail ukuran bisa langsung dicek di halaman marketplace melalui tombol di atas.</p>
+  </div>
+</section>
 
-                <a href="/article/<%= item.slug %>" class="read-more">
-                  Baca Selengkapnya →
-                </a>
-              </div>
-            </article>
-          </div>
-        <% }) %>
-      </div>
+<section class="section recommended-products-section">
+  <div class="container">
+    <div class="section-heading text-center">
+      <h2 class="title">Rekomendasi Serupa</h2>
+      <p class="section-subtitle">
+        Pilihan lain yang juga banyak diminati dan layak dipertimbangkan.
+      </p>
     </div>
-  </section>
-<% } %>
 
-<% if (Array.isArray(products) && products.length) { %>
-  <section class="section recommended-products-section">
-    <div class="container">
-      <div class="section-heading text-center">
-        <h2 class="title">Rekomendasi Produk Pilihan</h2>
-        <p class="section-subtitle">
-          Lihat juga pilihan kaos pria yang kami kurasi untuk membantu Anda menemukan model yang nyaman,
-          menarik, dan layak dipertimbangkan.
-        </p>
-      </div>
-
-      <div class="row product-grid-row">
-        <% products.forEach(function(product){ %>
+    <div class="row product-grid-row">
+      <% if (recommended && recommended.length) { %>
+        <% recommended.forEach(function(item){ %>
           <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
-            <%- include('partials/product-card', { product: product }) %>
+            <%- include('partials/product-card', { product: item }) %>
           </div>
         <% }) %>
-      </div>
+      <% } %>
     </div>
-  </section>
+  </div>
+</section>
+
+<div class="product-image-modal" id="product-image-modal" aria-hidden="true">
+  <div class="product-image-modal-backdrop" id="product-image-modal-backdrop"></div>
+
+  <div
+    class="product-image-modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Preview gambar produk"
+  >
+    <button
+      type="button"
+      class="product-image-modal-close"
+      id="close-image-popup"
+      aria-label="Tutup preview"
+    >
+      <i class="fa fa-times"></i>
+    </button>
+
+    <img
+      id="popup-product-image"
+      src="<%= galleryImages[0] || '' %>"
+      alt="<%= product.name %> preview gambar besar"
+    >
+  </div>
+</div>
+
+<% if (product.status !== 'sold_out') { %>
+  <div class="mobile-buy-bar">
+    <div class="mobile-buy-bar-inner">
+      <div class="mobile-buy-price">
+        IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
+      </div>
+
+      <a href="/product/<%= product.slug %>" class="mobile-add-cart">
+        Lihat
+      </a>
+
+      <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="mobile-buy-now">
+        Beli Sekarang
+      </a>
+    </div>
+  </div>
 <% } %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var mainImage = document.getElementById('main-product-image');
+    var popupImage = document.getElementById('popup-product-image');
+    var thumbs = Array.prototype.slice.call(document.querySelectorAll('.product-thumb-item'));
+    var modal = document.getElementById('product-image-modal');
+    var openPopupBtn = document.getElementById('open-image-popup');
+    var closePopupBtn = document.getElementById('close-image-popup');
+    var modalBackdrop = document.getElementById('product-image-modal-backdrop');
+    var mainPreview = document.getElementById('product-main-preview');
+
+    if (!mainImage || !mainPreview || !thumbs.length) return;
+
+    var currentIndex = 0;
+    var touchStartX = 0;
+    var touchEndX = 0;
+
+    function updateActiveThumb(index) {
+      if (index < 0) index = thumbs.length - 1;
+      if (index >= thumbs.length) index = 0;
+
+      currentIndex = index;
+
+      thumbs.forEach(function (item, i) {
+        item.classList.toggle('active', i === index);
+      });
+
+      var newImage = thumbs[index].getAttribute('data-image');
+      if (!newImage) return;
+
+      mainImage.setAttribute('src', newImage);
+
+      if (popupImage) {
+        popupImage.setAttribute('src', newImage);
+      }
+
+      if (window.innerWidth <= 767) {
+        thumbs[index].scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest'
+        });
+      }
+    }
+
+    function showNextImage() {
+      updateActiveThumb(currentIndex + 1);
+    }
+
+    function showPrevImage() {
+      updateActiveThumb(currentIndex - 1);
+    }
+
+    thumbs.forEach(function (thumb, index) {
+      thumb.addEventListener('click', function () {
+        updateActiveThumb(index);
+      });
+    });
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+
+      if (popupImage) {
+        popupImage.setAttribute('src', mainImage.getAttribute('src'));
+      }
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    if (openPopupBtn) {
+      openPopupBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal();
+      });
+    }
+
+    mainImage.addEventListener('click', openModal);
+
+    if (closePopupBtn) closePopupBtn.addEventListener('click', closeModal);
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') showNextImage();
+      if (e.key === 'ArrowLeft') showPrevImage();
+    });
+
+    mainPreview.addEventListener('touchstart', function (e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    mainPreview.addEventListener('touchend', function (e) {
+      touchEndX = e.changedTouches[0].screenX;
+      var diff = touchEndX - touchStartX;
+
+      if (Math.abs(diff) < 40) return;
+
+      if (diff < 0) {
+        showNextImage();
+      } else {
+        showPrevImage();
+      }
+    }, { passive: true });
+
+    if (modal) {
+      modal.addEventListener('touchstart', function (e) {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      modal.addEventListener('touchend', function (e) {
+        touchEndX = e.changedTouches[0].screenX;
+        var diff = touchEndX - touchStartX;
+
+        if (Math.abs(diff) < 40) return;
+
+        if (diff < 0) {
+          showNextImage();
+        } else {
+          showPrevImage();
+        }
+      }, { passive: true });
+    }
+
+    updateActiveThumb(0);
+  });
+</script>
 
 <%- include('partials/footer') %>
