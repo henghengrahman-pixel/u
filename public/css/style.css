@@ -3477,3 +3477,55 @@ body {
     gap: 6px !important;
   }
 }
+/* GRID ARTIKEL */
+.article-grid {
+  margin-top: 20px;
+}
+
+.article-card-modern {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  transition: 0.3s;
+}
+
+.article-card-modern:hover {
+  transform: translateY(-4px);
+}
+
+.article-card-modern img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.article-card-content {
+  padding: 14px;
+}
+
+.article-card-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.article-card-content p {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.read-more {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e11d48;
+}
+
+/* MOBILE 1 KOLOM */
+@media (max-width: 768px) {
+  .article-card-modern img {
+    height: 160px;
+  }
+}
