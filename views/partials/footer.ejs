@@ -1,14 +1,26 @@
+<%
+  const safeStoreName = settings?.storeName || 'MWG Oversize';
+  const safeDescription =
+    settings?.seo?.metaDescription ||
+    'Rekomendasi kaos pria, kaos oversize, dan pilihan fashion pria terbaik dengan tampilan modern, bahan nyaman, dan referensi yang lebih mudah dipilih.';
+  const safeTelegram = settings?.telegram ? String(settings.telegram).replace('@', '').trim() : '';
+  const safeCategories = typeof categories !== 'undefined' && Array.isArray(categories) ? categories : [];
+%>
+
 <footer id="footer">
   <div class="section">
     <div class="container">
       <div class="row footer-grid">
+
         <div class="col-md-4 col-sm-6 col-xs-12">
           <div class="footer">
-            <h3 class="footer-title">Tentang Kami</h3>
-            <p><%= settings.seo && settings.seo.metaDescription ? settings.seo.metaDescription : '' %></p>
+            <h3 class="footer-title">Tentang <%= safeStoreName %></h3>
+            <p>
+              <%= safeDescription %>
+            </p>
 
             <ul class="footer-links">
-              <% if (settings.address) { %>
+              <% if (settings?.address) { %>
                 <li>
                   <a href="/contact">
                     <i class="fa fa-map-marker"></i>
@@ -17,7 +29,7 @@
                 </li>
               <% } %>
 
-              <% if (settings.phone) { %>
+              <% if (settings?.phone) { %>
                 <li>
                   <a href="tel:<%= settings.phone %>">
                     <i class="fa fa-phone"></i>
@@ -26,7 +38,7 @@
                 </li>
               <% } %>
 
-              <% if (settings.email) { %>
+              <% if (settings?.email) { %>
                 <li>
                   <a href="mailto:<%= settings.email %>">
                     <i class="fa fa-envelope-o"></i>
@@ -35,11 +47,11 @@
                 </li>
               <% } %>
 
-              <% if (settings.telegram) { %>
+              <% if (safeTelegram) { %>
                 <li>
-                  <a href="https://t.me/<%= String(settings.telegram).replace('@', '').trim() %>" target="_blank" rel="noopener noreferrer">
+                  <a href="https://t.me/<%= safeTelegram %>" target="_blank" rel="noopener noreferrer">
                     <i class="fa fa-telegram"></i>
-                    <span>@<%= String(settings.telegram).replace('@', '').trim() %></span>
+                    <span>@<%= safeTelegram %></span>
                   </a>
                 </li>
               <% } %>
@@ -51,14 +63,16 @@
           <div class="footer">
             <h3 class="footer-title">Kategori</h3>
             <ul class="footer-links">
-              <% if (categories && categories.length) { %>
-                <% categories.forEach(function(cat){ %>
+              <% if (safeCategories.length) { %>
+                <% safeCategories.slice(0, 8).forEach(function(cat){ %>
                   <li>
-                    <a href="/shop?category=<%= encodeURIComponent(cat.name) %>"><%= cat.name %></a>
+                    <a href="/shop?category=<%= encodeURIComponent(cat.name) %>">
+                      <%= cat.name %>
+                    </a>
                   </li>
                 <% }) %>
               <% } else { %>
-                <li><span>Tidak ada kategori</span></li>
+                <li><span>Kategori segera diperbarui</span></li>
               <% } %>
             </ul>
           </div>
@@ -66,11 +80,12 @@
 
         <div class="col-md-3 col-sm-6 col-xs-12">
           <div class="footer">
-            <h3 class="footer-title">Informasi</h3>
+            <h3 class="footer-title">Jelajahi</h3>
             <ul class="footer-links">
               <li><a href="/">Home</a></li>
-              <li><a href="/shop">Shop</a></li>
-              <li><a href="/articles">Artikel</a></li>
+              <li><a href="/shop">Rekomendasi Produk</a></li>
+              <li><a href="/kaos-oversize-pria">Kaos Oversize Pria</a></li>
+              <li><a href="/articles">Artikel Fashion Pria</a></li>
               <li><a href="/contact">Kontak</a></li>
             </ul>
           </div>
@@ -78,14 +93,16 @@
 
         <div class="col-md-3 col-sm-6 col-xs-12">
           <div class="footer">
-            <h3 class="footer-title">Layanan</h3>
+            <h3 class="footer-title">Kenapa Pilih Kami</h3>
             <ul class="footer-links">
-              <li><a href="/cart">Cart</a></li>
-              <li><a href="/checkout">Checkout</a></li>
+              <li><span>Kurasi produk lebih selektif</span></li>
+              <li><span>Fokus pada model yang nyaman dipakai</span></li>
+              <li><span>Referensi outfit pria lebih mudah dipilih</span></li>
               <li><a href="/sitemap.xml">Sitemap</a></li>
             </ul>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -95,7 +112,7 @@
       <div class="row">
         <div class="col-md-12 text-center">
           <span class="copyright">
-            &copy; <%= new Date().getFullYear() %> <%= settings.storeName %>. All rights reserved.
+            &copy; <%= new Date().getFullYear() %> <%= safeStoreName %>. Semua hak cipta dilindungi.
           </span>
         </div>
       </div>
