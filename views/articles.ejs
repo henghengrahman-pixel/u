@@ -1,58 +1,31 @@
-<%- include('partials/head') %>
-<%- include('partials/header') %>
+<div class="row article-grid">
+  <% articles.forEach(function(article){ %>
+    <div class="col-md-6 col-sm-12">
+      <article class="article-card-modern">
 
-<section class="section articles-page-section">
-  <div class="container">
-    <div class="articles-page-header">
-      <div class="section-title">
-        <h1 class="title">Artikel</h1>
-      </div>
-      <p class="articles-page-subtitle">
-        Baca artikel, panduan, dan rekomendasi terbaru untuk membantu kamu memahami produk dan menemukan pilihan yang paling sesuai.
-      </p>
-    </div>
+        <a href="/article/<%= article.slug %>">
+          <img
+            src="<%= article.image || article.thumbnail || '' %>"
+            alt="<%= article.title %>"
+            loading="lazy"
+          >
+        </a>
 
-    <div class="row">
-      <% if (articles && articles.length) { %>
-        <% articles.forEach(function(article){ %>
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <article class="admin-card article-card articles-page-card">
-              <a href="/article/<%= article.slug %>" class="article-thumb-link" aria-label="<%= article.title %>">
-                <img
-                  src="<%= article.image || article.thumbnail || '' %>"
-                  alt="<%= article.title %>"
-                  loading="lazy"
-                >
-              </a>
+        <div class="article-card-content">
+          <h3>
+            <a href="/article/<%= article.slug %>">
+              <%= article.title %>
+            </a>
+          </h3>
 
-              <div class="article-card-content">
-                <h3 class="article-card-title">
-                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
-                </h3>
+          <p><%= article.excerpt %></p>
 
-                <% if (article.excerpt) { %>
-                  <p class="article-card-excerpt">
-                    <%= article.excerpt %>
-                  </p>
-                <% } %>
-
-                <a href="/article/<%= article.slug %>" class="article-read-more" aria-label="Baca artikel <%= article.title %>">
-                  Baca Selengkapnya <i class="fa fa-arrow-right"></i>
-                </a>
-              </div>
-            </article>
-          </div>
-        <% }) %>
-      <% } else { %>
-        <div class="col-md-12">
-          <div class="empty-box text-center">
-            <h3>Belum ada artikel</h3>
-            <p>Artikel akan segera ditampilkan di halaman ini.</p>
-          </div>
+          <a href="/article/<%= article.slug %>" class="read-more">
+            Baca Selengkapnya →
+          </a>
         </div>
-      <% } %>
-    </div>
-  </div>
-</section>
 
-<%- include('partials/footer') %>
+      </article>
+    </div>
+  <% }) %>
+</div>
