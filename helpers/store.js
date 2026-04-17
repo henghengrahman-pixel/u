@@ -1,286 +1,423 @@
+const { ORDER_STATUSES } = require('../helpers/constants');
 const {
-  getCollection,
-  saveCollection,
-  normalizeProduct,
-  normalizeArticle,
-  uid,
-  nowIso
-} = require('./jsonDb');
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getProductById,
+  getOrders,
+  updateOrderStatus,
+  getArticles,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  getArticleById,
+  getSettings,
+  saveSettings
+} = require('../helpers/store');
+const { setFlash } = require('../middleware');
 
-/* ================= HELPER ================= */
 function cleanString(value = '') {
   return String(value || '').trim();
 }
 
-function cleanUrl(value = '') {
-  return String(value || '').trim();
+function normalizeCheckbox(value) {
+  return value === 'on' || value === 'true' || value === true;
 }
 
-function cleanNumber(value = 0) {
-  const num = Number(value || 0);
-  return Number.isFinite(num) ? num : 0;
+function normalizeMultilineUrls(value = '') {
+  return String(value || '')
+    .split(/\r?\n|,/)
+    .map(item => cleanString(item))
+    .filter(Boolean);
 }
 
-function cleanBoolean(value, fallback = true) {
-  if (typeof value === 'boolean') return value;
-  if (['true', 'on', '1', 1].includes(value)) return true;
-  if (['false', 'off', '0', 0].includes(value)) return false;
-  return fallback;
+function loginPage(req, res) {
+  res.render('admin/login', {
+    layout: false,
+    flash: req.session.flash || null
+  });
+  delete req.session.flash;
 }
 
-function slugify(text = '') {
-  return String(text || '')
-    .toLowerCase()
-    .trim()
-    .replace(/['"]/g, '')
-    .replace(/&/g, ' dan ')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+function login(req, res) {
+  const username = cleanString(req.body.username);
+  const password = cleanString(req.body.password);
 
-/* ================= IMAGE ================= */
-function normalizeImageList(payload = {}) {
-  if (Array.isArray(payload.images)) {
-    return payload.images.map(cleanUrl).filter(Boolean);
+  if (
+    username === cleanString(process.env.ADMIN_USERNAME) &&
+    password === cleanString(process.env.ADMIN_PASSWORD)
+  ) {
+    req.session.adminUser = { username };
+    return res.redirect('/admin');
   }
 
-  if (typeof payload.images === 'string') {
-    return payload.images.split(/\r?\n|,/).map(cleanUrl).filter(Boolean);
+  setFlash(req, 'danger', 'Login gagal.');
+  return res.redirect('/admin/login');
+}
+
+function logout(req, res) {
+  req.session.destroy(() => res.redirect('/admin/login'));
+}
+
+function dashboard(req, res) {
+  const products = getProducts();
+  const orders = getOrders();
+  const articles = getArticles();
+
+  res.render('admin/dashboard', {
+    totalProducts: products.length,
+    totalOrders: orders.length,
+    totalArticles: articles.length,
+    recentOrders: orders.slice(0, 10)
+  });
+}
+
+function productList(req, res) {
+  res.render('admin/products', {
+    products: getProducts()
+  });
+}
+
+function productCreatePage(req, res) {
+  res.render('admin/product-form', { item: null });
+}
+
+function productStore(req, res) {
+  try {
+    const name = cleanString(req.body.name);
+    const category = cleanString(req.body.category);
+    const affiliateLink = cleanString(req.body.affiliateLink || req.body.affiliate_link);
+    const image = cleanString(req.body.image);
+    const shortDescription = cleanString(req.body.shortDescription || req.body.short_description);
+    const images = normalizeMultilineUrls(req.body.images);
+
+    if (!name) {
+      setFlash(req, 'danger', 'Nama produk wajib diisi.');
+      return res.redirect('/admin/products/create');
+    }
+
+    if (!category) {
+      setFlash(req, 'danger', 'Kategori produk wajib diisi.');
+      return res.redirect('/admin/products/create');
+    }
+
+    if (!affiliateLink) {
+      setFlash(req, 'danger', 'Link affiliate wajib diisi.');
+      return res.redirect('/admin/products/create');
+    }
+
+    if (!image) {
+      setFlash(req, 'danger', 'Gambar utama produk wajib diisi.');
+      return res.redirect('/admin/products/create');
+    }
+
+    createProduct({
+      ...req.body,
+      name,
+      category,
+      affiliateLink,
+      image,
+      images,
+      shortDescription,
+      visible: normalizeCheckbox(req.body.visible),
+      featured: normalizeCheckbox(req.body.featured),
+      recommended: normalizeCheckbox(req.body.recommended),
+      price: Number(req.body.price || 0),
+      compareAtPrice: Number(req.body.compareAtPrice || 0)
+    });
+
+    setFlash(req, 'success', 'Produk berhasil dibuat.');
+    return res.redirect('/admin/products');
+  } catch (error) {
+    console.error('[ADMIN PRODUCT STORE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal menambah produk. Periksa field yang diisi.');
+    return res.redirect('/admin/products/create');
+  }
+}
+
+function productEditPage(req, res) {
+  const item = getProductById(req.params.id) || null;
+
+  if (!item) {
+    setFlash(req, 'danger', 'Produk tidak ditemukan.');
+    return res.redirect('/admin/products');
   }
 
-  if (payload.image) return [cleanUrl(payload.image)];
-  return [];
+  return res.render('admin/product-form', { item });
 }
 
-function pickPrimaryImage(item = {}) {
-  const images = normalizeImageList(item);
-  if (images.length > 0) return images[0];
-  return cleanUrl(item.image || item.thumbnail || '');
+function productUpdate(req, res) {
+  try {
+    const name = cleanString(req.body.name);
+    const category = cleanString(req.body.category);
+    const affiliateLink = cleanString(req.body.affiliateLink || req.body.affiliate_link);
+    const image = cleanString(req.body.image);
+    const shortDescription = cleanString(req.body.shortDescription || req.body.short_description);
+    const images = normalizeMultilineUrls(req.body.images);
+
+    if (!name) {
+      setFlash(req, 'danger', 'Nama produk wajib diisi.');
+      return res.redirect(`/admin/products/${req.params.id}/edit`);
+    }
+
+    if (!category) {
+      setFlash(req, 'danger', 'Kategori produk wajib diisi.');
+      return res.redirect(`/admin/products/${req.params.id}/edit`);
+    }
+
+    if (!affiliateLink) {
+      setFlash(req, 'danger', 'Link affiliate wajib diisi.');
+      return res.redirect(`/admin/products/${req.params.id}/edit`);
+    }
+
+    if (!image) {
+      setFlash(req, 'danger', 'Gambar utama produk wajib diisi.');
+      return res.redirect(`/admin/products/${req.params.id}/edit`);
+    }
+
+    const updated = updateProduct(req.params.id, {
+      ...req.body,
+      name,
+      category,
+      affiliateLink,
+      image,
+      images,
+      shortDescription,
+      visible: normalizeCheckbox(req.body.visible),
+      featured: normalizeCheckbox(req.body.featured),
+      recommended: normalizeCheckbox(req.body.recommended),
+      price: Number(req.body.price || 0),
+      compareAtPrice: Number(req.body.compareAtPrice || 0)
+    });
+
+    if (!updated) {
+      setFlash(req, 'danger', 'Produk tidak ditemukan.');
+      return res.redirect('/admin/products');
+    }
+
+    setFlash(req, 'success', 'Produk berhasil diupdate.');
+    return res.redirect('/admin/products');
+  } catch (error) {
+    console.error('[ADMIN PRODUCT UPDATE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal update produk.');
+    return res.redirect(`/admin/products/${req.params.id}/edit`);
+  }
 }
 
-/* ================= SEO PRODUCT ================= */
-function buildProductSeo(product = {}) {
-  const name = cleanString(product.name);
-  const category = cleanString(product.category || 'pria');
-
-  const seoTitle =
-    cleanString(product.seoTitle) ||
-    `${name} - Rekomendasi Kaos ${category} Terbaik`;
-
-  const seoDescription =
-    cleanString(product.seoDescription) ||
-    `${name} merupakan salah satu rekomendasi kaos ${category} terbaik dengan bahan nyaman dan cocok untuk outfit pria kekinian.`;
-
-  const keywords = [
-    name,
-    `kaos ${category}`,
-    'rekomendasi kaos pria',
-    'kaos pria terbaik',
-    'kaos oversize pria'
-  ].filter(Boolean).join(', ');
-
-  return { seoTitle, seoDescription, keywords };
+function productDelete(req, res) {
+  try {
+    deleteProduct(req.params.id);
+    setFlash(req, 'success', 'Produk berhasil dihapus.');
+    return res.redirect('/admin/products');
+  } catch (error) {
+    console.error('[ADMIN PRODUCT DELETE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal menghapus produk.');
+    return res.redirect('/admin/products');
+  }
 }
 
-/* ================= SEO ARTICLE ================= */
-function buildArticleSeo(article = {}) {
-  const title = cleanString(article.title);
-
-  return {
-    seoTitle: title,
-    seoDescription:
-      cleanString(article.description) ||
-      cleanString(article.excerpt) ||
-      `Baca ${title} lengkap dengan rekomendasi terbaik.`,
-    keywords: `rekomendasi kaos pria, ${title}`
-  };
+function orderList(req, res) {
+  res.render('admin/orders', {
+    orders: getOrders(),
+    statuses: ORDER_STATUSES
+  });
 }
 
-/* ================= PRODUCT ================= */
-function prepareProduct(item = {}) {
-  const images = normalizeImageList(item);
-  const primaryImage = pickPrimaryImage(item);
+function orderUpdateStatus(req, res) {
+  try {
+    const status = cleanString(req.body.status);
+    const updated = updateOrderStatus(req.params.id, status);
 
-  const prepared = {
-    ...item,
-    id: cleanString(item.id || uid()),
-    name: cleanString(item.name),
-    slug: cleanString(item.slug) || slugify(item.name),
-    shortDescription: cleanString(item.shortDescription),
-    description: cleanString(item.description),
+    if (!updated) {
+      setFlash(req, 'danger', 'Order tidak ditemukan.');
+      return res.redirect('/admin/orders');
+    }
 
-    category: cleanString(item.category || 'pria'),
-    brand: cleanString(item.brand || 'MWG Oversize'),
-
-    fit: cleanString(item.fit || ''),
-    material: cleanString(item.material || ''),
-
-    image: primaryImage,
-    images,
-
-    affiliateLink: cleanUrl(item.affiliateLink),
-
-    visible: cleanBoolean(item.visible, true),
-    featured: cleanBoolean(item.featured, false),
-    recommended: cleanBoolean(item.recommended, false),
-
-    price: cleanNumber(item.price),
-    compareAtPrice: cleanNumber(item.compareAtPrice),
-
-    created_at: item.created_at || nowIso(),
-    updated_at: nowIso()
-  };
-
-  const seo = buildProductSeo(prepared);
-
-  prepared.seoTitle = seo.seoTitle;
-  prepared.seoDescription = seo.seoDescription;
-  prepared.keywords = seo.keywords;
-  prepared.canonical = `/product/${prepared.slug}`;
-
-  return prepared;
+    setFlash(req, 'success', 'Status order diupdate.');
+    return res.redirect('/admin/orders');
+  } catch (error) {
+    console.error('[ADMIN ORDER UPDATE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal update status order.');
+    return res.redirect('/admin/orders');
+  }
 }
 
-/* ================= ARTICLE ================= */
-function prepareArticle(item = {}) {
-  const primaryImage = pickPrimaryImage(item);
-
-  const prepared = {
-    ...item,
-    id: cleanString(item.id || uid()),
-    title: cleanString(item.title),
-    slug: cleanString(item.slug) || slugify(item.title),
-    excerpt: cleanString(item.excerpt),
-    description: cleanString(item.description),
-    content: cleanString(item.content),
-
-    image: cleanUrl(item.image || primaryImage),
-
-    visible: cleanBoolean(item.visible, true),
-
-    created_at: item.created_at || nowIso(),
-    updated_at: nowIso()
-  };
-
-  const seo = buildArticleSeo(prepared);
-
-  prepared.seoTitle = seo.seoTitle;
-  prepared.seoDescription = seo.seoDescription;
-  prepared.keywords = seo.keywords;
-  prepared.canonical = `/article/${prepared.slug}`;
-
-  return prepared;
+function articleList(req, res) {
+  res.render('admin/articles', {
+    articles: getArticles()
+  });
 }
 
-/* ================= SETTINGS ================= */
-function getSettings() {
-  return getCollection('settings.json') || {};
+function articleCreatePage(req, res) {
+  res.render('admin/article-form', { item: null });
 }
 
-function saveSettings(settings) {
-  return saveCollection('settings.json', settings || {});
+function articleStore(req, res) {
+  try {
+    const title = cleanString(req.body.title);
+    const excerpt = cleanString(req.body.excerpt);
+    const description = cleanString(req.body.description || req.body.excerpt);
+    const thumbnail = cleanString(req.body.thumbnail);
+    const image = cleanString(req.body.image || req.body.thumbnail);
+
+    if (!title) {
+      setFlash(req, 'danger', 'Judul artikel wajib diisi.');
+      return res.redirect('/admin/articles/create');
+    }
+
+    createArticle({
+      ...req.body,
+      title,
+      excerpt,
+      description,
+      thumbnail,
+      image,
+      visible: normalizeCheckbox(req.body.visible)
+    });
+
+    setFlash(req, 'success', 'Artikel berhasil dibuat.');
+    return res.redirect('/admin/articles');
+  } catch (error) {
+    console.error('[ADMIN ARTICLE STORE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal membuat artikel.');
+    return res.redirect('/admin/articles/create');
+  }
 }
 
-/* ================= PRODUCTS ================= */
-function getProducts() {
-  return (getCollection('products.json') || []).map(prepareProduct);
+function articleEditPage(req, res) {
+  const item = getArticleById(req.params.id) || null;
+
+  if (!item) {
+    setFlash(req, 'danger', 'Artikel tidak ditemukan.');
+    return res.redirect('/admin/articles');
+  }
+
+  return res.render('admin/article-form', { item });
 }
 
-function getVisibleProducts() {
-  return getProducts().filter(p => p.visible);
+function articleUpdate(req, res) {
+  try {
+    const title = cleanString(req.body.title);
+    const excerpt = cleanString(req.body.excerpt);
+    const description = cleanString(req.body.description || req.body.excerpt);
+    const thumbnail = cleanString(req.body.thumbnail);
+    const image = cleanString(req.body.image || req.body.thumbnail);
+
+    if (!title) {
+      setFlash(req, 'danger', 'Judul artikel wajib diisi.');
+      return res.redirect(`/admin/articles/${req.params.id}/edit`);
+    }
+
+    const updated = updateArticle(req.params.id, {
+      ...req.body,
+      title,
+      excerpt,
+      description,
+      thumbnail,
+      image,
+      visible: normalizeCheckbox(req.body.visible)
+    });
+
+    if (!updated) {
+      setFlash(req, 'danger', 'Artikel tidak ditemukan.');
+      return res.redirect('/admin/articles');
+    }
+
+    setFlash(req, 'success', 'Artikel berhasil diupdate.');
+    return res.redirect('/admin/articles');
+  } catch (error) {
+    console.error('[ADMIN ARTICLE UPDATE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal update artikel.');
+    return res.redirect(`/admin/articles/${req.params.id}/edit`);
+  }
 }
 
-function getProductBySlug(slug) {
-  return getProducts().find(p => p.slug === slug && p.visible);
+function articleDelete(req, res) {
+  try {
+    deleteArticle(req.params.id);
+    setFlash(req, 'success', 'Artikel berhasil dihapus.');
+    return res.redirect('/admin/articles');
+  } catch (error) {
+    console.error('[ADMIN ARTICLE DELETE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal menghapus artikel.');
+    return res.redirect('/admin/articles');
+  }
 }
 
-function getProductById(id) {
-  return getProducts().find(p => p.id === id);
+function settingsPage(req, res) {
+  const current = getSettings() || {};
+
+  res.render('admin/settings', {
+    settings: {
+      ...current,
+      phone: current.phone || '',
+      telegram: current.telegram || '',
+      telegramChannel: current.telegramChannel || '',
+      seo: {
+        metaTitle: current.seo?.metaTitle || '',
+        metaDescription: current.seo?.metaDescription || '',
+        ogImage: current.seo?.ogImage || '',
+        keywords: current.seo?.keywords || ''
+      }
+    }
+  });
 }
 
-function createProduct(payload) {
-  const items = getProducts();
-  const item = prepareProduct(payload);
-  items.unshift(item);
-  saveCollection('products.json', items);
-  return item;
+function settingsUpdate(req, res) {
+  try {
+    const current = getSettings() || {};
+
+    const payload = {
+      storeName: cleanString(req.body.storeName),
+      logo: cleanString(req.body.logo),
+      phone: cleanString(req.body.phone),
+      whatsapp: cleanString(req.body.whatsapp),
+      telegram: cleanString(req.body.telegram),
+      telegramChannel: cleanString(req.body.telegramChannel),
+      email: cleanString(req.body.email),
+      address: cleanString(req.body.address),
+      seo: {
+        metaTitle: cleanString(req.body.metaTitle),
+        metaDescription: cleanString(req.body.metaDescription),
+        ogImage: cleanString(req.body.ogImage),
+        keywords: cleanString(req.body.keywords)
+      }
+    };
+
+    saveSettings({
+      ...current,
+      ...payload
+    });
+
+    setFlash(req, 'success', 'Settings berhasil disimpan.');
+    return res.redirect('/admin/settings');
+  } catch (error) {
+    console.error('[ADMIN SETTINGS UPDATE ERROR]', error);
+    setFlash(req, 'danger', 'Gagal menyimpan settings.');
+    return res.redirect('/admin/settings');
+  }
 }
 
-function updateProduct(id, payload) {
-  const items = getProducts();
-  const index = items.findIndex(p => p.id === id);
-  if (index === -1) return null;
-
-  const updated = prepareProduct({ ...items[index], ...payload });
-  items[index] = updated;
-  saveCollection('products.json', items);
-  return updated;
-}
-
-function deleteProduct(id) {
-  saveCollection('products.json', getProducts().filter(p => p.id !== id));
-}
-
-/* ================= ARTICLES ================= */
-function getArticles() {
-  return (getCollection('articles.json') || []).map(prepareArticle);
-}
-
-function getVisibleArticles() {
-  return getArticles().filter(a => a.visible);
-}
-
-function getArticleBySlug(slug) {
-  return getArticles().find(a => a.slug === slug && a.visible);
-}
-
-function getArticleById(id) {
-  return getArticles().find(a => a.id === id);
-}
-
-function createArticle(payload) {
-  const items = getArticles();
-  const item = prepareArticle(payload);
-  items.unshift(item);
-  saveCollection('articles.json', items);
-  return item;
-}
-
-function updateArticle(id, payload) {
-  const items = getArticles();
-  const index = items.findIndex(a => a.id === id);
-  if (index === -1) return null;
-
-  const updated = prepareArticle({ ...items[index], ...payload });
-  items[index] = updated;
-  saveCollection('articles.json', items);
-  return updated;
-}
-
-function deleteArticle(id) {
-  saveCollection('articles.json', getArticles().filter(a => a.id !== id));
-}
-
-/* ================= EXPORT ================= */
 module.exports = {
-  getSettings,
-  saveSettings,
-
-  getProducts,
-  getVisibleProducts,
-  getProductBySlug,
-  getProductById,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-
-  getArticles,
-  getVisibleArticles,
-  getArticleBySlug,
-  getArticleById,
-  createArticle,
-  updateArticle,
-  deleteArticle,
-
-  slugify
+  loginPage,
+  login,
+  logout,
+  dashboard,
+  productList,
+  productCreatePage,
+  productStore,
+  productEditPage,
+  productUpdate,
+  productDelete,
+  orderList,
+  orderUpdateStatus,
+  articleList,
+  articleCreatePage,
+  articleStore,
+  articleEditPage,
+  articleUpdate,
+  articleDelete,
+  settingsPage,
+  settingsUpdate
 };
