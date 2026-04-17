@@ -1,99 +1,132 @@
-/* HOME ARTICLE GRID FINAL FIX */
-.article-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  width: 100% !important;
-  margin-top: 18px !important;
-}
+<%- include('partials/head') %>
+<%- include('partials/header') %>
 
-.article-grid-item {
-  width: 100% !important;
-  min-width: 0 !important;
-}
+<!-- HERO SEO -->
+<section class="section home-hero">
+  <div class="container text-center">
+    <h1>Rekomendasi Kaos Oversize Pria & Kaos Distro Original</h1>
+    <p>
+      Rekomendasi kaos oversize pria, kaos distro premium, dan outfit pria kekinian dengan bahan nyaman dan desain modern.
+    </p>
 
-.article-card-modern {
-  width: 100% !important;
-  height: 100% !important;
-  background: #fff !important;
-  border: 1px solid #e8edf4 !important;
-  border-radius: 16px !important;
-  overflow: hidden !important;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
-}
+    <div style="margin-top:20px;">
+      <a href="/shop" class="primary-btn">Shop Sekarang</a>
+    </div>
+  </div>
+</section>
 
-.article-card-thumb {
-  display: block !important;
-}
+<!-- FEATURED -->
+<section class="section home-featured-slider-section">
+  <div class="container">
+    <h2 class="title text-center">Rekomendasi Kaos Oversize Pria</h2>
 
-.article-card-modern img {
-  width: 100% !important;
-  height: 120px !important;
-  object-fit: cover !important;
-  display: block !important;
-}
+    <% if (featured && featured.length) { %>
+      <div class="featured-slider-wrap">
+        <div class="featured-slider-track">
+          <% featured.forEach(function(product){ %>
+            <div class="featured-slide-item">
+              <%- include('partials/product-card', { product: product }) %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
 
-.article-card-content {
-  padding: 10px !important;
-}
+<!-- PRODUCTS -->
+<section class="section home-products-section">
+  <div class="container">
+    <h2 class="title text-center">Shop Kaos Pria Terbaru</h2>
 
-.article-card-title {
-  font-size: 13px !important;
-  line-height: 1.35 !important;
-  margin: 0 0 6px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
-  overflow: hidden !important;
-}
+    <% if (recommended && recommended.length) { %>
+      <div class="row">
+        <% recommended.forEach(function(product){ %>
+          <div class="col-md-3 col-sm-6 col-xs-6">
+            <%- include('partials/product-card', { product: product }) %>
+          </div>
+        <% }) %>
+      </div>
 
-.article-card-title a {
-  color: var(--text) !important;
-}
+      <div class="text-center" style="margin-top:25px;">
+        <a href="/shop" class="primary-btn">Lihat Semua Produk</a>
+      </div>
+    <% } %>
+  </div>
+</section>
 
-.article-card-excerpt {
-  font-size: 11px !important;
-  line-height: 1.55 !important;
-  margin: 0 0 8px !important;
-  min-height: 34px !important;
-  max-height: 34px !important;
-  overflow: hidden !important;
-  color: var(--muted) !important;
-}
+<!-- TRUST / SEO CONTENT -->
+<section class="section home-trust-section">
+  <div class="container text-center">
+    <h2>Kenapa Pilih Kaos Oversize Kami?</h2>
 
-.read-more {
-  display: inline-flex !important;
-  align-items: center !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  color: var(--text) !important;
-}
+    <div class="row" style="margin-top:25px;">
+      <div class="col-md-4">
+        <h3>Bahan Nyaman</h3>
+        <p>Kaos dibuat dari bahan premium yang adem dan nyaman dipakai seharian.</p>
+      </div>
 
-@media (min-width: 768px) {
-  .article-grid {
-    gap: 18px !important;
-  }
+      <div class="col-md-4">
+        <h3>Model Kekinian</h3>
+        <p>Desain modern cocok untuk outfit casual dan gaya anak muda.</p>
+      </div>
 
-  .article-card-modern img {
-    height: 220px !important;
-  }
+      <div class="col-md-4">
+        <h3>Harga Terjangkau</h3>
+        <p>Dapatkan kaos distro berkualitas dengan harga yang tetap ramah.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  .article-card-content {
-    padding: 16px !important;
-  }
+<!-- ARTICLES -->
+<section class="section home-articles-section">
+  <div class="container">
+    <h2 class="text-center">Artikel Fashion Pria</h2>
 
-  .article-card-title {
-    font-size: 22px !important;
-    min-height: auto !important;
-    max-height: none !important;
-  }
+    <% if (articles && articles.length) { %>
+      <div class="article-grid">
+        <% articles.forEach(function(article){ %>
+          <div class="article-grid-item">
+            <article class="article-card-modern">
+              <a href="/article/<%= article.slug %>" class="article-card-thumb">
+                <img
+                  src="<%= article.image || article.thumbnail || '' %>"
+                  alt="<%= article.title %>"
+                  loading="lazy"
+                >
+              </a>
 
-  .article-card-excerpt {
-    font-size: 14px !important;
-    min-height: auto !important;
-    max-height: none !important;
-  }
+              <div class="article-card-content">
+                <h3 class="article-card-title">
+                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                </h3>
 
-  .read-more {
-    font-size: 13px !important;
-  }
-}
+                <p class="article-card-excerpt"><%= article.excerpt || '' %></p>
+
+                <a href="/article/<%= article.slug %>" class="read-more">
+                  Baca Selengkapnya →
+                </a>
+              </div>
+            </article>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<!-- INTERNAL LINK SEO -->
+<section class="section">
+  <div class="container text-center">
+    <h2>Kategori Populer</h2>
+
+    <div style="margin-top:15px;">
+      <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+      <a href="/shop?category=men">Kaos Pria</a> |
+      <a href="/articles">Artikel Fashion</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
