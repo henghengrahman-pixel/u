@@ -42,7 +42,7 @@ function home(req, res) {
   const products = getVisibleProducts();
   const featured = products.filter(p => p.featured).slice(0, 8);
   const recommended = products.filter(p => p.recommended).slice(0, 8);
-  const articles = getVisibleArticles().slice(0, 3);
+  const articles = getVisibleArticles().slice(0, 4);
 
   applySeo(res, {
     title: `Kaos Oversize Pria & Distro Premium Terbaru - ${res.locals.appName}`,
@@ -108,54 +108,59 @@ function shop(req, res) {
 
 /* ================= PRODUCT DETAIL ================= */
 function productDetail(req, res, next) {
-  const product = getProductBySlug(req.params.slug);
-  if (!product) return next();
+  try {
+    const product = getProductBySlug(req.params.slug);
+    if (!product) return next();
 
-  const recommended = getVisibleProducts()
-    .filter(p => p.slug !== product.slug)
-    .slice(0, 4);
+    const recommended = getVisibleProducts()
+      .filter(p => p.slug !== product.slug)
+      .slice(0, 4);
 
-  const name = safeText(product.name);
-  const category = safeText(product.category || 'pria');
-  const material = safeText(product.material || 'premium');
-  const fit = safeText(product.fit || 'nyaman');
+    const name = safeText(product.name);
+    const category = safeText(product.category || 'pria');
+    const material = safeText(product.material || 'premium');
+    const fit = safeText(product.fit || 'nyaman');
 
-  const title = `${name} - Kaos ${category} Premium`;
-  const desc = `${name} adalah kaos ${category} dengan bahan ${material} dan fit ${fit}.`;
+    const title = `${name} - Kaos ${category} Premium`;
+    const desc = `${name} adalah kaos ${category} dengan bahan ${material} dan fit ${fit}.`;
 
-  applySeo(res, {
-    title,
-    description: desc,
-    keywords: `${name}, kaos ${category}, kaos pria`,
-    canonical: `${res.locals.baseUrl}/product/${product.slug}`,
-    type: 'product',
-    image: product.image || `${res.locals.baseUrl}/assets/images/og-image.jpg`
-  });
+    applySeo(res, {
+      title,
+      description: desc,
+      keywords: `${name}, kaos ${category}, kaos pria`,
+      canonical: `${res.locals.baseUrl}/product/${product.slug}`,
+      type: 'product',
+      image: product.image || `${res.locals.baseUrl}/assets/images/og-image.jpg`
+    });
 
-  res.locals.structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name,
-    image: product.image || '',
-    description: desc,
-    brand: {
-      '@type': 'Brand',
-      name: safeText(product.brand || res.locals.appName)
-    },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'IDR',
-      price: String(product.price || 0),
-      availability: product.status === 'sold_out'
-        ? 'https://schema.org/OutOfStock'
-        : 'https://schema.org/InStock'
-    }
-  };
+    res.locals.structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name,
+      image: product.image || '',
+      description: desc,
+      brand: {
+        '@type': 'Brand',
+        name: safeText(product.brand || res.locals.appName)
+      },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'IDR',
+        price: String(product.price || 0),
+        availability: product.status === 'sold_out'
+          ? 'https://schema.org/OutOfStock'
+          : 'https://schema.org/InStock'
+      }
+    };
 
-  return res.render('product-detail', {
-    product,
-    recommended
-  });
+    return res.render('product-detail', {
+      product,
+      recommended
+    });
+  } catch (error) {
+    console.error('[PRODUCT DETAIL ERROR]', error);
+    return next(error);
+  }
 }
 
 /* ================= ARTICLES ================= */
@@ -174,38 +179,53 @@ function articles(req, res) {
 
 /* ================= ARTICLE DETAIL ================= */
 function articleDetail(req, res, next) {
-  const article = getArticleBySlug(req.params.slug);
-  if (!article) return next();
+  try {
+    const article = getArticleBySlug(req.params.slug);
+    if (!article) return next();
 
-  applySeo(res, {
-    title: `${safeText(article.title)} - ${res.locals.appName}`,
-    description: article.description || article.excerpt || '',
-    keywords: article.keywords || '',
-    canonical: `${res.locals.baseUrl}/article/${article.slug}`,
-    type: 'article',
-    image: article.image || `${res.locals.baseUrl}/assets/images/og-image.jpg`
-  });
+    const articles = getVisibleArticles()
+      .filter(item => item.slug !== article.slug)
+      .slice(0, 4);
 
-  res.locals.structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: article.title,
-    image: article.image || '',
-    author: {
-      '@type': 'Organization',
-      name: res.locals.appName
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: res.locals.appName,
-      logo: {
-        '@type': 'ImageObject',
-        url: res.locals.site?.logo || `${res.locals.baseUrl}/assets/images/logo.png`
+    const products = getVisibleProducts().slice(0, 4);
+
+    applySeo(res, {
+      title: `${safeText(article.title)} - ${res.locals.appName}`,
+      description: article.description || article.excerpt || '',
+      keywords: article.keywords || '',
+      canonical: `${res.locals.baseUrl}/article/${article.slug}`,
+      type: 'article',
+      image: article.image || `${res.locals.baseUrl}/assets/images/og-image.jpg`
+    });
+
+    res.locals.structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.title || '',
+      image: article.image || '',
+      author: {
+        '@type': 'Organization',
+        name: res.locals.appName
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: res.locals.appName,
+        logo: {
+          '@type': 'ImageObject',
+          url: res.locals.site?.logo || `${res.locals.baseUrl}/assets/images/logo.png`
+        }
       }
-    }
-  };
+    };
 
-  return res.render('article-detail', { article });
+    return res.render('article-detail', {
+      article,
+      articles,
+      products
+    });
+  } catch (error) {
+    console.error('[ARTICLE DETAIL ERROR]', error);
+    return next(error);
+  }
 }
 
 /* ================= CONTACT ================= */
@@ -221,28 +241,30 @@ function contact(req, res) {
 }
 
 /* ================= LANDING SEO ================= */
-function seoKaosOversizePria(req, res) {
-  const allProducts = getVisibleProducts();
-  const articles = getVisibleArticles().slice(0, 3);
+function seoKaosOversizePria(req, res, next) {
+  try {
+    const allProducts = getVisibleProducts();
+    const articles = getVisibleArticles().slice(0, 4);
 
-  const products = allProducts
-    .filter(p => {
-      const haystack = normalizeSearchText(p);
-      return haystack.includes('oversize');
-    })
-    .slice(0, 12);
+    const products = allProducts
+      .filter(p => normalizeSearchText(p).includes('oversize'))
+      .slice(0, 12);
 
-  applySeo(res, {
-    title: `Kaos Oversize Pria Terbaik 2026 - ${res.locals.appName}`,
-    description: 'Rekomendasi kaos oversize pria terbaik dengan bahan nyaman dan model kekinian.',
-    keywords: 'kaos oversize pria, kaos oversize terbaik, outfit pria',
-    canonical: `${res.locals.baseUrl}/kaos-oversize-pria`
-  });
+    applySeo(res, {
+      title: `Kaos Oversize Pria Terbaik 2026 - ${res.locals.appName}`,
+      description: 'Rekomendasi kaos oversize pria terbaik dengan bahan nyaman dan model kekinian.',
+      keywords: 'kaos oversize pria, kaos oversize terbaik, outfit pria',
+      canonical: `${res.locals.baseUrl}/kaos-oversize-pria`
+    });
 
-  return res.render('seo-kaos-oversize', {
-    products,
-    articles
-  });
+    return res.render('seo-kaos-oversize', {
+      products,
+      articles
+    });
+  } catch (error) {
+    console.error('[SEO LANDING ERROR]', error);
+    return next(error);
+  }
 }
 
 module.exports = {
