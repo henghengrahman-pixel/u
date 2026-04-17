@@ -421,3 +421,17 @@ module.exports = {
   settingsPage,
   settingsUpdate
 };
+function getCategories() {
+  const products = getProducts();
+  const map = {};
+
+  products.forEach(p => {
+    const name = (p.category || 'lainnya').toLowerCase().trim();
+
+    if (!map[name]) {
+      map[name] = { name, visible: true };
+    }
+  });
+
+  return Object.values(map);
+}
