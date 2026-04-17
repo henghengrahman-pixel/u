@@ -36,8 +36,8 @@ app.use('/assets', express.static(path.join(__dirname, 'public'), {
 
 /* ================= SESSION ================= */
 app.use(session({
-  name: process.env.SESSION_NAME || 'store.sid',
-  secret: process.env.SESSION_SECRET || 'change-this-session-secret',
+  name: process.env.SESSION_NAME || 'mwg.sid',
+  secret: process.env.SESSION_SECRET || 'mwg-secret-change-this',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -48,37 +48,36 @@ app.use(session({
   }
 }));
 
-/* ================= GLOBAL SEO ================= */
+/* ================= GLOBAL ================= */
 app.use((req, res, next) => {
   const cart = Array.isArray(req.session.cart) ? req.session.cart : [];
 
-  const appName = process.env.APP_NAME || 'Ozerra';
+  // 🔥 BRAND FIX (ANTI Ozerra)
+  const storeName =
+    process.env.STORE_NAME ||
+    process.env.APP_NAME ||
+    'MWG Oversize';
+
   const baseUrl = (process.env.BASE_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
 
   res.locals.cartCount = cartCount(cart);
   res.locals.baseUrl = baseUrl;
-  res.locals.appName = appName;
   res.locals.currentPath = req.originalUrl || '/';
   res.locals.currentUrl = `${baseUrl}${req.originalUrl || '/'}`;
 
-  res.locals.seo = {
-    title: `${appName} - Kaos Oversize Pria & Distro Premium`,
-    description: 'Jual kaos oversize pria, kaos distro premium, dan outfit pria kekinian.',
-    keywords: 'kaos oversize pria, kaos distro pria, outfit pria',
-    image: `${baseUrl}/assets/images/og-image.jpg`,
-    canonical: `${baseUrl}${req.path}`,
-    type: 'website',
-    robots: req.originalUrl.startsWith('/admin')
-      ? 'noindex,nofollow'
-      : 'index,follow'
+  // 🔥 SETTINGS GLOBAL (BIAR KEPAKE DI SEMUA FILE)
+  res.locals.settings = {
+    storeName,
+    logo: `${baseUrl}/assets/images/logo.png`
   };
 
-  res.locals.site = {
-    name: appName,
-    url: baseUrl,
-    locale: 'id_ID',
-    currency: 'IDR',
-    logo: `${baseUrl}/assets/images/logo.png`
+  // 🔥 DEFAULT META (ANTI JUAL)
+  res.locals.meta = {
+    title: `${storeName} - Rekomendasi Kaos Pria Terbaik`,
+    description: 'Temukan rekomendasi kaos pria terbaik mulai dari oversize hingga distro premium dengan bahan nyaman dan desain kekinian.',
+    keywords: 'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik',
+    image: `${baseUrl}/assets/images/og-image.jpg`,
+    url: `${baseUrl}${req.path}`
   };
 
   next();
@@ -96,9 +95,9 @@ app.use('/admin', require('./routes/admin'));
 app.use((req, res) => {
   res.status(404);
 
-  res.locals.seo.title = `Halaman Tidak Ditemukan - ${res.locals.appName}`;
-  res.locals.seo.robots = 'noindex,follow';
-
+  res.locals.meta.title = 'Halaman Tidak Ditemukan';
+  res.locals.meta.description = 'Halaman tidak ditemukan.';
+  
   return res.render('404');
 });
 
@@ -108,8 +107,8 @@ app.use((err, req, res, next) => {
 
   res.status(500);
 
-  res.locals.seo.title = `Server Error - ${res.locals.appName}`;
-  res.locals.seo.robots = 'noindex,follow';
+  res.locals.meta.title = 'Server Error';
+  res.locals.meta.description = 'Terjadi kesalahan pada server.';
 
   return res.render('500');
 });
