@@ -1,6 +1,21 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
+<%
+  const galleryImages = [];
+  const firstImage = product?.image || '';
+
+  if (firstImage) galleryImages.push(firstImage);
+
+  if (Array.isArray(product?.images)) {
+    product.images.forEach(function (img) {
+      if (img && !galleryImages.includes(img)) {
+        galleryImages.push(img);
+      }
+    });
+  }
+%>
+
 <section class="section product-detail-section">
   <div class="container">
     <div class="product-breadcrumb">
@@ -18,28 +33,38 @@
     </div>
 
     <div class="row product-detail-row">
-      <div class="col-md-7 product-gallery-column">
+      <div class="col-md-7 col-sm-12 col-xs-12 product-gallery-column">
         <div class="product-gallery-wrap">
           <div class="product-main-preview" id="product-main-preview">
-            <button class="product-zoom-btn" id="open-image-popup">
+            <button
+              type="button"
+              class="product-zoom-btn"
+              id="open-image-popup"
+              aria-label="Lihat gambar lebih besar"
+            >
               <i class="fa fa-search-plus"></i>
             </button>
 
             <img
               id="main-product-image"
-              src="<%= product.image || (product.images && product.images[0]) || '' %>"
+              src="<%= galleryImages[0] || '' %>"
               alt="<%= product.name %> kaos <%= product.category || 'pria' %> terbaik"
+              loading="eager"
             >
           </div>
 
+          <div class="mobile-swipe-hint">Geser kiri / kanan untuk melihat foto lainnya</div>
+
           <div class="thumb-list" id="product-thumb-list">
-            <% if (product.images && product.images.length) { %>
-              <% product.images.forEach(function(img, i){ %>
+            <% if (galleryImages.length) { %>
+              <% galleryImages.forEach(function(img, i){ %>
                 <button
+                  type="button"
                   class="product-thumb-item <%= i === 0 ? 'active' : '' %>"
                   data-image="<%= img %>"
+                  aria-label="Foto <%= i + 1 %> <%= product.name %>"
                 >
-                  <img src="<%= img %>" alt="<%= product.name %>">
+                  <img src="<%= img %>" alt="<%= product.name %> foto <%= i + 1 %>" loading="lazy">
                 </button>
               <% }) %>
             <% } %>
@@ -47,9 +72,8 @@
         </div>
       </div>
 
-      <div class="col-md-5 product-info-column">
+      <div class="col-md-5 col-sm-12 col-xs-12 product-info-column">
         <div class="product-details">
-
           <h1 class="product-name"><%= product.name %></h1>
 
           <div class="product-price-wrap">
@@ -57,18 +81,17 @@
               IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
 
               <% if (product.compareAtPrice) { %>
-                <del>
+                <del class="product-old-price">
                   IDR <%= Number(product.compareAtPrice).toLocaleString('id-ID') %>
                 </del>
               <% } %>
             </h2>
 
             <span class="product-available">
-              ✔ Stok tersedia
+              <%= product.status === 'sold_out' ? 'Sold Out' : '✔ Stok tersedia' %>
             </span>
           </div>
 
-          <!-- 🔥 COPY JUALAN UTAMA -->
           <p class="product-short-description">
             <strong><%= product.name %></strong> adalah salah satu pilihan kaos <%= product.category || 'pria' %> terbaik
             dengan bahan <strong><%= product.material || 'premium' %></strong> yang nyaman dipakai seharian.
@@ -80,18 +103,21 @@
             Cocok dipakai untuk aktivitas harian, nongkrong, atau tampil lebih percaya diri tanpa ribet mix outfit.
           </p>
 
-          <!-- 🔥 CTA LEBIH KUAT -->
           <div class="product-buy-actions">
-            <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn">
-              🔥 Cek Harga & Detail
-            </a>
+            <% if (product.status === 'sold_out') { %>
+              <button type="button" class="add-to-cart-btn" disabled>Sold Out</button>
+              <button type="button" class="buy-now-btn" disabled>Sold Out</button>
+            <% } else { %>
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn">
+                🔥 Cek Harga & Detail
+              </a>
 
-            <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
-              Lihat Review & Variasi
-            </a>
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+                Lihat Review & Variasi
+              </a>
+            <% } %>
           </div>
 
-          <!-- 🔥 TRUST -->
           <div class="product-trust mt-15">
             <ul class="product-trust-list">
               <li>✔ Produk dipilih dari yang paling banyak diminati</li>
@@ -100,11 +126,12 @@
             </ul>
           </div>
 
-          <!-- 🔥 DETAIL SIMPLE -->
-          <ul class="product-links mt-15">
-            <li>Category:</li>
-            <li><%= product.category %></li>
-          </ul>
+          <% if (product.category) { %>
+            <ul class="product-links mt-15">
+              <li>Category:</li>
+              <li><%= product.category %></li>
+            </ul>
+          <% } %>
 
           <ul class="product-links">
             <li>Fit:</li>
@@ -120,44 +147,47 @@
             <a href="/kaos-oversize-pria">👉 Lihat rekomendasi kaos oversize lainnya</a>
           </div>
 
+          <% if (product.description) { %>
+            <div class="product-description-content mt-15">
+              <%- product.description %>
+            </div>
+          <% } %>
+
+          <% if (product.details) { %>
+            <div class="product-details-content mt-15">
+              <%- product.details %>
+            </div>
+          <% } %>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 🔥 FAQ SEO -->
 <section class="section">
   <div class="container">
     <h2>Pertanyaan yang Sering Ditanyakan</h2>
 
     <h3>Apakah nyaman dipakai?</h3>
-    <p>
-      Ya, bahan <%= product.material || 'premium' %> terkenal adem dan cocok dipakai seharian.
-    </p>
+    <p>Ya, bahan <%= product.material || 'premium' %> terkenal adem dan cocok dipakai seharian.</p>
 
     <h3>Apakah cocok untuk outfit harian?</h3>
-    <p>
-      Sangat cocok untuk gaya casual, santai, hingga semi streetwear.
-    </p>
+    <p>Sangat cocok untuk gaya casual, santai, hingga semi streetwear.</p>
 
     <h3>Apakah tersedia ukuran lengkap?</h3>
-    <p>
-      Detail ukuran bisa langsung dicek di halaman marketplace melalui tombol di atas.
-    </p>
+    <p>Detail ukuran bisa langsung dicek di halaman marketplace melalui tombol di atas.</p>
   </div>
 </section>
 
-<!-- 🔥 REKOMENDASI -->
 <section class="section recommended-products-section">
   <div class="container">
     <h2 class="title">Rekomendasi Serupa</h2>
 
     <div class="row">
       <% if (recommended && recommended.length) { %>
-        <% recommended.forEach(function(product){ %>
+        <% recommended.forEach(function(item){ %>
           <div class="col-md-3 col-sm-6 col-xs-6">
-            <%- include('partials/product-card', { product: product }) %>
+            <%- include('partials/product-card', { product: item }) %>
           </div>
         <% }) %>
       <% } %>
@@ -165,17 +195,194 @@
   </div>
 </section>
 
-<!-- 🔥 MOBILE CTA -->
-<div class="mobile-buy-bar">
-  <div class="mobile-buy-bar-inner">
-    <div class="mobile-buy-price">
-      IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
-    </div>
+<div class="product-image-modal" id="product-image-modal" aria-hidden="true">
+  <div class="product-image-modal-backdrop" id="product-image-modal-backdrop"></div>
 
-    <a href="/go/<%= product.slug %>" target="_blank" class="mobile-buy-now">
-      🔥 Beli Sekarang
-    </a>
+  <div class="product-image-modal-dialog" role="dialog" aria-modal="true" aria-label="Preview gambar produk">
+    <button
+      type="button"
+      class="product-image-modal-close"
+      id="close-image-popup"
+      aria-label="Tutup preview"
+    >
+      <i class="fa fa-times"></i>
+    </button>
+
+    <img
+      id="popup-product-image"
+      src="<%= galleryImages[0] || '' %>"
+      alt="<%= product.name %> preview gambar besar"
+    >
   </div>
 </div>
+
+<% if (product.status !== 'sold_out') { %>
+  <div class="mobile-buy-bar">
+    <div class="mobile-buy-bar-inner">
+      <div class="mobile-buy-price">
+        IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
+      </div>
+
+      <a href="/product/<%= product.slug %>" class="mobile-add-cart">
+        Lihat
+      </a>
+
+      <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="mobile-buy-now">
+        Beli Sekarang
+      </a>
+    </div>
+  </div>
+<% } %>
+
+<script>
+  (function () {
+    var mainImage = document.getElementById('main-product-image');
+    var popupImage = document.getElementById('popup-product-image');
+    var thumbs = Array.prototype.slice.call(document.querySelectorAll('.product-thumb-item'));
+    var modal = document.getElementById('product-image-modal');
+    var openPopupBtn = document.getElementById('open-image-popup');
+    var closePopupBtn = document.getElementById('close-image-popup');
+    var modalBackdrop = document.getElementById('product-image-modal-backdrop');
+    var mainPreview = document.getElementById('product-main-preview');
+
+    if (!mainImage || !mainPreview) return;
+
+    var images = thumbs.length
+      ? thumbs.map(function (item) { return item.getAttribute('data-image'); }).filter(Boolean)
+      : [mainImage.getAttribute('src')].filter(Boolean);
+
+    if (!images.length) return;
+
+    var currentIndex = 0;
+    var startX = 0;
+    var endX = 0;
+    var isDragging = false;
+
+    function syncThumbs() {
+      thumbs.forEach(function (item, i) {
+        item.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function showImage(index) {
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+
+      currentIndex = index;
+
+      if (images[currentIndex]) {
+        mainImage.src = images[currentIndex];
+        if (popupImage) popupImage.src = images[currentIndex];
+      }
+
+      syncThumbs();
+
+      if (thumbs[currentIndex] && window.innerWidth <= 767) {
+        thumbs[currentIndex].scrollIntoView({
+          behavior: 'smooth',
+          inline: 'center',
+          block: 'nearest'
+        });
+      }
+    }
+
+    function nextImage() {
+      showImage(currentIndex + 1);
+    }
+
+    function prevImage() {
+      showImage(currentIndex - 1);
+    }
+
+    thumbs.forEach(function (thumb, index) {
+      thumb.addEventListener('click', function () {
+        showImage(index);
+      });
+    });
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      if (popupImage) popupImage.src = mainImage.src;
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    if (openPopupBtn) {
+      openPopupBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal();
+      });
+    }
+
+    mainImage.addEventListener('click', function () {
+      openModal();
+    });
+
+    if (closePopupBtn) closePopupBtn.addEventListener('click', closeModal);
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+    });
+
+    function handleSwipe(diff) {
+      if (Math.abs(diff) < 35) return;
+      if (diff < 0) nextImage();
+      else prevImage();
+    }
+
+    mainPreview.addEventListener('touchstart', function (e) {
+      startX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    mainPreview.addEventListener('touchend', function (e) {
+      endX = e.changedTouches[0].screenX;
+      handleSwipe(endX - startX);
+    }, { passive: true });
+
+    mainPreview.addEventListener('mousedown', function (e) {
+      isDragging = true;
+      startX = e.clientX;
+    });
+
+    mainPreview.addEventListener('mouseup', function (e) {
+      if (!isDragging) return;
+      isDragging = false;
+      endX = e.clientX;
+      handleSwipe(endX - startX);
+    });
+
+    mainPreview.addEventListener('mouseleave', function (e) {
+      if (!isDragging) return;
+      isDragging = false;
+      endX = e.clientX;
+      handleSwipe(endX - startX);
+    });
+
+    if (modal) {
+      modal.addEventListener('touchstart', function (e) {
+        startX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      modal.addEventListener('touchend', function (e) {
+        endX = e.changedTouches[0].screenX;
+        handleSwipe(endX - startX);
+      }, { passive: true });
+    }
+
+    showImage(0);
+  })();
+</script>
 
 <%- include('partials/footer') %>
