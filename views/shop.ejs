@@ -3,20 +3,22 @@
 
 <section class="section shop-page-section">
   <div class="container">
-    <div class="shop-page-header">
+    <div class="shop-page-header text-center">
       <div class="section-title">
-        <h1 class="title">Shop</h1>
+        <h1 class="title">Rekomendasi Kaos Pria Pilihan</h1>
       </div>
 
       <p class="shop-page-subtitle">
-        Temukan koleksi kaos oversize original berkualitas dengan desain streetwear premium yang telah kami kurasi khusus untuk memudahkan Anda berbelanja dengan nyaman, aman, dan terpercaya di toko yang tepat.
+        Temukan rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik
+        yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang
+        lebih rapi untuk membantu Anda memilih dengan lebih yakin.
       </p>
     </div>
 
     <% if (products && products.length) { %>
-      <div class="row">
+      <div class="row product-grid-row">
         <% products.forEach(function(product){ %>
-          <div class="col-md-3 col-sm-6 col-xs-6">
+          <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
             <%- include('partials/product-card', { product: product }) %>
           </div>
         <% }) %>
@@ -25,9 +27,10 @@
       <div class="row">
         <div class="col-md-12">
           <div class="empty-box text-center shop-empty-state">
-            <h3>Produk belum tersedia</h3>
+            <h3>Rekomendasi belum tersedia</h3>
             <p>
-              Tidak ada produk ditemukan saat ini. Silakan coba lagi nanti atau kembali ke beranda untuk melihat koleksi lainnya.
+              Produk yang Anda cari belum tersedia saat ini. Silakan kembali ke beranda
+              atau jelajahi rekomendasi lainnya untuk menemukan pilihan yang lebih cocok.
             </p>
             <a href="/" class="primary-btn">Kembali ke Beranda</a>
           </div>
