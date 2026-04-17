@@ -43,4 +43,65 @@
   </div>
 </section>
 
+<% if (articles && articles.length) { %>
+  <section class="section home-articles-section">
+    <div class="container">
+      <div class="home-section-head">
+        <div class="section-title">
+          <h2 class="title">Baca Artikel Lainnya</h2>
+        </div>
+        <p class="home-section-subtitle">
+          Temukan artikel lain seputar kaos oversize pria, outfit casual, dan rekomendasi fashion pria.
+        </p>
+      </div>
+
+      <div class="article-grid-responsive">
+        <% articles.forEach(function(item){ %>
+          <div class="article-grid-item">
+            <article class="article-card-modern">
+              <a href="/article/<%= item.slug %>" class="article-card-thumb">
+                <img
+                  src="<%= item.image || item.thumbnail || '' %>"
+                  alt="<%= item.title %>"
+                  loading="lazy"
+                >
+              </a>
+
+              <div class="article-card-content">
+                <h3 class="article-card-title">
+                  <a href="/article/<%= item.slug %>"><%= item.title %></a>
+                </h3>
+
+                <p class="article-card-excerpt"><%= item.excerpt || '' %></p>
+
+                <a href="/article/<%= item.slug %>" class="read-more">
+                  Baca Selengkapnya →
+                </a>
+              </div>
+            </article>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<% if (products && products.length) { %>
+  <section class="section recommended-products-section">
+    <div class="container">
+      <div class="section-title">
+        <h2 class="title">Produk Rekomendasi Shop Kami</h2>
+      </div>
+
+      <div class="row">
+        <% products.forEach(function(product){ %>
+          <div class="col-md-3 col-sm-6 col-xs-6">
+            <%- include('partials/product-card', { product: product }) %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+<% } %>
+
 <%- include('partials/footer') %>
