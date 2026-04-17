@@ -3529,3 +3529,63 @@ body {
     height: 160px;
   }
 }
+/* ARTIKEL MOBILE 2 GRID */
+@media (max-width: 767px) {
+  .article-grid {
+    margin-left: -6px !important;
+    margin-right: -6px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .article-grid > .col-md-6,
+  .article-grid > .col-sm-12,
+  .home-articles-section .article-grid > div {
+    width: 50% !important;
+    float: left !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .article-card-modern {
+    margin-bottom: 0 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    height: 100% !important;
+  }
+
+  .article-card-modern img {
+    width: 100% !important;
+    height: 120px !important;
+    object-fit: cover !important;
+  }
+
+  .article-card-content {
+    padding: 10px !important;
+  }
+
+  .article-card-content h3 {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    margin-bottom: 6px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    overflow: hidden !important;
+  }
+
+  .article-card-content p {
+    font-size: 11px !important;
+    line-height: 1.55 !important;
+    margin-bottom: 8px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    overflow: hidden !important;
+  }
+
+  .article-card-content .read-more,
+  .article-card-modern .read-more {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+  }
+}
