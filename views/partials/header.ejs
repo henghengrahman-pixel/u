@@ -1,109 +1,128 @@
 <%
-  const storeName = settings?.storeName || 'MWG Oversize';
-  const logo = settings?.logo || '/assets/images/logo.png';
-
-  const cleanWhatsapp = settings?.whatsapp ? String(settings.whatsapp).replace(/\D/g, '') : '';
-  const cleanTelegram = settings?.telegram ? String(settings.telegram).replace('@', '').trim() : '';
+  const cleanWhatsapp = settings.whatsapp ? String(settings.whatsapp).replace(/\D/g, '') : '';
+  const cleanTelegram = settings.telegram ? String(settings.telegram).replace('@', '').trim() : '';
 %>
 
 <header class="site-header" itemscope itemtype="https://schema.org/Store">
-
-  <!-- SEO SCHEMA -->
-  <meta itemprop="name" content="<%= storeName %>">
+  <meta itemprop="name" content="<%= settings.storeName %>">
   <meta itemprop="url" content="<%= baseUrl %>">
-  <meta itemprop="image" content="<%= logo %>">
-
-  <% if (settings?.phone) { %>
+  <% if (settings.logo) { %>
+    <meta itemprop="image" content="<%= settings.logo %>">
+  <% } %>
+  <% if (settings.phone) { %>
     <meta itemprop="telephone" content="<%= settings.phone %>">
   <% } %>
 
-  <!-- TOP -->
   <div id="top-header">
     <div class="container">
       <div class="top-header-wrap">
-
         <ul class="header-links header-links-left">
-
-          <% if (settings?.phone) { %>
+          <% if (settings.phone) { %>
             <li>
-              <a href="tel:<%= settings.phone %>">
+              <a href="tel:<%= settings.phone %>" aria-label="Hubungi <%= settings.storeName %>">
                 <i class="fa fa-phone"></i>
                 <span><%= settings.phone %></span>
               </a>
             </li>
           <% } %>
 
-          <% if (settings?.email) { %>
+          <% if (settings.email) { %>
             <li>
-              <a href="mailto:<%= settings.email %>">
+              <a href="mailto:<%= settings.email %>" aria-label="Email <%= settings.storeName %>">
                 <i class="fa fa-envelope-o"></i>
                 <span><%= settings.email %></span>
               </a>
             </li>
           <% } %>
-
         </ul>
 
         <ul class="header-links header-links-right">
           <% if (cleanWhatsapp) { %>
             <li>
-              <a href="https://wa.me/<%= cleanWhatsapp %>" target="_blank">
+              <a
+                href="https://wa.me/<%= cleanWhatsapp %>"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat WhatsApp <%= settings.storeName %>"
+              >
                 <i class="fa fa-whatsapp"></i>
                 <span>WhatsApp</span>
               </a>
             </li>
           <% } %>
         </ul>
-
       </div>
     </div>
   </div>
 
-  <!-- HEADER -->
   <div id="header">
     <div class="container">
       <div class="header-wrap">
-
         <div class="header-logo">
-          <a href="/" class="logo">
-            <img src="<%= logo %>" alt="Logo <%= storeName %>">
+          <a href="/" class="logo" aria-label="Beranda <%= settings.storeName %>" itemprop="url">
+            <img
+              src="<%= settings.logo %>"
+              alt="Logo <%= settings.storeName %>"
+              loading="eager"
+              fetchpriority="high"
+              itemprop="logo"
+            >
           </a>
         </div>
 
         <div class="header-search">
-          <form method="get" action="/shop">
+          <form method="get" action="/shop" class="search-form" role="search" aria-label="Cari produk">
+            <label class="sr-only" for="desktop-search-input">Cari produk</label>
             <input
+              id="desktop-search-input"
+              class="input"
               type="text"
               name="q"
               value="<%= typeof query !== 'undefined' ? query : '' %>"
               placeholder="Cari produk..."
+              autocomplete="off"
+              enterkeyhint="search"
             >
-            <button type="submit">Cari</button>
+            <button class="search-btn" type="submit" aria-label="Cari produk">Cari</button>
           </form>
         </div>
 
         <div class="header-ctn">
-
           <% if (cleanTelegram) { %>
-            <a href="https://t.me/<%= cleanTelegram %>" target="_blank">
-              <i class="fa fa-telegram"></i>
-            </a>
+            <div class="desktop-telegram-area">
+              <a
+                href="https://t.me/<%= cleanTelegram %>"
+                class="desktop-telegram-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat Telegram <%= settings.storeName %>"
+              >
+                <i class="fa fa-telegram"></i>
+                <span>Telegram</span>
+              </a>
+            </div>
           <% } %>
 
           <% if (cleanWhatsapp) { %>
-            <a href="https://wa.me/<%= cleanWhatsapp %>" target="_blank">
-              <i class="fa fa-whatsapp"></i>
-            </a>
+            <div class="desktop-telegram-area">
+              <a
+                href="https://wa.me/<%= cleanWhatsapp %>"
+                class="desktop-telegram-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat WhatsApp <%= settings.storeName %>"
+              >
+                <i class="fa fa-whatsapp"></i>
+                <span>Chat</span>
+              </a>
+            </div>
           <% } %>
-
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- NAV -->
-  <nav id="navigation">
+  <nav id="navigation" aria-label="Navigasi utama">
     <div class="container">
       <ul class="main-nav nav navbar-nav">
         <li class="<%= currentPath === '/' ? 'active' : '' %>"><a href="/">Home</a></li>
@@ -114,58 +133,76 @@
     </div>
   </nav>
 
-  <!-- MOBILE -->
   <div class="mobile-header-bar">
     <div class="mobile-header-inner">
-
-      <a href="/" class="mobile-brand">
-        <img src="<%= logo %>" alt="Logo <%= storeName %>">
+      <a href="/" class="mobile-brand" aria-label="Beranda <%= settings.storeName %>">
+        <img
+          src="<%= settings.logo %>"
+          alt="Logo <%= settings.storeName %>"
+          loading="eager"
+          fetchpriority="high"
+        >
       </a>
 
       <div class="mobile-header-main">
+        <form method="get" action="/shop" class="mobile-search-form" role="search" aria-label="Cari produk mobile">
+          <button type="submit" class="mobile-search-icon" aria-label="Cari">
+            <i class="fa fa-search"></i>
+          </button>
 
-        <form method="get" action="/shop" class="mobile-search-form">
-          <button type="submit"><i class="fa fa-search"></i></button>
-          <input type="text" name="q" placeholder="Cari produk...">
+          <label class="sr-only" for="mobile-search-input">Cari produk atau toko</label>
+          <input
+            id="mobile-search-input"
+            type="text"
+            name="q"
+            value="<%= typeof query !== 'undefined' ? query : '' %>"
+            placeholder="Cari produk atau toko"
+            autocomplete="off"
+            enterkeyhint="search"
+          >
         </form>
 
         <div class="mobile-header-actions">
-
           <% if (cleanTelegram) { %>
-            <a href="https://t.me/<%= cleanTelegram %>" target="_blank">
+            <a
+              href="https://t.me/<%= cleanTelegram %>"
+              class="mobile-header-icon"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Telegram"
+            >
               <i class="fa fa-telegram"></i>
             </a>
           <% } %>
 
           <% if (cleanWhatsapp) { %>
-            <a href="https://wa.me/<%= cleanWhatsapp %>" target="_blank">
+            <a
+              href="https://wa.me/<%= cleanWhatsapp %>"
+              class="mobile-header-icon"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+            >
               <i class="fa fa-whatsapp"></i>
             </a>
           <% } %>
-
         </div>
-
       </div>
 
-      <nav class="mobile-bottom-nav">
-        <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Home</a>
-        <a href="/shop" class="<%= currentPath.startsWith('/shop') ? 'active' : '' %>">Shop</a>
-        <a href="/articles" class="<%= currentPath.startsWith('/articles') ? 'active' : '' %>">Artikel</a>
-        <a href="/contact" class="<%= currentPath.startsWith('/contact') ? 'active' : '' %>">Kontak</a>
+      <nav class="mobile-bottom-nav" aria-label="Navigasi mobile">
+        <a href="/" class="mobile-bottom-link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+        <a href="/shop" class="mobile-bottom-link <%= currentPath.startsWith('/shop') ? 'active' : '' %>">Shop</a>
+        <a href="/articles" class="mobile-bottom-link <%= currentPath.startsWith('/articles') ? 'active' : '' %>">Artikel</a>
+        <a href="/contact" class="mobile-bottom-link <%= currentPath.startsWith('/contact') ? 'active' : '' %>">Kontak</a>
       </nav>
-
     </div>
   </div>
 
-  <!-- FLASH FIX -->
   <div class="section flash-section">
     <div class="container">
-      <% if (typeof flash !== 'undefined' && flash && flash.message) { %>
-        <div class="alert alert-<%= flash.type || 'info' %>">
-          <%= flash.message %>
-        </div>
+      <% if (flash) { %>
+        <div class="alert alert-<%= flash.type %> flash-alert"><%= flash.message %></div>
       <% } %>
     </div>
   </div>
-
 </header>
