@@ -22,6 +22,10 @@ function cleanBoolean(v, fallback = true) {
   return fallback;
 }
 
+function cleanUrl(v = '') {
+  return String(v || '').trim();
+}
+
 function slugify(text = '') {
   return String(text || '')
     .toLowerCase()
@@ -30,6 +34,22 @@ function slugify(text = '') {
     .replace(/&/g, ' dan ')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+function normalizeImages(input = {}) {
+  if (Array.isArray(input.images)) {
+    return input.images.map(cleanUrl).filter(Boolean);
+  }
+
+  if (typeof input.images === 'string') {
+    return input.images
+      .split(/\r?\n|,/)
+      .map(cleanUrl)
+      .filter(Boolean);
+  }
+
+  if (input.image) return [cleanUrl(input.image)];
+  return [];
 }
 
 /* ================= SETTINGS ================= */
@@ -45,6 +65,8 @@ function saveSettings(data) {
 function prepareProduct(p = {}) {
   const name = cleanString(p.name);
   const category = cleanString(p.category || 'pria');
+  const images = normalizeImages(p);
+  const image = cleanUrl(p.image || images[0] || '');
 
   return {
     ...p,
@@ -53,11 +75,11 @@ function prepareProduct(p = {}) {
     slug: p.slug || slugify(name),
     category,
     brand: cleanString(p.brand || 'MWG Oversize'),
-    image: cleanString(p.image),
-    images: Array.isArray(p.images) ? p.images : [],
-    affiliateLink: cleanString(p.affiliateLink),
+    image,
+    images,
+    affiliateLink: cleanUrl(p.affiliateLink || p.affiliate_link || p.link),
 
-    shortDescription: cleanString(p.shortDescription),
+    shortDescription: cleanString(p.shortDescription || p.short_description),
     description: cleanString(p.description),
 
     material: cleanString(p.material),
@@ -70,7 +92,6 @@ function prepareProduct(p = {}) {
     featured: cleanBoolean(p.featured, false),
     recommended: cleanBoolean(p.recommended, false),
 
-    // 🔥 SEO AUTO
     seoTitle: p.seoTitle || `${name} - Rekomendasi Kaos ${category} Terbaik`,
     seoDescription:
       p.seoDescription ||
@@ -93,7 +114,7 @@ function getVisibleProducts() {
 }
 
 function getProductBySlug(slug) {
-  return getProducts().find(p => p.slug === slug && p.visible);
+  return getVisibleProducts().find(p => p.slug === slug);
 }
 
 function getProductById(id) {
@@ -113,7 +134,13 @@ function updateProduct(id, data) {
   const i = items.findIndex(p => p.id === id);
   if (i === -1) return null;
 
-  items[i] = prepareProduct({ ...items[i], ...data });
+  items[i] = prepareProduct({
+    ...items[i],
+    ...data,
+    id: items[i].id,
+    created_at: items[i].created_at
+  });
+
   saveCollection('products.json', items);
   return items[i];
 }
@@ -133,7 +160,7 @@ function prepareArticle(a = {}) {
     slug: a.slug || slugify(title),
 
     excerpt: cleanString(a.excerpt),
-    description: cleanString(a.description),
+    description: cleanString(a.description || a.excerpt),
     content: cleanString(a.content),
 
     image: cleanString(a.image || a.thumbnail),
@@ -159,7 +186,7 @@ function getVisibleArticles() {
 }
 
 function getArticleBySlug(slug) {
-  return getArticles().find(a => a.slug === slug && a.visible);
+  return getVisibleArticles().find(a => a.slug === slug);
 }
 
 function getArticleById(id) {
@@ -179,7 +206,13 @@ function updateArticle(id, data) {
   const i = items.findIndex(a => a.id === id);
   if (i === -1) return null;
 
-  items[i] = prepareArticle({ ...items[i], ...data });
+  items[i] = prepareArticle({
+    ...items[i],
+    ...data,
+    id: items[i].id,
+    created_at: items[i].created_at
+  });
+
   saveCollection('articles.json', items);
   return items[i];
 }
@@ -188,7 +221,28 @@ function deleteArticle(id) {
   saveCollection('articles.json', getArticles().filter(a => a.id !== id));
 }
 
-/* ================= CATEGORY (FIX ERROR KAMU) ================= */
+/* ================= ORDERS ================= */
+function getOrders() {
+  return getCollection('orders.json') || [];
+}
+
+function updateOrderStatus(id, status) {
+  const items = getOrders();
+  const index = items.findIndex(order => order.id === id);
+
+  if (index === -1) return null;
+
+  items[index] = {
+    ...items[index],
+    status: cleanString(status) || items[index].status || 'pending',
+    updated_at: nowIso()
+  };
+
+  saveCollection('orders.json', items);
+  return items[index];
+}
+
+/* ================= CATEGORY ================= */
 function getCategories() {
   const products = getProducts();
   const map = {};
@@ -227,6 +281,9 @@ module.exports = {
   createArticle,
   updateArticle,
   deleteArticle,
+
+  getOrders,
+  updateOrderStatus,
 
   slugify,
   getCategories
