@@ -2743,3 +2743,23 @@ textarea.input {
     padding: 0 10px;
   }
 }
+.product-main-preview {
+  cursor: grab;
+  user-select: none;
+}
+
+.product-main-preview:active {
+  cursor: grabbing;
+}
+
+.product-image-modal {
+  display: none;
+}
+
+.product-image-modal.is-open {
+  display: block !important;
+}
+
+.modal-open {
+  overflow: hidden;
+}
