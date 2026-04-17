@@ -6,11 +6,11 @@
     <div class="row">
       <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
         <article class="admin-card article-detail-card article-content">
-          <% if (article.image || article.thumbnail) { %>
+          <% if (article && (article.image || article.thumbnail)) { %>
             <div class="article-detail-thumb">
               <img
                 src="<%= article.image || article.thumbnail %>"
-                alt="<%= article.title %>"
+                alt="<%= article.title || '' %>"
                 loading="eager"
               >
             </div>
@@ -20,17 +20,17 @@
             <p class="article-detail-breadcrumb">
               <a href="/articles">Artikel</a>
               <span>/</span>
-              <span><%= article.title %></span>
+              <span><%= article.title || '' %></span>
             </p>
 
-            <h1 class="article-detail-title"><%= article.title %></h1>
+            <h1 class="article-detail-title"><%= article.title || '' %></h1>
 
-            <% if (article.excerpt) { %>
+            <% if (article && article.excerpt) { %>
               <p class="article-detail-excerpt text-muted-2"><%= article.excerpt %></p>
             <% } %>
 
             <div class="article-detail-content">
-              <%- article.content %>
+              <%- article && article.content ? article.content : '' %>
             </div>
 
             <div class="article-detail-actions">
@@ -43,7 +43,7 @@
   </div>
 </section>
 
-<% if (articles && articles.length) { %>
+<% if (Array.isArray(articles) && articles.length) { %>
   <section class="section home-articles-section">
     <div class="container">
       <div class="home-section-head">
@@ -62,17 +62,19 @@
               <a href="/article/<%= item.slug %>" class="article-card-thumb">
                 <img
                   src="<%= item.image || item.thumbnail || '' %>"
-                  alt="<%= item.title %>"
+                  alt="<%= item.title || '' %>"
                   loading="lazy"
                 >
               </a>
 
               <div class="article-card-content">
                 <h3 class="article-card-title">
-                  <a href="/article/<%= item.slug %>"><%= item.title %></a>
+                  <a href="/article/<%= item.slug %>"><%= item.title || '' %></a>
                 </h3>
 
-                <p class="article-card-excerpt"><%= item.excerpt || '' %></p>
+                <% if (item.excerpt) { %>
+                  <p class="article-card-excerpt"><%= item.excerpt %></p>
+                <% } %>
 
                 <a href="/article/<%= item.slug %>" class="read-more">
                   Baca Selengkapnya →
@@ -86,7 +88,7 @@
   </section>
 <% } %>
 
-<% if (products && products.length) { %>
+<% if (Array.isArray(products) && products.length) { %>
   <section class="section recommended-products-section">
     <div class="container">
       <div class="section-title">
