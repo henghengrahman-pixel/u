@@ -4,7 +4,7 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
-  getProductById,
+  getProductById, 
   getOrders,
   updateOrderStatus,
   getArticles,
