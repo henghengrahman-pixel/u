@@ -1,31 +1,33 @@
 <div class="row article-grid">
-  <% articles.forEach(function(article){ %>
-    <div class="col-md-6 col-sm-12">
-      <article class="article-card-modern">
-
-        <a href="/article/<%= article.slug %>">
-          <img
-            src="<%= article.image || article.thumbnail || '' %>"
-            alt="<%= article.title %>"
-            loading="lazy"
-          >
-        </a>
-
-        <div class="article-card-content">
-          <h3>
-            <a href="/article/<%= article.slug %>">
-              <%= article.title %>
-            </a>
-          </h3>
-
-          <p><%= article.excerpt %></p>
-
-          <a href="/article/<%= article.slug %>" class="read-more">
-            Baca Selengkapnya →
+  <% if (articles && articles.length) { %>
+    <% articles.forEach(function(article){ %>
+      <div class="col-md-6 col-sm-6 col-xs-6 article-grid-item">
+        <article class="article-card-modern">
+          <a href="/article/<%= article.slug %>" class="article-card-thumb">
+            <img
+              src="<%= article.image || article.thumbnail || '' %>"
+              alt="<%= article.title %>"
+              loading="lazy"
+            >
           </a>
-        </div>
 
-      </article>
-    </div>
-  <% }) %>
+          <div class="article-card-content">
+            <h3 class="article-card-title">
+              <a href="/article/<%= article.slug %>">
+                <%= article.title %>
+              </a>
+            </h3>
+
+            <p class="article-card-excerpt">
+              <%= article.excerpt || '' %>
+            </p>
+
+            <a href="/article/<%= article.slug %>" class="read-more">
+              Baca Selengkapnya →
+            </a>
+          </div>
+        </article>
+      </div>
+    <% }) %>
+  <% } %>
 </div>
