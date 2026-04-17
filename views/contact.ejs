@@ -3,12 +3,13 @@
 
 <section class="section contact-page-section">
   <div class="container">
-    <div class="contact-page-header">
+    <div class="contact-page-header text-center">
       <div class="section-title">
-        <h1 class="title">Kontak Kami</h1>
+        <h1 class="title">Hubungi Kami</h1>
       </div>
       <p class="contact-page-subtitle">
-        Jika ada pertanyaan atau ingin informasi lebih lanjut, silakan hubungi kami melalui kontak yang tersedia di bawah ini.
+        Butuh bantuan memilih produk atau ingin mendapatkan rekomendasi yang lebih sesuai?
+        Tim kami siap membantu Anda melalui kontak yang tersedia di bawah ini.
       </p>
     </div>
 
@@ -64,7 +65,7 @@
               <li>
                 <span class="contact-icon"><i class="fa fa-map-marker"></i></span>
                 <div class="contact-text">
-                  <span class="contact-label">Alamat</span>
+                  <span class="contact-label">Lokasi</span>
                   <span><%= settings.address %></span>
                 </div>
               </li>
@@ -75,11 +76,17 @@
 
       <div class="col-md-6 col-sm-12 col-xs-12">
         <div class="admin-card contact-page-card">
-          <h3 class="contact-card-title">Tentang Toko</h3>
+          <h3 class="contact-card-title">Tentang <%= settings.storeName || 'Kami' %></h3>
+
           <p class="contact-about-text">
             <%= settings.seo && settings.seo.metaDescription
               ? settings.seo.metaDescription
-              : 'Kami menghadirkan pilihan produk dengan tampilan yang rapi, informasi yang lebih jelas, dan pengalaman menjelajah yang nyaman untuk membantu customer menemukan produk yang sesuai.' %>
+              : 'Kami menghadirkan rekomendasi kaos pria, kaos oversize, dan pilihan fashion pria terbaik yang telah kami kurasi untuk membantu Anda menemukan produk yang nyaman, berkualitas, dan layak dipilih tanpa harus bingung mencari satu per satu.' %>
+          </p>
+
+          <p class="contact-about-text">
+            Kami fokus memberikan referensi yang lebih jelas, tampilan yang rapi, dan pengalaman
+            memilih produk yang lebih mudah agar Anda bisa lebih yakin sebelum membeli.
           </p>
 
           <div class="contact-action-box contact-action-stack">
@@ -91,7 +98,7 @@
                 class="primary-btn contact-action-btn"
               >
                 <i class="fa fa-whatsapp"></i>
-                <span>Chat WhatsApp</span>
+                <span>Konsultasi via WhatsApp</span>
               </a>
             <% } %>
 
@@ -103,7 +110,7 @@
                 class="telegram-btn contact-action-btn"
               >
                 <i class="fa fa-telegram"></i>
-                <span>Chat Telegram</span>
+                <span>Chat via Telegram</span>
               </a>
             <% } %>
 
@@ -115,10 +122,11 @@
                 class="telegram-outline-btn contact-action-btn"
               >
                 <i class="fa fa-telegram"></i>
-                <span>Gabung Channel Store</span>
+                <span>Ikuti Update Produk</span>
               </a>
             <% } %>
           </div>
+
         </div>
       </div>
     </div>
