@@ -188,6 +188,13 @@
           <% } %>
         </div>
       </div>
+
+      <nav class="mobile-bottom-nav" aria-label="Navigasi mobile">
+        <a href="/" class="mobile-bottom-link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+        <a href="/shop" class="mobile-bottom-link <%= currentPath.startsWith('/shop') ? 'active' : '' %>">Shop</a>
+        <a href="/articles" class="mobile-bottom-link <%= currentPath.startsWith('/articles') ? 'active' : '' %>">Artikel</a>
+        <a href="/contact" class="mobile-bottom-link <%= currentPath.startsWith('/contact') ? 'active' : '' %>">Kontak</a>
+      </nav>
     </div>
   </div>
 
