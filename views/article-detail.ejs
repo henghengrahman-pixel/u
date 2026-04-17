@@ -8,6 +8,8 @@
         <article class="admin-card article-detail-card article-content">
           <div class="article-detail-body">
             <p class="article-detail-breadcrumb">
+              <a href="/">Home</a>
+              <span>/</span>
               <a href="/articles">Artikel</a>
               <span>/</span>
               <span><%= article.title || '' %></span>
@@ -16,7 +18,9 @@
             <h1 class="article-detail-title"><%= article.title || '' %></h1>
 
             <% if (article && article.excerpt) { %>
-              <p class="article-detail-excerpt text-muted-2"><%= article.excerpt %></p>
+              <p class="article-detail-excerpt text-muted-2">
+                <%= article.excerpt %>
+              </p>
             <% } %>
 
             <% if (article && (article.image || article.thumbnail)) { %>
@@ -46,12 +50,11 @@
 <% if (Array.isArray(articles) && articles.length) { %>
   <section class="section home-articles-section">
     <div class="container">
-      <div class="home-section-head">
-        <div class="section-title">
-          <h2 class="title">Baca Artikel Lainnya</h2>
-        </div>
-        <p class="home-section-subtitle">
-          Temukan artikel lain seputar kaos oversize pria, outfit casual, dan rekomendasi fashion pria.
+      <div class="section-heading text-center">
+        <h2 class="title">Baca Artikel Lainnya</h2>
+        <p class="section-subtitle">
+          Temukan artikel lain seputar kaos pria, outfit casual, tips memilih bahan yang nyaman,
+          dan inspirasi fashion pria yang lebih menarik untuk dipakai sehari-hari.
         </p>
       </div>
 
@@ -61,7 +64,7 @@
             <article class="article-card-modern">
               <a href="/article/<%= item.slug %>" class="article-card-thumb">
                 <img
-                  src="<%= item.image || item.thumbnail || '' %>"
+                  src="<%= item.image || item.thumbnail || '/assets/images/placeholder-article.jpg' %>"
                   alt="<%= item.title || '' %>"
                   loading="lazy"
                 >
@@ -72,9 +75,9 @@
                   <a href="/article/<%= item.slug %>"><%= item.title || '' %></a>
                 </h3>
 
-                <% if (item.excerpt) { %>
-                  <p class="article-card-excerpt"><%= item.excerpt %></p>
-                <% } %>
+                <p class="article-card-excerpt">
+                  <%= item.excerpt || 'Baca artikel lengkap untuk mendapatkan referensi fashion pria yang lebih tepat dan mudah diterapkan.' %>
+                </p>
 
                 <a href="/article/<%= item.slug %>" class="read-more">
                   Baca Selengkapnya →
@@ -91,13 +94,17 @@
 <% if (Array.isArray(products) && products.length) { %>
   <section class="section recommended-products-section">
     <div class="container">
-      <div class="section-title">
-        <h2 class="title">Produk Rekomendasi Shop Kami</h2>
+      <div class="section-heading text-center">
+        <h2 class="title">Rekomendasi Produk Pilihan</h2>
+        <p class="section-subtitle">
+          Lihat juga pilihan kaos pria yang kami kurasi untuk membantu Anda menemukan model yang nyaman,
+          menarik, dan layak dipertimbangkan.
+        </p>
       </div>
 
-      <div class="row">
+      <div class="row product-grid-row">
         <% products.forEach(function(product){ %>
-          <div class="col-md-3 col-sm-6 col-xs-6">
+          <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
             <%- include('partials/product-card', { product: product }) %>
           </div>
         <% }) %>
