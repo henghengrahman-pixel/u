@@ -1,3 +1,84 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<!-- HERO SEO -->
+<section class="section home-hero">
+  <div class="container text-center">
+    <h1>Kaos Oversize Pria & Kaos Distro Premium Terbaru</h1>
+    <p>
+      Jual kaos oversize pria, kaos distro premium, dan outfit pria kekinian dengan bahan nyaman dan desain modern.
+    </p>
+
+    <div style="margin-top:20px;">
+      <a href="/shop" class="primary-btn">Shop Sekarang</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<section class="section home-featured-slider-section">
+  <div class="container">
+    <h2 class="title text-center">Rekomendasi Kaos Oversize Pria</h2>
+
+    <% if (featured && featured.length) { %>
+      <div class="featured-slider-wrap">
+        <div class="featured-slider-track">
+          <% featured.forEach(function(product){ %>
+            <div class="featured-slide-item">
+              <%- include('partials/product-card', { product: product }) %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="section home-products-section">
+  <div class="container">
+    <h2 class="title text-center">Shop Kaos Pria Terbaru</h2>
+
+    <% if (recommended && recommended.length) { %>
+      <div class="row">
+        <% recommended.forEach(function(product){ %>
+          <div class="col-md-3 col-sm-6 col-xs-6">
+            <%- include('partials/product-card', { product: product }) %>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="text-center" style="margin-top:25px;">
+        <a href="/shop" class="primary-btn">Lihat Semua Produk</a>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<!-- TRUST / SEO CONTENT -->
+<section class="section home-trust-section">
+  <div class="container text-center">
+    <h2>Kenapa Pilih Kaos Oversize Kami?</h2>
+
+    <div class="row" style="margin-top:25px;">
+      <div class="col-md-4">
+        <h3>Bahan Nyaman</h3>
+        <p>Kaos dibuat dari bahan premium yang adem dan nyaman dipakai seharian.</p>
+      </div>
+
+      <div class="col-md-4">
+        <h3>Model Kekinian</h3>
+        <p>Desain modern cocok untuk outfit casual dan gaya anak muda.</p>
+      </div>
+
+      <div class="col-md-4">
+        <h3>Harga Terjangkau</h3>
+        <p>Dapatkan kaos distro berkualitas dengan harga yang tetap ramah.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ARTICLES -->
 <section class="section home-articles-section">
   <div class="container">
@@ -34,3 +115,18 @@
     <% } %>
   </div>
 </section>
+
+<!-- INTERNAL LINK SEO -->
+<section class="section">
+  <div class="container text-center">
+    <h2>Kategori Populer</h2>
+
+    <div style="margin-top:15px;">
+      <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+      <a href="/shop?category=men">Kaos Pria</a> |
+      <a href="/articles">Artikel Fashion</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
