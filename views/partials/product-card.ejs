@@ -6,54 +6,68 @@
   const productImage =
     (product && product.image) ||
     (product && product.images && product.images.length ? product.images[0] : '') ||
-    '';
+    '/assets/images/placeholder-product.jpg';
 
-  const price = Number(product.price || 0);
-  const compareAtPrice = Number(product.compareAtPrice || 0);
+  const price = Number(product?.price || 0);
+  const compareAtPrice = Number(product?.compareAtPrice || 0);
 
   const hasDiscount = compareAtPrice > price && price > 0;
   const discountPercent = hasDiscount
     ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
     : 0;
 
-  const isSoldOut = product.status === 'sold_out';
+  const isSoldOut = product?.status === 'sold_out';
+  const safeName = product?.name || 'Produk Pilihan';
+  const safeCategory = product?.category || 'Kaos Pria';
+  const safeMaterial = product?.material || 'bahan nyaman';
+  const safeFit = product?.fit || 'fit terbaik';
 %>
 
 <div class="product product-card-clean">
   <div class="product-img">
     <% if (productSlug) { %>
-      <a href="<%= productUrl %>" class="product-image-link" aria-label="<%= product.name %>">
-        <img src="<%= productImage %>" alt="<%= product.name %>" loading="lazy">
+      <a href="<%= productUrl %>" class="product-image-link" aria-label="<%= safeName %>">
+        <img
+          src="<%= productImage %>"
+          alt="<%= safeName %> - <%= safeCategory %> original"
+          loading="lazy"
+        >
       </a>
     <% } else { %>
       <span class="product-image-link">
-        <img src="<%= productImage %>" alt="<%= product.name %>" loading="lazy">
+        <img
+          src="<%= productImage %>"
+          alt="<%= safeName %>"
+          loading="lazy"
+        >
       </span>
     <% } %>
 
-    <% if (product.is_new) { %>
+    <% if (product?.is_new) { %>
       <div class="product-label">
-        <span class="new">NEW</span>
+        <span class="new">Pilihan Baru</span>
       </div>
     <% } else if (hasDiscount) { %>
       <div class="product-label">
-        <span class="sale">-<%= discountPercent %>%</span>
+        <span class="sale">Hemat <%= discountPercent %>%</span>
       </div>
     <% } %>
   </div>
 
   <div class="product-body">
-    <% if (product.category) { %>
-      <p class="product-category"><%= product.category %></p>
-    <% } %>
+    <p class="product-category"><%= safeCategory %></p>
 
     <h3 class="product-name">
       <% if (productSlug) { %>
-        <a href="<%= productUrl %>"><%= product.name %></a>
+        <a href="<%= productUrl %>"><%= safeName %></a>
       <% } else { %>
-        <span><%= product.name %></span>
+        <span><%= safeName %></span>
       <% } %>
     </h3>
+
+    <p class="product-card-copy">
+      Rekomendasi <%= safeCategory.toLowerCase() %> dengan <%= safeMaterial %> dan model <%= safeFit %> yang nyaman dipakai harian.
+    </p>
 
     <% if (price > 0) { %>
       <h4 class="product-price">
@@ -67,6 +81,16 @@
       </h4>
     <% } %>
 
+    <% if (!isSoldOut) { %>
+      <div class="product-card-trust">
+        <span>✔ Banyak diminati</span>
+      </div>
+    <% } else { %>
+      <div class="product-card-trust sold-out-text">
+        <span>Stok sedang habis</span>
+      </div>
+    <% } %>
+
     <div class="product-actions">
       <% if (isSoldOut) { %>
         <button class="buy-now-btn" type="button" disabled>
@@ -74,19 +98,9 @@
         </button>
 
         <button class="add-to-cart-btn" type="button" disabled>
-          Sold Out
+          Tidak Tersedia
         </button>
       <% } else { %>
-        <% if (productSlug) { %>
-          <a href="<%= productGoUrl %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
-            Lihat di Marketplace
-          </a>
-        <% } else { %>
-          <button class="buy-now-btn" type="button" disabled>
-            Lihat di Marketplace
-          </button>
-        <% } %>
-
         <% if (productSlug) { %>
           <a href="<%= productUrl %>" class="add-to-cart-btn">
             Cek Detail
@@ -96,18 +110,16 @@
             Cek Detail
           </button>
         <% } %>
-      <% } %>
 
-      <% if (productSlug) { %>
-        <a href="<%= productUrl %>" class="detail-btn" aria-label="Lihat detail <%= product.name %>">
-          <i class="fa fa-eye"></i>
-          <span>Detail</span>
-        </a>
-      <% } else { %>
-        <span class="detail-btn" aria-hidden="true">
-          <i class="fa fa-eye"></i>
-          <span>Detail</span>
-        </span>
+        <% if (productSlug) { %>
+          <a href="<%= productGoUrl %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+            Cek Harga
+          </a>
+        <% } else { %>
+          <button class="buy-now-btn" type="button" disabled>
+            Cek Harga
+          </button>
+        <% } %>
       <% } %>
     </div>
   </div>
