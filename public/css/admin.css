@@ -79,20 +79,10 @@ body.admin-page {
   box-shadow: 0 0 0 2px rgba(209,0,36,.1);
 }
 
-/* ===== GRID FORM FIX ===== */
-.admin-form .row {
-  display: flex;
-  flex-wrap: wrap;
-}
+/* ❌ HAPUS FLEX YANG NGERUSAK BOOTSTRAP */
+/* JANGAN ADA .admin-form .row */
 
-.admin-form .col-md-6,
-.admin-form .col-md-4,
-.admin-form .col-md-12,
-.admin-form .col-md-8 {
-  padding: 0 8px;
-}
-
-/* ===== CHECKBOX FIX ===== */
+/* ===== CHECKBOX ===== */
 .admin-check-grid {
   display: flex;
   flex-direction: column;
@@ -132,6 +122,35 @@ body.admin-page {
 
 .primary-btn:hover {
   background: #a8001d;
+}
+
+/* ===== FIX DASHBOARD GRID ===== */
+.admin-card .row {
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.admin-card .col-md-4,
+.admin-card .col-md-6 {
+  padding: 8px;
+}
+
+/* ===== LOGIN FIX ===== */
+.admin-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #15161D, #2B2D42, #D10024);
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.25);
 }
 
 /* ===== RESPONSIVE ===== */
