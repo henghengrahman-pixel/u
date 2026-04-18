@@ -1,23 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>
-    <%= (typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel') %> - 
-    <%= (settings && settings.storeName) ? settings.storeName : 'MWG Oversize' %>
-  </title>
-
-  <!-- ADMIN ONLY CSS -->
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/assets/css/admin.css">
-</head>
-
 <body class="admin-page">
 
 <div class="admin-wrapper">
+
+  <!-- SIDEBAR -->
   <div class="admin-sidebar">
 
     <% 
@@ -64,28 +49,5 @@
 
   </div>
 
+  <!-- CONTENT -->
   <div class="admin-content">
-
-    <% 
-      const adminTitle = typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel';
-      const adminDescription = typeof pageDescription !== 'undefined'
-        ? pageDescription
-        : 'Kelola produk, artikel, dan pengaturan website dari satu tempat.';
-    %>
-
-    <div class="admin-toolbar">
-      <div>
-        <h1><%= adminTitle %></h1>
-        <p><%= adminDescription %></p>
-      </div>
-
-      <% if (typeof topAction !== 'undefined' && topAction) { %>
-        <div><%- topAction %></div>
-      <% } %>
-    </div>
-
-    <% if (flash && flash.message) { %>
-      <div class="alert alert-<%= flash.type || 'info' %>">
-        <%= flash.message %>
-      </div>
-    <% } %>
