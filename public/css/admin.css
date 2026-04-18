@@ -141,3 +141,36 @@ body.admin-page {
   width: 100%;
   max-width: 420px;
 }
+/* ===== PRODUCT CELL FIX (INI YANG PENTING) ===== */
+.admin-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* gambar kecil rapi */
+.admin-product-cell img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+/* text kecil */
+.text-muted-2 {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* tombol action biar ga berantakan */
+.admin-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* table biar rapih */
+.admin-table td {
+  vertical-align: middle;
+}
