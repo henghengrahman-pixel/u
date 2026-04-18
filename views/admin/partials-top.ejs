@@ -3,23 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel' %> - <%= settings?.storeName || 'MWG Oversize' %></title>
+
+  <title>
+    <%= (typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel') %> - 
+    <%= (settings && settings.storeName) ? settings.storeName : 'MWG Oversize' %>
+  </title>
 
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
   <link rel="stylesheet" href="/assets/css/admin.css">
 </head>
+
 <body class="admin-page">
   <div class="admin-shell">
     <div class="container">
-      <% const adminTitle = typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel'; %>
-      <% const adminDescription = typeof pageDescription !== 'undefined' ? pageDescription : 'Kelola produk, artikel, dan pengaturan website dari satu tempat.'; %>
-      <% const safeLogo = settings?.logo || '/assets/images/logo.png'; %>
-      <% const safeStoreName = settings?.storeName || 'MWG Oversize'; %>
+
+      <% 
+        const adminTitle = typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel';
+        const adminDescription = typeof pageDescription !== 'undefined'
+          ? pageDescription
+          : 'Kelola produk, artikel, dan pengaturan website dari satu tempat.';
+
+        const safeLogo = (settings && settings.logo) ? settings.logo : '/assets/images/logo.png';
+        const safeStoreName = (settings && settings.storeName) ? settings.storeName : 'MWG Oversize';
+
+        const path = currentPath || '';
+      %>
 
       <div class="row">
+        
+        <!-- SIDEBAR -->
         <div class="col-md-3">
           <aside class="admin-sidebar">
+
             <div class="admin-brand">
               <img src="<%= safeLogo %>" alt="<%= safeStoreName %>">
               <div>
@@ -29,23 +45,24 @@
             </div>
 
             <nav class="admin-nav">
-              <a href="/admin" class="<%= currentPath === '/admin' ? 'active' : '' %>">
+
+              <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
                 <i class="fa fa-dashboard"></i> Dashboard
               </a>
 
-              <a href="/admin/products" class="<%= currentPath.startsWith('/admin/products') ? 'active' : '' %>">
+              <a href="/admin/products" class="<%= path.includes('/admin/products') ? 'active' : '' %>">
                 <i class="fa fa-cube"></i> Products
               </a>
 
-              <a href="/admin/orders" class="<%= currentPath.startsWith('/admin/orders') ? 'active' : '' %>">
+              <a href="/admin/orders" class="<%= path.includes('/admin/orders') ? 'active' : '' %>">
                 <i class="fa fa-shopping-bag"></i> Orders
               </a>
 
-              <a href="/admin/articles" class="<%= currentPath.startsWith('/admin/articles') ? 'active' : '' %>">
+              <a href="/admin/articles" class="<%= path.includes('/admin/articles') ? 'active' : '' %>">
                 <i class="fa fa-file-text-o"></i> Articles
               </a>
 
-              <a href="/admin/settings" class="<%= currentPath.startsWith('/admin/settings') ? 'active' : '' %>">
+              <a href="/admin/settings" class="<%= path.includes('/admin/settings') ? 'active' : '' %>">
                 <i class="fa fa-cog"></i> Settings
               </a>
 
@@ -56,12 +73,16 @@
               <a href="/admin/logout">
                 <i class="fa fa-sign-out"></i> Logout
               </a>
+
             </nav>
+
           </aside>
         </div>
 
+        <!-- MAIN -->
         <div class="col-md-9">
           <main class="admin-main">
+
             <div class="admin-toolbar">
               <div>
                 <h1><%= adminTitle %></h1>
@@ -73,6 +94,8 @@
               <% } %>
             </div>
 
-            <% if (typeof flash !== 'undefined' && flash && flash.message) { %>
-              <div class="alert alert-<%= flash.type || 'info' %> flash-alert"><%= flash.message %></div>
+            <% if (flash && flash.message) { %>
+              <div class="alert alert-<%= flash.type || 'info' %> flash-alert">
+                <%= flash.message %>
+              </div>
             <% } %>
