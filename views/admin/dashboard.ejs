@@ -3,42 +3,48 @@
   pageDescription: 'Ringkasan cepat aktivitas toko dan performa terbaru.' 
 }) %>
 
-<div class="row">
+<div class="admin-toolbar">
+  <h1>Dashboard</h1>
+  <p>Ringkasan cepat aktivitas toko dan performa terbaru.</p>
+</div>
+
+<div class="admin-grid">
 
   <!-- STATS -->
-  <div class="col-md-4">
+  <div class="admin-col-4">
     <div class="admin-card admin-stat-box">
       <div class="admin-stat-title">Total Products</div>
-      <div class="admin-stat-value"><%= totalProducts %></div>
+      <div class="admin-stat-value"><%= totalProducts || 0 %></div>
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="admin-col-4">
     <div class="admin-card admin-stat-box">
       <div class="admin-stat-title">Total Orders</div>
-      <div class="admin-stat-value"><%= totalOrders %></div>
+      <div class="admin-stat-value"><%= totalOrders || 0 %></div>
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="admin-col-4">
     <div class="admin-card admin-stat-box">
       <div class="admin-stat-title">Total Articles</div>
-      <div class="admin-stat-value"><%= totalArticles %></div>
+      <div class="admin-stat-value"><%= totalArticles || 0 %></div>
     </div>
   </div>
 
   <!-- RECENT ORDERS -->
-  <div class="col-md-12">
+  <div class="admin-col-12">
     <div class="admin-card">
-
-      <div class="admin-card-title" style="margin-bottom:15px;">
-        <h3 style="margin:0;font-weight:600;">Recent Orders</h3>
+      <div class="admin-card-head">
+        <div>
+          <h3 class="admin-section-title">Recent Orders</h3>
+          <p class="admin-section-subtitle">Daftar order terbaru yang masuk ke toko.</p>
+        </div>
       </div>
 
       <% if (recentOrders && recentOrders.length) { %>
-
-        <div class="table-responsive">
-          <table class="table admin-table">
+        <div class="admin-table-wrap">
+          <table class="admin-table">
             <thead>
               <tr>
                 <th>Order ID</th>
@@ -51,12 +57,30 @@
             <tbody>
               <% recentOrders.forEach(function(order){ %>
                 <tr>
-                  <td><strong>#<%= order.id %></strong></td>
-                  <td><%= order.customer_name || '-' %></td>
+                  <td>
+                    <strong>#<%= order.id || '-' %></strong>
+                  </td>
 
                   <td>
-                    <span class="admin-badge <%= order.status %>">
-                      <%= order.status %>
+                    <%= order.customer_name || order.name || '-' %>
+                  </td>
+
+                  <td>
+                    <% 
+                      const rawStatus = String(order.status || 'pending').toLowerCase();
+                      let badgeClass = 'info';
+
+                      if (['paid', 'success', 'completed', 'done'].includes(rawStatus)) {
+                        badgeClass = 'success';
+                      } else if (['pending', 'process', 'processing', 'waiting'].includes(rawStatus)) {
+                        badgeClass = 'warning';
+                      } else if (['cancelled', 'canceled', 'failed', 'rejected'].includes(rawStatus)) {
+                        badgeClass = 'danger';
+                      }
+                    %>
+
+                    <span class="admin-badge <%= badgeClass %>">
+                      <%= rawStatus %>
                     </span>
                   </td>
 
@@ -65,23 +89,20 @@
                   </td>
 
                   <td>
-                    <%= new Date(order.created_at).toLocaleString('id-ID') %>
+                    <%= order.created_at ? new Date(order.created_at).toLocaleString('id-ID') : '-' %>
                   </td>
                 </tr>
               <% }) %>
             </tbody>
           </table>
         </div>
-
       <% } else { %>
-
         <div class="admin-empty">
-          <div style="font-size:40px;">📦</div>
-          <p>Belum ada order masuk</p>
+          <div class="admin-empty-icon">📦</div>
+          <h4>Belum ada order masuk</h4>
+          <p>Order terbaru akan tampil di sini setelah customer melakukan checkout.</p>
         </div>
-
       <% } %>
-
     </div>
   </div>
 
