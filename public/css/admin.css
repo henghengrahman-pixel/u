@@ -1,23 +1,16 @@
-/* ===== RESET & BASE ===== */
+/* ===== BASE ===== */
 body.admin-page {
-  background: #f4f6fb !important;
+  background: #f4f6fb;
   font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1e293b;
 }
 
-/* MATIIN STYLE FRONTEND */
-body.admin-page * {
-  background-image: none !important;
-}
+/* ⚠️ JANGAN RESET SEMUA ELEMEN */
+/* HAPUS YANG body.admin-page * { ... } */
 
 /* ===== LAYOUT ===== */
 .admin-shell {
   padding: 30px 0;
-}
-
-.admin-main {
-  position: relative;
-  z-index: 2;
 }
 
 /* ===== SIDEBAR ===== */
@@ -26,31 +19,21 @@ body.admin-page * {
   border-radius: 20px;
   padding: 24px;
   color: #fff;
-  height: 100%;
   box-shadow: 0 20px 40px rgba(0,0,0,.15);
-}
-
-.admin-brand {
-  margin-bottom: 25px;
 }
 
 .admin-brand-title {
   font-size: 18px;
   font-weight: 700;
+  color: #fff;
 }
 
 .admin-brand-subtitle {
   font-size: 12px;
-  opacity: .6;
+  color: rgba(255,255,255,.6);
 }
 
-/* NAV */
-.admin-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+/* ===== NAV ===== */
 .admin-nav a {
   display: flex;
   align-items: center;
@@ -59,7 +42,7 @@ body.admin-page * {
   border-radius: 12px;
   color: rgba(255,255,255,.8);
   font-weight: 500;
-  transition: .25s;
+  transition: .2s;
 }
 
 .admin-nav a:hover {
@@ -69,10 +52,9 @@ body.admin-page * {
 .admin-nav a.active {
   background: #D10024;
   color: #fff;
-  box-shadow: 0 6px 20px rgba(209,0,36,.4);
 }
 
-/* ===== TOOLBAR ===== */
+/* ===== MAIN ===== */
 .admin-toolbar {
   background: #fff;
   border-radius: 18px;
@@ -92,23 +74,18 @@ body.admin-page * {
 
 /* ===== CARD ===== */
 .admin-card {
-  background: #fff !important;
+  background: #fff;
   border-radius: 18px;
   padding: 22px;
   box-shadow: 0 8px 25px rgba(0,0,0,.05);
   margin-bottom: 20px;
-  transition: .25s;
-}
-
-.admin-card:hover {
-  transform: translateY(-2px);
 }
 
 /* ===== STATS ===== */
 .admin-stat-box {
   padding: 18px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #f8fafc, #eef2ff);
+  background: #f8fafc;
 }
 
 .admin-stat-title {
@@ -134,87 +111,32 @@ body.admin-page * {
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   padding: 12px 14px;
-  background: #fff !important;
-  transition: .2s;
+  background: #fff;
 }
 
 .admin-form .input:focus {
   border-color: #D10024;
-  box-shadow: 0 0 0 2px rgba(209,0,36,.15);
+  box-shadow: 0 0 0 2px rgba(209,0,36,.1);
 }
 
 /* ===== BUTTON ===== */
 .primary-btn {
-  background: linear-gradient(135deg, #D10024, #ff3b5c);
+  background: #D10024;
   border: none;
   color: #fff;
   padding: 12px 18px;
   border-radius: 12px;
   font-weight: 600;
-  box-shadow: 0 6px 18px rgba(209,0,36,.3);
 }
 
-.primary-btn:hover {
-  transform: translateY(-1px);
-}
-
-/* ===== CHECKBOX ===== */
-.admin-check {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f8fafc;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-/* ===== IMAGE ===== */
-.admin-thumb-preview {
-  width: 100%;
-  height: 180px;
-  border-radius: 14px;
-  object-fit: cover;
-  border: 1px solid #e2e8f0;
-}
-
-/* ===== LOGIN ===== */
-.admin-login-wrap {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #0f172a, #1e293b, #D10024);
-}
-
-.admin-login-card {
-  background: #fff;
-  padding: 30px;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 30px 70px rgba(0,0,0,.3);
-}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width: 768px){
-  .admin-sidebar {
-    margin-bottom: 20px;
-  }
-  /* ===== TABLE ===== */
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
+/* ===== TABLE ===== */
 .admin-table th {
   font-size: 13px;
   color: #64748b;
-  font-weight: 600;
-  padding: 10px;
 }
 
 .admin-table td {
-  padding: 12px 10px;
+  padding: 10px;
   border-top: 1px solid #f1f5f9;
 }
 
@@ -241,10 +163,27 @@ body.admin-page * {
   color: #991b1b;
 }
 
-/* ===== EMPTY STATE ===== */
+/* ===== EMPTY ===== */
 .admin-empty {
   text-align: center;
   padding: 40px;
   color: #64748b;
 }
+
+/* ===== LOGIN ===== */
+.admin-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #D10024);
+}
+
+.admin-login-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 30px 70px rgba(0,0,0,.3);
 }
