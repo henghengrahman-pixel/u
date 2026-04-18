@@ -38,7 +38,7 @@ function slugify(text = '') {
 
 function normalizeImages(input = {}) {
   if (Array.isArray(input.images)) {
-    return input.images.map(cleanUrl).filter(Boolean);
+    return input.map(cleanUrl).filter(Boolean);
   }
 
   if (typeof input.images === 'string') {
@@ -58,7 +58,12 @@ function getSettings() {
 }
 
 function saveSettings(data) {
-  return saveCollection('settings.json', data || {});
+  const clean = {
+    storeName: cleanString(data.storeName || 'MWG Oversize'),
+    logo: cleanUrl(data.logo || ''),
+    ...data
+  };
+  return saveCollection('settings.json', clean);
 }
 
 /* ================= PRODUCTS ================= */
@@ -75,8 +80,10 @@ function prepareProduct(p = {}) {
     slug: p.slug || slugify(name),
     category,
     brand: cleanString(p.brand || 'MWG Oversize'),
+
     image,
     images,
+
     affiliateLink: cleanUrl(p.affiliateLink || p.affiliate_link || p.link),
 
     shortDescription: cleanString(p.shortDescription || p.short_description),
@@ -96,6 +103,7 @@ function prepareProduct(p = {}) {
     seoDescription:
       p.seoDescription ||
       `${name} merupakan rekomendasi kaos ${category} terbaik dengan bahan nyaman dan cocok untuk outfit pria kekinian.`,
+
     keywords:
       p.keywords ||
       `${name}, kaos ${category}, rekomendasi kaos pria, kaos pria terbaik`,
@@ -106,15 +114,15 @@ function prepareProduct(p = {}) {
 }
 
 function getProducts() {
-  return (getCollection('products.json') || []).map(prepareProduct);
+  return getCollection('products.json') || [];
 }
 
 function getVisibleProducts() {
-  return getProducts().filter(p => p.visible);
+  return getProducts().filter(p => p.visible !== false);
 }
 
 function getProductBySlug(slug) {
-  return getVisibleProducts().find(p => p.slug === slug);
+  return getProducts().find(p => p.slug === slug);
 }
 
 function getProductById(id) {
@@ -146,7 +154,10 @@ function updateProduct(id, data) {
 }
 
 function deleteProduct(id) {
-  saveCollection('products.json', getProducts().filter(p => p.id !== id));
+  const items = getProducts();
+  const filtered = items.filter(p => p.id !== id);
+  saveCollection('products.json', filtered);
+  return items.length !== filtered.length;
 }
 
 /* ================= ARTICLES ================= */
@@ -170,6 +181,7 @@ function prepareArticle(a = {}) {
     seoTitle: title,
     seoDescription:
       a.description || a.excerpt || `Baca ${title} lengkap.`,
+
     keywords: `rekomendasi kaos pria, ${title}`,
 
     created_at: a.created_at || nowIso(),
@@ -178,15 +190,15 @@ function prepareArticle(a = {}) {
 }
 
 function getArticles() {
-  return (getCollection('articles.json') || []).map(prepareArticle);
+  return getCollection('articles.json') || [];
 }
 
 function getVisibleArticles() {
-  return getArticles().filter(a => a.visible);
+  return getArticles().filter(a => a.visible !== false);
 }
 
 function getArticleBySlug(slug) {
-  return getVisibleArticles().find(a => a.slug === slug);
+  return getArticles().find(a => a.slug === slug);
 }
 
 function getArticleById(id) {
@@ -218,7 +230,10 @@ function updateArticle(id, data) {
 }
 
 function deleteArticle(id) {
-  saveCollection('articles.json', getArticles().filter(a => a.id !== id));
+  const items = getArticles();
+  const filtered = items.filter(a => a.id !== id);
+  saveCollection('articles.json', filtered);
+  return items.length !== filtered.length;
 }
 
 /* ================= ORDERS ================= */
@@ -248,13 +263,9 @@ function getCategories() {
   const map = {};
 
   products.forEach(p => {
-    const name = (p.category || 'lainnya').toLowerCase().trim();
-
+    const name = cleanString(p.category || 'lainnya').toLowerCase();
     if (!map[name]) {
-      map[name] = {
-        name,
-        visible: true
-      };
+      map[name] = { name, visible: true };
     }
   });
 
