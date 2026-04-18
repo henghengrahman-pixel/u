@@ -700,3 +700,76 @@ textarea:focus {
   min-width: 88px;
   justify-content: center;
 }
+/* =========================
+   TOP TOOLBAR ACTION
+========================= */
+.admin-toolbar-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-toolbar-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* =========================
+   PRODUCT META
+========================= */
+.admin-product-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-product-meta strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.admin-product-meta span {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* =========================
+   SMALL FORM FIX
+========================= */
+.admin-actions form {
+  margin: 0;
+}
+
+.admin-actions .secondary-btn,
+.admin-actions .danger-btn {
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+/* =========================
+   RESPONSIVE TOOLBAR
+========================= */
+@media (max-width: 768px) {
+  .admin-toolbar-flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-toolbar-action {
+    width: 100%;
+  }
+
+  .admin-toolbar-action .primary-btn {
+    width: 100%;
+  }
+}
