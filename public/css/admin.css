@@ -1,48 +1,62 @@
 /* ===== BASE ===== */
 body.admin-page {
+  margin: 0;
   background: #f4f6fb;
   font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1e293b;
 }
 
-/* ⚠️ JANGAN RESET SEMUA ELEMEN */
-/* HAPUS YANG body.admin-page * { ... } */
-
 /* ===== LAYOUT ===== */
-.admin-shell {
-  padding: 30px 0;
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
 }
 
 /* ===== SIDEBAR ===== */
 .admin-sidebar {
+  width: 260px;
   background: linear-gradient(180deg, #0f172a, #1e293b);
-  border-radius: 20px;
   padding: 24px;
   color: #fff;
-  box-shadow: 0 20px 40px rgba(0,0,0,.15);
+  flex-shrink: 0;
 }
 
-.admin-brand-title {
+.admin-brand {
+  margin-bottom: 25px;
+}
+
+.admin-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.admin-brand h3 {
+  margin: 0;
   font-size: 18px;
-  font-weight: 700;
-  color: #fff;
 }
 
-.admin-brand-subtitle {
-  font-size: 12px;
-  color: rgba(255,255,255,.6);
+.admin-brand small {
+  opacity: .6;
 }
 
 /* ===== NAV ===== */
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .admin-nav a {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 10px;
   color: rgba(255,255,255,.8);
+  text-decoration: none;
   font-weight: 500;
-  transition: .2s;
 }
 
 .admin-nav a:hover {
@@ -54,69 +68,41 @@ body.admin-page {
   color: #fff;
 }
 
-/* ===== MAIN ===== */
+/* ===== CONTENT ===== */
+.admin-content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* ===== TOOLBAR ===== */
 .admin-toolbar {
   background: #fff;
-  border-radius: 18px;
-  padding: 20px 24px;
-  margin-bottom: 22px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.05);
-}
-
-.admin-toolbar h1 {
-  font-size: 26px;
-  font-weight: 700;
-}
-
-.admin-toolbar p {
-  color: #64748b;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 /* ===== CARD ===== */
 .admin-card {
   background: #fff;
-  border-radius: 18px;
-  padding: 22px;
-  box-shadow: 0 8px 25px rgba(0,0,0,.05);
+  border-radius: 16px;
+  padding: 20px;
   margin-bottom: 20px;
 }
 
-/* ===== STATS ===== */
-.admin-stat-box {
-  padding: 18px;
-  border-radius: 14px;
-  background: #f8fafc;
+/* ===== IMAGE FIX (INI PENTING) ===== */
+.admin-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
-.admin-stat-title {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.admin-stat-value {
-  font-size: 26px;
-  font-weight: 700;
-}
-
-/* ===== FORM ===== */
-.admin-form label {
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.admin-form .input,
-.admin-form select,
-.admin-form textarea {
+/* ===== PRODUCT IMAGE FIX ===== */
+.admin-product-image {
   width: 100%;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 12px 14px;
-  background: #fff;
-}
-
-.admin-form .input:focus {
-  border-color: #D10024;
-  box-shadow: 0 0 0 2px rgba(209,0,36,.1);
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 /* ===== BUTTON ===== */
@@ -124,9 +110,8 @@ body.admin-page {
   background: #D10024;
   border: none;
   color: #fff;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 10px;
 }
 
 /* ===== TABLE ===== */
@@ -137,37 +122,7 @@ body.admin-page {
 
 .admin-table td {
   padding: 10px;
-  border-top: 1px solid #f1f5f9;
-}
-
-/* ===== BADGE ===== */
-.admin-badge {
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.admin-badge.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.admin-badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.admin-badge.failed {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* ===== EMPTY ===== */
-.admin-empty {
-  text-align: center;
-  padding: 40px;
-  color: #64748b;
+  border-top: 1px solid #eee;
 }
 
 /* ===== LOGIN ===== */
@@ -185,5 +140,4 @@ body.admin-page {
   border-radius: 20px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 30px 70px rgba(0,0,0,.3);
 }
