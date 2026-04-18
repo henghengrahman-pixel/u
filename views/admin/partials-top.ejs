@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= (meta && meta.title) ? meta.title : 'Admin Panel' %></title>
+  <title><%= pageTitle || (meta && meta.title) || 'Admin Panel' %></title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,6 @@
 <body class="admin-page">
 
 <div class="admin-wrapper">
-  <!-- SIDEBAR -->
   <aside class="admin-sidebar">
     <%
       const safeLogo = (settings && settings.logo) ? settings.logo : '/assets/images/logo.png';
@@ -67,5 +66,23 @@
     </nav>
   </aside>
 
-  <!-- CONTENT -->
   <main class="admin-content">
+    <% if (typeof pageTitle !== 'undefined' || typeof pageDescription !== 'undefined' || typeof topAction !== 'undefined') { %>
+      <div class="admin-toolbar admin-toolbar-flex">
+        <div>
+          <% if (typeof pageTitle !== 'undefined' && pageTitle) { %>
+            <h1><%= pageTitle %></h1>
+          <% } %>
+
+          <% if (typeof pageDescription !== 'undefined' && pageDescription) { %>
+            <p><%= pageDescription %></p>
+          <% } %>
+        </div>
+
+        <% if (typeof topAction !== 'undefined' && topAction) { %>
+          <div class="admin-toolbar-action">
+            <%- topAction %>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
