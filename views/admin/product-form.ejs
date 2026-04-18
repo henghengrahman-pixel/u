@@ -1,122 +1,349 @@
-<div class="row">
+<%
+  const isEdit = product && product.id;
+  const formTitle = isEdit ? 'Edit Product' : 'Add Product';
+  const formDescription = isEdit
+    ? 'Update informasi produk, harga, SEO, dan pengaturan visibilitas.'
+    : 'Tambah produk baru lengkap dengan data utama, affiliate link, dan SEO.';
+%>
 
-  <!-- LEFT -->
-  <div class="col-md-8">
+<%- include('partials-top', {
+  pageTitle: formTitle,
+  pageDescription: formDescription
+}) %>
 
-    <div class="admin-card">
-      <div class="row">
+<div class="admin-card">
+  <form method="post" action="<%= isEdit ? ('/admin/products/' + product.id + '/update') : '/admin/products/store' %>" class="admin-form">
+    
+    <div class="admin-grid">
+      <!-- LEFT -->
+      <div class="admin-col-6">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">Informasi Produk</h3>
+          <p class="admin-section-subtitle">Isi data utama produk dengan lengkap.</p>
 
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Nama Produk</label>
-            <input class="input" name="name" value="<%= item?.name || '' %>" required>
+          <div class="admin-form-group">
+            <label for="name">Nama Produk</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value="<%= product?.name || '' %>"
+              placeholder="Contoh: Kaos Oversize Premium Hitam"
+              required
+            >
           </div>
-        </div>
 
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Slug</label>
-            <input class="input" name="slug" value="<%= item?.slug || '' %>">
+          <div class="admin-form-group">
+            <label for="slug">Slug</label>
+            <input
+              id="slug"
+              type="text"
+              name="slug"
+              value="<%= product?.slug || '' %>"
+              placeholder="contoh: kaos-oversize-premium-hitam"
+            >
           </div>
-        </div>
 
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Kategori</label>
-            <input class="input" name="category" value="<%= item?.category || '' %>" required>
+          <div class="admin-form-group">
+            <label for="category">Kategori</label>
+            <input
+              id="category"
+              type="text"
+              name="category"
+              value="<%= product?.category || '' %>"
+              placeholder="Contoh: Kaos Oversize"
+            >
           </div>
-        </div>
 
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Brand</label>
-            <input class="input" name="brand" value="<%= item?.brand || '' %>">
+          <div class="admin-form-group">
+            <label for="brand">Brand</label>
+            <input
+              id="brand"
+              type="text"
+              name="brand"
+              value="<%= product?.brand || '' %>"
+              placeholder="Contoh: MWG Oversize"
+            >
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="form-group">
-            <label>Status</label>
-            <select class="input" name="status">
-              <option value="ready">ready</option>
-              <option value="sold_out">sold_out</option>
+          <div class="admin-form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="ready" <%= (product?.status || '') === 'ready' ? 'selected' : '' %>>Ready</option>
+              <option value="draft" <%= (product?.status || '') === 'draft' ? 'selected' : '' %>>Draft</option>
+              <option value="hidden" <%= (product?.status || '') === 'hidden' ? 'selected' : '' %>>Hidden</option>
             </select>
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="form-group">
-            <label>Harga</label>
-            <input class="input" type="number" name="price">
+          <div class="admin-form-group">
+            <label for="material">Material</label>
+            <input
+              id="material"
+              type="text"
+              name="material"
+              value="<%= product?.material || '' %>"
+              placeholder="Contoh: American Cotton 20s"
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="fit">Fit</label>
+            <input
+              id="fit"
+              type="text"
+              name="fit"
+              value="<%= product?.fit || '' %>"
+              placeholder="Contoh: Oversize Fit"
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="description">Deskripsi</label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Tulis deskripsi produk lengkap..."
+            ><%= product?.description || '' %></textarea>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-4">
-          <div class="form-group">
-            <label>Harga Coret</label>
-            <input class="input" type="number" name="compareAtPrice">
+      <!-- RIGHT -->
+      <div class="admin-col-6">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">Harga & Media</h3>
+          <p class="admin-section-subtitle">Atur harga jual, link affiliate, dan gambar produk.</p>
+
+          <div class="admin-form-group">
+            <label for="price">Harga</label>
+            <input
+              id="price"
+              type="number"
+              name="price"
+              value="<%= product?.price || '' %>"
+              placeholder="Contoh: 149900"
+              min="0"
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="compareAtPrice">Harga Coret</label>
+            <input
+              id="compareAtPrice"
+              type="number"
+              name="compareAtPrice"
+              value="<%= product?.compareAtPrice || '' %>"
+              placeholder="Contoh: 199900"
+              min="0"
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="affiliateLink">Link Affiliate</label>
+            <input
+              id="affiliateLink"
+              type="url"
+              name="affiliateLink"
+              value="<%= product?.affiliateLink || '' %>"
+              placeholder="https://..."
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="image">Gambar</label>
+            <input
+              id="image"
+              type="url"
+              name="image"
+              value="<%= product?.image || product?.thumbnail || '' %>"
+              placeholder="https://..."
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="thumbnail">Thumbnail</label>
+            <input
+              id="thumbnail"
+              type="url"
+              name="thumbnail"
+              value="<%= product?.thumbnail || '' %>"
+              placeholder="https://..."
+            >
+          </div>
+
+          <div class="admin-form-group">
+            <label>Visibility</label>
+            <div class="admin-check-grid">
+              <label class="admin-check">
+                <input type="checkbox" name="featured" value="1" <%= product?.featured ? 'checked' : '' %>>
+                <span>Featured</span>
+              </label>
+
+              <label class="admin-check">
+                <input type="checkbox" name="recommended" value="1" <%= product?.recommended ? 'checked' : '' %>>
+                <span>Recommended</span>
+              </label>
+
+              <label class="admin-check">
+                <input type="checkbox" name="visible" value="1" <%= product?.visible !== false ? 'checked' : '' %>>
+                <span>Visible</span>
+              </label>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Material</label>
-            <input class="input" name="material">
+      <!-- SEO -->
+      <div class="admin-col-12">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">SEO Produk</h3>
+          <p class="admin-section-subtitle">Bagian ini penting untuk Google, ranking, dan tampilan saat dibagikan.</p>
+
+          <div class="admin-grid">
+            <div class="admin-col-6">
+              <div class="admin-form-group">
+                <label for="seoTitle">SEO Title</label>
+                <input
+                  id="seoTitle"
+                  type="text"
+                  name="seoTitle"
+                  value="<%= product?.seoTitle || '' %>"
+                  placeholder="Contoh: Kaos Oversize Premium Pria Original | MWG Oversize"
+                >
+              </div>
+            </div>
+
+            <div class="admin-col-6">
+              <div class="admin-form-group">
+                <label for="seoKeywords">SEO Keywords</label>
+                <input
+                  id="seoKeywords"
+                  type="text"
+                  name="seoKeywords"
+                  value="<%= product?.seoKeywords || '' %>"
+                  placeholder="kaos oversize pria, kaos premium, kaos distro original"
+                >
+              </div>
+            </div>
+
+            <div class="admin-col-12">
+              <div class="admin-form-group">
+                <label for="seoDescription">SEO Description</label>
+                <textarea
+                  id="seoDescription"
+                  name="seoDescription"
+                  placeholder="Tulis meta description produk yang menarik dan mengandung keyword utama..."
+                ><%= product?.seoDescription || '' %></textarea>
+              </div>
+            </div>
+
+            <div class="admin-col-6">
+              <div class="admin-form-group">
+                <label for="canonicalUrl">Canonical URL</label>
+                <input
+                  id="canonicalUrl"
+                  type="url"
+                  name="canonicalUrl"
+                  value="<%= product?.canonicalUrl || '' %>"
+                  placeholder="https://namadomain.com/product/nama-produk"
+                >
+              </div>
+            </div>
+
+            <div class="admin-col-6">
+              <div class="admin-form-group">
+                <label for="ogImage">OG Image</label>
+                <input
+                  id="ogImage"
+                  type="url"
+                  name="ogImage"
+                  value="<%= product?.ogImage || '' %>"
+                  placeholder="https://..."
+                >
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Fit</label>
-            <input class="input" name="fit">
+      <!-- PREVIEW -->
+      <div class="admin-col-12">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">Preview</h3>
+          <p class="admin-section-subtitle">Preview sederhana sebelum produk disimpan.</p>
+
+          <div class="admin-preview-box">
+            <div class="admin-preview-image">
+              <img
+                id="previewImage"
+                src="<%= product?.image || product?.thumbnail || 'https://dummyimage.com/600x600/f1f5f9/64748b&text=Preview' %>"
+                alt="Preview"
+              >
+            </div>
+
+            <div class="admin-preview-content">
+              <h4 id="previewName"><%= product?.name || 'Nama produk akan tampil di sini' %></h4>
+              <p id="previewCategory"><%= product?.category || 'Kategori produk' %></p>
+              <div class="admin-preview-price" id="previewPrice">
+                <% if (product?.price) { %>
+                  IDR <%= Number(product.price).toLocaleString('id-ID') %>
+                <% } else { %>
+                  Harga belum diisi
+                <% } %>
+              </div>
+              <p id="previewDesc"><%= product?.description || 'Deskripsi produk akan tampil di sini.' %></p>
+            </div>
           </div>
         </div>
-
-        <div class="col-md-12">
-          <div class="form-group">
-            <label>Link Affiliate</label>
-            <input class="input" name="affiliateLink">
-          </div>
-        </div>
-
-        <div class="col-md-12">
-          <div class="form-group">
-            <label>Gambar</label>
-            <input class="input" name="image">
-          </div>
-        </div>
-
       </div>
     </div>
 
-  </div>
-
-  <!-- RIGHT -->
-  <div class="col-md-4">
-    <div class="admin-card">
-
-      <h4>Visibility</h4>
-
-      <div class="admin-check-grid">
-        <label class="admin-check">
-          <input type="checkbox" name="featured"> Featured
-        </label>
-
-        <label class="admin-check">
-          <input type="checkbox" name="recommended"> Recommended
-        </label>
-
-        <label class="admin-check">
-          <input type="checkbox" name="visible" checked> Visible
-        </label>
-      </div>
-
-      <hr>
-
-      <label>Preview</label>
-      <img class="admin-thumb-preview" id="adminImagePreview">
-
+    <div class="admin-form-footer">
+      <a href="/admin/products" class="secondary-btn">Kembali</a>
+      <button type="submit" class="primary-btn">
+        <i class="fa fa-save"></i>
+        <span><%= isEdit ? 'Update Product' : 'Simpan Product' %></span>
+      </button>
     </div>
-  </div>
-
+  </form>
 </div>
+
+<script>
+  (function () {
+    const nameInput = document.getElementById('name');
+    const categoryInput = document.getElementById('category');
+    const priceInput = document.getElementById('price');
+    const descInput = document.getElementById('description');
+    const imageInput = document.getElementById('image');
+
+    const previewName = document.getElementById('previewName');
+    const previewCategory = document.getElementById('previewCategory');
+    const previewPrice = document.getElementById('previewPrice');
+    const previewDesc = document.getElementById('previewDesc');
+    const previewImage = document.getElementById('previewImage');
+
+    function formatPrice(value) {
+      const num = Number(value || 0);
+      if (!num) return 'Harga belum diisi';
+      return 'IDR ' + num.toLocaleString('id-ID');
+    }
+
+    function updatePreview() {
+      if (previewName) previewName.textContent = nameInput.value || 'Nama produk akan tampil di sini';
+      if (previewCategory) previewCategory.textContent = categoryInput.value || 'Kategori produk';
+      if (previewPrice) previewPrice.textContent = formatPrice(priceInput.value);
+      if (previewDesc) previewDesc.textContent = descInput.value || 'Deskripsi produk akan tampil di sini.';
+      if (previewImage) {
+        previewImage.src = imageInput.value || 'https://dummyimage.com/600x600/f1f5f9/64748b&text=Preview';
+      }
+    }
+
+    [nameInput, categoryInput, priceInput, descInput, imageInput].forEach(function (el) {
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
+    updatePreview();
+  })();
+</script>
+
+<%- include('partials-bottom') %>
