@@ -1,53 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= (meta && meta.title) ? meta.title : 'Admin Panel' %></title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
 <body class="admin-page">
 
 <div class="admin-wrapper">
-
   <!-- SIDEBAR -->
-  <div class="admin-sidebar">
-
-    <% 
+  <aside class="admin-sidebar">
+    <%
       const safeLogo = (settings && settings.logo) ? settings.logo : '/assets/images/logo.png';
       const safeStoreName = (settings && settings.storeName) ? settings.storeName : 'MWG Oversize';
       const path = currentPath || '';
     %>
 
     <div class="admin-brand">
-      <img src="<%= safeLogo %>" class="admin-logo">
+      <img src="<%= safeLogo %>" alt="<%= safeStoreName %>" class="admin-logo">
       <h3><%= safeStoreName %></h3>
       <small>Admin Panel</small>
     </div>
 
     <nav class="admin-nav">
       <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
-        <i class="fa fa-dashboard"></i> Dashboard
+        <i class="fa fa-dashboard"></i>
+        <span>Dashboard</span>
       </a>
 
       <a href="/admin/products" class="<%= path.includes('/admin/products') ? 'active' : '' %>">
-        <i class="fa fa-cube"></i> Products
+        <i class="fa fa-cube"></i>
+        <span>Products</span>
       </a>
 
-      <a href="/admin/orders">
-        <i class="fa fa-shopping-bag"></i> Orders
+      <a href="/admin/orders" class="<%= path.includes('/admin/orders') ? 'active' : '' %>">
+        <i class="fa fa-shopping-bag"></i>
+        <span>Orders</span>
       </a>
 
-      <a href="/admin/articles">
-        <i class="fa fa-file-text-o"></i> Articles
+      <a href="/admin/articles" class="<%= path.includes('/admin/articles') ? 'active' : '' %>">
+        <i class="fa fa-file-text-o"></i>
+        <span>Articles</span>
       </a>
 
-      <a href="/admin/settings">
-        <i class="fa fa-cog"></i> Settings
+      <a href="/admin/settings" class="<%= path.includes('/admin/settings') ? 'active' : '' %>">
+        <i class="fa fa-cog"></i>
+        <span>Settings</span>
       </a>
 
       <a href="/" target="_blank">
-        <i class="fa fa-external-link"></i> View Store
+        <i class="fa fa-external-link"></i>
+        <span>View Store</span>
       </a>
 
       <a href="/admin/logout">
-        <i class="fa fa-sign-out"></i> Logout
+        <i class="fa fa-sign-out"></i>
+        <span>Logout</span>
       </a>
     </nav>
-
-  </div>
+  </aside>
 
   <!-- CONTENT -->
-  <div class="admin-content">
+  <main class="admin-content">
