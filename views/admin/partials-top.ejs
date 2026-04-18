@@ -9,93 +9,83 @@
     <%= (settings && settings.storeName) ? settings.storeName : 'MWG Oversize' %>
   </title>
 
+  <!-- ADMIN ONLY CSS -->
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
   <link rel="stylesheet" href="/assets/css/admin.css">
 </head>
 
 <body class="admin-page">
-  <div class="admin-shell">
-    <div class="container">
 
-      <% 
-        const adminTitle = typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel';
-        const adminDescription = typeof pageDescription !== 'undefined'
-          ? pageDescription
-          : 'Kelola produk, artikel, dan pengaturan website dari satu tempat.';
+<div class="admin-wrapper">
+  <div class="admin-sidebar">
 
-        const safeLogo = (settings && settings.logo) ? settings.logo : '/assets/images/logo.png';
-        const safeStoreName = (settings && settings.storeName) ? settings.storeName : 'MWG Oversize';
+    <% 
+      const safeLogo = (settings && settings.logo) ? settings.logo : '/assets/images/logo.png';
+      const safeStoreName = (settings && settings.storeName) ? settings.storeName : 'MWG Oversize';
+      const path = currentPath || '';
+    %>
 
-        const path = currentPath || '';
-      %>
+    <div class="admin-brand">
+      <img src="<%= safeLogo %>" class="admin-logo">
+      <h3><%= safeStoreName %></h3>
+      <small>Admin Panel</small>
+    </div>
 
-      <div class="row">
-        
-        <!-- SIDEBAR -->
-        <div class="col-md-3">
-          <aside class="admin-sidebar">
+    <nav class="admin-nav">
+      <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
+        <i class="fa fa-dashboard"></i> Dashboard
+      </a>
 
-            <div class="admin-brand">
-              <img src="<%= safeLogo %>" alt="<%= safeStoreName %>">
-              <div>
-                <h3 class="admin-brand-title"><%= safeStoreName %></h3>
-                <div class="admin-brand-subtitle">Admin Panel</div>
-              </div>
-            </div>
+      <a href="/admin/products" class="<%= path.includes('/admin/products') ? 'active' : '' %>">
+        <i class="fa fa-cube"></i> Products
+      </a>
 
-            <nav class="admin-nav">
+      <a href="/admin/orders">
+        <i class="fa fa-shopping-bag"></i> Orders
+      </a>
 
-              <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>">
-                <i class="fa fa-dashboard"></i> Dashboard
-              </a>
+      <a href="/admin/articles">
+        <i class="fa fa-file-text-o"></i> Articles
+      </a>
 
-              <a href="/admin/products" class="<%= path.includes('/admin/products') ? 'active' : '' %>">
-                <i class="fa fa-cube"></i> Products
-              </a>
+      <a href="/admin/settings">
+        <i class="fa fa-cog"></i> Settings
+      </a>
 
-              <a href="/admin/orders" class="<%= path.includes('/admin/orders') ? 'active' : '' %>">
-                <i class="fa fa-shopping-bag"></i> Orders
-              </a>
+      <a href="/" target="_blank">
+        <i class="fa fa-external-link"></i> View Store
+      </a>
 
-              <a href="/admin/articles" class="<%= path.includes('/admin/articles') ? 'active' : '' %>">
-                <i class="fa fa-file-text-o"></i> Articles
-              </a>
+      <a href="/admin/logout">
+        <i class="fa fa-sign-out"></i> Logout
+      </a>
+    </nav>
 
-              <a href="/admin/settings" class="<%= path.includes('/admin/settings') ? 'active' : '' %>">
-                <i class="fa fa-cog"></i> Settings
-              </a>
+  </div>
 
-              <a href="/" target="_blank" rel="noopener noreferrer">
-                <i class="fa fa-external-link"></i> View Store
-              </a>
+  <div class="admin-content">
 
-              <a href="/admin/logout">
-                <i class="fa fa-sign-out"></i> Logout
-              </a>
+    <% 
+      const adminTitle = typeof pageTitle !== 'undefined' ? pageTitle : 'Admin Panel';
+      const adminDescription = typeof pageDescription !== 'undefined'
+        ? pageDescription
+        : 'Kelola produk, artikel, dan pengaturan website dari satu tempat.';
+    %>
 
-            </nav>
+    <div class="admin-toolbar">
+      <div>
+        <h1><%= adminTitle %></h1>
+        <p><%= adminDescription %></p>
+      </div>
 
-          </aside>
-        </div>
+      <% if (typeof topAction !== 'undefined' && topAction) { %>
+        <div><%- topAction %></div>
+      <% } %>
+    </div>
 
-        <!-- MAIN -->
-        <div class="col-md-9">
-          <main class="admin-main">
-
-            <div class="admin-toolbar">
-              <div>
-                <h1><%= adminTitle %></h1>
-                <p><%= adminDescription %></p>
-              </div>
-
-              <% if (typeof topAction !== 'undefined' && topAction) { %>
-                <div class="admin-top-actions"><%- topAction %></div>
-              <% } %>
-            </div>
-
-            <% if (flash && flash.message) { %>
-              <div class="alert alert-<%= flash.type || 'info' %> flash-alert">
-                <%= flash.message %>
-              </div>
-            <% } %>
+    <% if (flash && flash.message) { %>
+      <div class="alert alert-<%= flash.type || 'info' %>">
+        <%= flash.message %>
+      </div>
+    <% } %>
