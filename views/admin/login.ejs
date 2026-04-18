@@ -4,31 +4,58 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Login</title>
+
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="stylesheet" href="/assets/css/admin.css">
 </head>
 <body class="admin-page">
+
   <div class="admin-login-wrap">
     <div class="admin-login-card">
-      <% if (flash) { %>
-        <div class="alert alert-<%= flash.type %>"><%= flash.message %></div>
-      <% } %>
+
       <h2>Admin Login</h2>
       <p>Masuk untuk mengelola toko, produk, order, artikel, dan setting website.</p>
-      <form method="post" action="/admin/login" class="admin-form">
+
+      <% if (flash && flash.message) { %>
+        <div class="alert alert-<%= flash.type || 'danger' %>">
+          <%= flash.message %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/admin/login" class="admin-form">
+        
         <div class="form-group">
           <label>Username</label>
-          <input class="input" name="username" placeholder="Username" required>
+          <input 
+            class="input" 
+            type="text"
+            name="username" 
+            placeholder="Username"
+            autocomplete="username"
+            required>
         </div>
+
         <div class="form-group">
           <label>Password</label>
-          <input class="input" type="password" name="password" placeholder="Password" required>
+          <input 
+            class="input" 
+            type="password" 
+            name="password" 
+            placeholder="Password"
+            autocomplete="current-password"
+            required>
         </div>
-        <button class="primary-btn" type="submit"><i class="fa fa-lock"></i> Login</button>
+
+        <button class="primary-btn w-100" type="submit">
+          <i class="fa fa-lock"></i> Login
+        </button>
+
       </form>
+
     </div>
   </div>
+
 </body>
 </html>
