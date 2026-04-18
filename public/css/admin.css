@@ -621,3 +621,82 @@ textarea:focus {
     font-size: 24px;
   }
 }
+/* =========================
+   DASHBOARD
+========================= */
+.admin-stat-box {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admin-stat-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.admin-stat-value {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+}
+
+.admin-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.admin-section-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.admin-section-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.admin-empty {
+  padding: 36px 20px;
+  text-align: center;
+  border: 1px dashed #dbe3ee;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+.admin-empty-icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.admin-empty h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.admin-empty p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* optional biar status text rapih */
+.admin-badge {
+  min-width: 88px;
+  justify-content: center;
+}
