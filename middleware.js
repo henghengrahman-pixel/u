@@ -2,42 +2,29 @@ const { getSettings, getCategories, getVisibleProducts, getVisibleArticles } = r
 const { makeMeta } = require('./helpers/seo');
 const { getCart, cartCount, cartTotals } = require('./helpers/cart');
 
-function clean(value = '') {
-  return String(value || '').trim();
-}
-
-function normalizeBaseUrl(value = '') {
-  const raw = clean(value).replace(/\/+$/, '');
-  if (!raw) return '';
-
-  try {
-    return new URL(raw).toString().replace(/\/+$/, '');
-  } catch (_) {
-    return '';
-  }
-}
-
 function viewGlobals(req, res, next) {
   const settings = getSettings() || {};
   const cart = getCart(req);
 
-  const fallbackBaseUrl = `${req.protocol}://${req.get('host')}`;
-  const baseUrl = normalizeBaseUrl(process.env.BASE_URL || fallbackBaseUrl);
-
-  const currentPath = req.path || '/';
-  const currentUrl = `${baseUrl}${req.originalUrl || '/'}`;
+  const baseUrl = (process.env.BASE_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
 
   /* ================= SETTINGS ================= */
   res.locals.settings = {
-    ...settings,
-    baseUrl,
     storeName: settings.storeName || 'MWG Oversize',
-    logo: settings.logo || `${baseUrl}/assets/images/logo.png`
+    logo: settings.logo || `${baseUrl}/assets/images/logo.png`,
+    ...settings
   };
 
   res.locals.baseUrl = baseUrl;
-  res.locals.currentPath = currentPath;
-  res.locals.currentUrl = currentUrl;
+  res.locals.currentPath = req.originalUrl || '/';
+
+  /* ================= DEFAULT SAFE VAR (ANTI EJS ERROR) ================= */
+  res.locals.featured = res.locals.featured || [];
+  res.locals.recommended = res.locals.recommended || [];
+  res.locals.articles = res.locals.articles || [];
+  res.locals.product = res.locals.product || null;
+  res.locals.related = res.locals.related || [];
+  res.locals.structuredData = res.locals.structuredData || null;
 
   /* ================= CART ================= */
   res.locals.cart = cart;
@@ -55,12 +42,8 @@ function viewGlobals(req, res, next) {
   res.locals.featuredNavProducts = products.slice(0, 6);
   res.locals.latestArticles = articles.slice(0, 4);
 
-  /* ================= META FIX ================= */
-  res.locals.meta = makeMeta({
-    ...(res.locals.meta || {}),
-    canonical: currentUrl,
-    url: currentUrl
-  }, res.locals.settings);
+  /* ================= META ================= */
+  res.locals.meta = makeMeta(res.locals.meta || {}, res.locals.settings);
 
   /* ================= FLASH ================= */
   res.locals.flash = req.session?.flash || null;
