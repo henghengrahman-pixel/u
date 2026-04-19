@@ -1,33 +1,111 @@
-<%- include('partials-top', { pageTitle: 'Articles', pageDescription: 'Kelola artikel blog untuk kebutuhan SEO dan konten.', topAction: '<a href="/admin/articles/create" class="primary-btn"><i class="fa fa-plus"></i> Add Article</a>' }) %>
-<div class="admin-card">
-  <% if (articles.length) { %>
-  <div class="table-responsive">
-    <table class="table admin-table">
-      <thead>
-        <tr><th>Title</th><th>Slug</th><th>Visible</th><th>Updated</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        <% articles.forEach(function(item){ %>
-          <tr>
-            <td><strong><%= item.title %></strong></td>
-            <td><%= item.slug %></td>
-            <td><%= item.visible ? 'Yes' : 'No' %></td>
-            <td><%= new Date(item.updated_at).toLocaleString('id-ID') %></td>
-            <td>
-              <div class="admin-actions">
-                <a class="btn btn-default btn-sm" href="/admin/articles/<%= item.id %>/edit">Edit</a>
-                <form method="post" action="/admin/articles/<%= item.id %>/delete" onsubmit="return confirm('Hapus artikel ini?')">
-                  <button class="btn btn-danger btn-sm" type="submit">Delete</button>
-                </form>
-              </div>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
+<%- include('partials-top', {
+  pageTitle: 'Articles',
+  pageDescription: 'Kelola artikel blog untuk kebutuhan SEO dan konten.',
+  topAction: '<a href="/admin/articles/create" class="primary-btn"><i class="fa fa-plus"></i> Add Article</a>'
+}) %>
+
+<%
+  const items = Array.isArray(articles) ? articles : [];
+
+  function safeText(value = '') {
+    return String(value || '').trim();
+  }
+
+  function formatDate(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleString('id-ID');
+  }
+%>
+
+<div class="admin-grid">
+  <div class="admin-col-4">
+    <div class="admin-card admin-stat-box">
+      <div class="admin-stat-title">Total Articles</div>
+      <div class="admin-stat-value"><%= items.length %></div>
+    </div>
   </div>
-  <% } else { %>
-    <div class="admin-empty">Belum ada artikel.</div>
-  <% } %>
+
+  <div class="admin-col-4">
+    <div class="admin-card admin-stat-box">
+      <div class="admin-stat-title">Visible Articles</div>
+      <div class="admin-stat-value"><%= items.filter(item => item && item.visible !== false).length %></div>
+    </div>
+  </div>
+
+  <div class="admin-col-4">
+    <div class="admin-card admin-stat-box">
+      <div class="admin-stat-title">Hidden Articles</div>
+      <div class="admin-stat-value"><%= items.filter(item => item && item.visible === false).length %></div>
+    </div>
+  </div>
+
+  <div class="admin-col-12">
+    <div class="admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h3 class="admin-section-title">Article List</h3>
+          <p class="admin-section-subtitle">Kelola artikel untuk SEO, internal linking, dan halaman konten.</p>
+        </div>
+      </div>
+
+      <% if (items.length) { %>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Slug</th>
+                <th>Visible</th>
+                <th>Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% items.forEach(function(item){ %>
+                <tr>
+                  <td>
+                    <strong><%= safeText(item.title || '-') %></strong>
+                    <% if (item.excerpt) { %>
+                      <br>
+                      <small class="text-muted-2"><%= safeText(item.excerpt).slice(0, 110) %><%= safeText(item.excerpt).length > 110 ? '...' : '' %></small>
+                    <% } %>
+                  </td>
+
+                  <td><%= safeText(item.slug || '-') %></td>
+
+                  <td>
+                    <span class="admin-badge <%= item.visible === false ? 'danger' : 'success' %>">
+                      <%= item.visible === false ? 'No' : 'Yes' %>
+                    </span>
+                  </td>
+
+                  <td><%= formatDate(item.updated_at || item.created_at) %></td>
+
+                  <td>
+                    <div class="admin-actions">
+                      <a class="btn btn-default btn-sm" href="/admin/articles/<%= item.id %>/edit">Edit</a>
+
+                      <form method="post" action="/admin/articles/<%= item.id %>/delete" onsubmit="return confirm('Hapus artikel ini?')">
+                        <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">
+          <div class="admin-empty-icon">📝</div>
+          <h4>Belum ada artikel</h4>
+          <p>Klik <strong>Add Article</strong> untuk membuat artikel baru.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
 </div>
+
 <%- include('partials-bottom') %>
