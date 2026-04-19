@@ -13,9 +13,7 @@ function normalizeBaseUrl(value = '') {
 
 function absoluteUrl(baseUrl, pathname = '/') {
   const base = normalizeBaseUrl(baseUrl);
-  const path = String(pathname || '/').startsWith('/')
-    ? String(pathname || '/')
-    : `/${String(pathname || '/')}`;
+  const path = String(pathname || '/').startsWith('/') ? String(pathname || '/') : `/${String(pathname || '/')}`;
   return `${base}${path}`;
 }
 
@@ -37,10 +35,6 @@ function toIsoDate(value) {
   return date.toISOString();
 }
 
-function nowIso() {
-  return new Date().toISOString();
-}
-
 function uniqueByUrl(items = []) {
   const map = new Map();
 
@@ -54,7 +48,7 @@ function uniqueByUrl(items = []) {
 
 /*
 |--------------------------------------------------------------------------
-| SITEMAP XML (FIX)
+| SITEMAP XML
 |--------------------------------------------------------------------------
 */
 function sitemap(req, res) {
@@ -64,14 +58,12 @@ function sitemap(req, res) {
       return res.status(500).send('Base URL is not configured');
     }
 
-    const now = nowIso();
-
     const staticPages = [
-      { url: '/', priority: '1.0', changefreq: 'daily', lastmod: now },
-      { url: '/shop', priority: '0.9', changefreq: 'daily', lastmod: now },
-      { url: '/kaos-oversize-pria', priority: '0.9', changefreq: 'weekly', lastmod: now },
-      { url: '/articles', priority: '0.8', changefreq: 'daily', lastmod: now },
-      { url: '/contact', priority: '0.5', changefreq: 'monthly', lastmod: now }
+      { url: '/', priority: '1.0', changefreq: 'daily' },
+      { url: '/shop', priority: '0.9', changefreq: 'daily' },
+      { url: '/kaos-oversize-pria', priority: '0.9', changefreq: 'weekly' },
+      { url: '/articles', priority: '0.8', changefreq: 'daily' },
+      { url: '/contact', priority: '0.5', changefreq: 'monthly' }
     ];
 
     const productPages = getVisibleProducts()
@@ -120,7 +112,7 @@ ${urls.map((item) => {
 
 /*
 |--------------------------------------------------------------------------
-| ROBOTS.TXT (FIX)
+| ROBOTS.TXT
 |--------------------------------------------------------------------------
 */
 function robots(req, res) {
@@ -136,10 +128,12 @@ Disallow: /`);
     return res.status(200).send(`User-agent: *
 Allow: /
 
-# Private areas
+# Block private/system areas
 Disallow: /admin
 Disallow: /api
 Disallow: /go/
+Disallow: /cart
+Disallow: /checkout
 
 # Sitemap
 Sitemap: ${baseUrl}/sitemap.xml`);
