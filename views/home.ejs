@@ -2,10 +2,10 @@
 <%- include('partials/header') %>
 
 <%
-  const featuredItems = Array.isArray(featured) ? featured : [];
-  const recommendedItems = Array.isArray(recommended) ? recommended : [];
-  const articleItems = Array.isArray(articles) ? articles : [];
-  const categoryItems = Array.isArray(categories) ? categories.filter(item => item && item.visible !== false) : [];
+  const featuredItems = Array.isArray(typeof featured !== 'undefined' ? featured : []) ? featured : [];
+  const recommendedItems = Array.isArray(typeof recommended !== 'undefined' ? recommended : []) ? recommended : [];
+  const articleItems = Array.isArray(typeof articles !== 'undefined' ? articles : []) ? articles : [];
+  const categoryItems = Array.isArray(typeof categories !== 'undefined' ? categories : []) ? categories.filter(item => item && item.visible !== false) : [];
 %>
 
 <main id="main-content">
@@ -13,11 +13,10 @@
     <div class="container">
       <div class="home-hero-inner text-center">
         <h1>Rekomendasi Kaos Oversize Pria Original &amp; Distro Premium Pilihan Terbaik</h1>
-
         <p>
-          Temukan pilihan <a href="/kaos-oversize-pria">kaos oversize pria terbaik</a>,
-          <a href="/shop">rekomendasi kaos pria</a>, hingga kaos distro premium
-          yang kami kurasi berdasarkan kualitas bahan, kenyamanan, dan model kekinian.
+          Temukan pilihan <a href="/kaos-oversize-pria">kaos oversize pria</a> original dan kaos distro premium
+          yang kami kurasi berdasarkan kualitas bahan, kenyamanan saat dipakai, model yang kekinian,
+          dan tampilan yang lebih rapi untuk menunjang gaya pria masa kini.
         </p>
 
         <div class="home-hero-cta">
@@ -30,9 +29,9 @@
   <section class="section home-featured-slider-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2 class="title">Kaos Pria Terfavorit &amp; Paling Banyak Dipilih</h2>
+        <h2 class="title">Pilihan Kaos Pria Terfavorit</h2>
         <p class="section-subtitle">
-          Produk pilihan terbaik berdasarkan kenyamanan bahan, desain modern, dan kualitas yang layak jadi pilihan utama.
+          Produk pilihan yang paling banyak diminati karena bahan nyaman, potongan pas, dan desain yang mudah dipadukan.
         </p>
       </div>
 
@@ -46,6 +45,10 @@
             <% }) %>
           </div>
         </div>
+      <% } else { %>
+        <div class="empty-state text-center">
+          <p>Rekomendasi unggulan sedang disiapkan.</p>
+        </div>
       <% } %>
     </div>
   </section>
@@ -53,9 +56,9 @@
   <section class="section home-products-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2 class="title">Rekomendasi Kaos Pria Terbaik &amp; Terbaru</h2>
+        <h2 class="title">Rekomendasi Kaos Pria Terbaru</h2>
         <p class="section-subtitle">
-          Pilihan kaos pria terbaik untuk outfit harian, mulai dari oversize hingga model casual modern.
+          Kami rangkum pilihan kaos pria terbaik untuk memudahkan kamu menemukan model yang nyaman, keren, dan layak dipilih.
         </p>
       </div>
 
@@ -69,7 +72,11 @@
         </div>
 
         <div class="text-center home-products-cta">
-          <a href="/shop" class="primary-btn">Lihat Semua Kaos Pria</a>
+          <a href="/shop" class="primary-btn">Lihat Semua Rekomendasi</a>
+        </div>
+      <% } else { %>
+        <div class="empty-state text-center">
+          <p>Rekomendasi terbaru belum tersedia.</p>
         </div>
       <% } %>
     </div>
@@ -78,28 +85,37 @@
   <section class="section home-trust-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2>Kenapa Rekomendasi Kaos Pria Ini Banyak Dipilih?</h2>
+        <h2>Kenapa Banyak Pria Lebih Suka Pilihan di Sini?</h2>
+        <p class="section-subtitle">
+          Kami fokus pada kualitas, kenyamanan, dan model yang membuat kamu lebih yakin saat memilih.
+        </p>
       </div>
 
       <div class="row trust-grid-row">
         <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
           <div class="trust-card">
-            <h3>Kurasi Produk Berkualitas</h3>
-            <p>Hanya kaos pria dengan bahan nyaman dan model terbaik yang kami tampilkan.</p>
+            <h3>Kurasi Lebih Selektif</h3>
+            <p>
+              Setiap produk dipilih dari model yang menarik, bahan yang nyaman, dan tampilan yang layak jadi pilihan utama.
+            </p>
           </div>
         </div>
 
         <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
           <div class="trust-card">
-            <h3>Nyaman &amp; Cocok Harian</h3>
-            <p>Dipilih untuk penggunaan harian dengan kenyamanan maksimal.</p>
+            <h3>Nyaman Dipakai Harian</h3>
+            <p>
+              Kami mengutamakan kaos pria yang enak dipakai, tidak mudah terasa gerah, dan tetap cocok untuk aktivitas sehari-hari.
+            </p>
           </div>
         </div>
 
         <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
           <div class="trust-card">
-            <h3>Style Lebih Percaya Diri</h3>
-            <p>Model kekinian yang mudah dipadukan dengan outfit pria modern.</p>
+            <h3>Tampilan Lebih Meyakinkan</h3>
+            <p>
+              Pilihan model kekinian membantu kamu tampil lebih rapi, percaya diri, dan mudah dipadukan dengan outfit favorit.
+            </p>
           </div>
         </div>
       </div>
@@ -109,9 +125,9 @@
   <section class="section home-articles-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2>Artikel Fashion Pria &amp; Tips Outfit Terbaik</h2>
+        <h2>Tips Outfit &amp; Rekomendasi Fashion Pria</h2>
         <p class="section-subtitle">
-          Baca <a href="/articles">artikel fashion pria</a> untuk menemukan inspirasi outfit dan rekomendasi kaos terbaik.
+          Baca panduan memilih kaos pria, inspirasi outfit, dan referensi style agar penampilan makin pas.
         </p>
       </div>
 
@@ -120,11 +136,12 @@
           <% articleItems.forEach(function(article){ %>
             <div class="article-grid-item">
               <article class="article-card-modern">
-                <a href="/article/<%= article.slug %>" class="article-card-thumb">
+                <a href="/article/<%= article.slug %>" class="article-card-thumb" aria-label="<%= article.title %>">
                   <img
                     src="<%= article.image || article.thumbnail || '/assets/images/og-image.jpg' %>"
                     alt="<%= article.title %>"
                     loading="lazy"
+                    decoding="async"
                   >
                 </a>
 
@@ -134,7 +151,7 @@
                   </h3>
 
                   <p class="article-card-excerpt">
-                    <%= article.excerpt %>
+                    <%= article.excerpt || 'Baca artikel lengkap untuk mendapatkan referensi fashion pria yang lebih tepat dan menarik.' %>
                   </p>
 
                   <a href="/article/<%= article.slug %>" class="read-more">
@@ -145,6 +162,10 @@
             </div>
           <% }) %>
         </div>
+      <% } else { %>
+        <div class="empty-state text-center">
+          <p>Artikel pilihan sedang disiapkan.</p>
+        </div>
       <% } %>
     </div>
   </section>
@@ -152,17 +173,20 @@
   <section class="section home-category-links-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2>Kategori Kaos Pria Populer</h2>
+        <h2>Kategori Favorit</h2>
+        <p class="section-subtitle">
+          Jelajahi kategori yang paling sering dicari untuk menemukan pilihan yang paling cocok.
+        </p>
       </div>
 
       <div class="popular-category-links text-center">
-        <a href="/kaos-oversize-pria">Kaos Oversize Pria</a>
+        <a href="/kaos-oversize-pria">Rekomendasi Kaos Oversize Pria</a>
 
         <% categoryItems.slice(0, 4).forEach(function(category){ %>
           <a href="/shop?category=<%= encodeURIComponent(category.name) %>"><%= category.name %></a>
         <% }) %>
 
-        <a href="/articles">Artikel Fashion</a>
+        <a href="/articles">Tips &amp; Artikel Fashion Pria</a>
       </div>
     </div>
   </section>
