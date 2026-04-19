@@ -4,12 +4,38 @@ const { requireAdmin } = require('../middleware');
 
 /*
 |--------------------------------------------------------------------------
+| ADMIN SECURITY HEADERS
+|--------------------------------------------------------------------------
+*/
+router.use((req, res, next) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  return next();
+});
+
+/*
+|--------------------------------------------------------------------------
+| GUEST ONLY
+|--------------------------------------------------------------------------
+*/
+function requireGuest(req, res, next) {
+  if (req.session && req.session.adminUser) {
+    return res.redirect('/admin');
+  }
+  return next();
+}
+
+/*
+|--------------------------------------------------------------------------
 | AUTH
 |--------------------------------------------------------------------------
 */
-router.get('/login', adminController.loginPage);
-router.post('/login', adminController.login);
-router.get('/logout', adminController.logout);
+router.get('/login', requireGuest, adminController.loginPage);
+router.post('/login', requireGuest, adminController.login);
+router.get('/logout', requireAdmin, adminController.logout);
+router.post('/logout', requireAdmin, adminController.logout);
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +60,7 @@ router.post('/products/:id/delete', requireAdmin, adminController.productDelete)
 |--------------------------------------------------------------------------
 | ORDERS
 |--------------------------------------------------------------------------
-| Untuk model affiliate, ini bisa tetap dipakai sebagai arsip data lama.
+| Tetap dipakai sebagai arsip / data lama affiliate.
 |--------------------------------------------------------------------------
 */
 router.get('/orders', requireAdmin, adminController.orderList);
