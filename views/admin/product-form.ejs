@@ -1,8 +1,9 @@
 <%
-  const isEdit = product && product.id;
+  const itemData = typeof item !== 'undefined' && item ? item : null;
+  const isEdit = Boolean(itemData && itemData.id);
   const formTitle = isEdit ? 'Edit Product' : 'Add Product';
   const formDescription = isEdit
-    ? 'Update informasi produk, harga, SEO, dan pengaturan visibilitas.'
+    ? 'Update informasi produk, harga, affiliate link, dan SEO.'
     : 'Tambah produk baru lengkap dengan data utama, affiliate link, dan SEO.';
 %>
 
@@ -12,14 +13,17 @@
 }) %>
 
 <div class="admin-card">
-  <form method="post" action="<%= isEdit ? ('/admin/products/' + product.id + '/update') : '/admin/products/store' %>" class="admin-form">
-    
+  <form
+    method="post"
+    action="<%= isEdit ? ('/admin/products/' + itemData.id + '/edit') : '/admin/products/create' %>"
+    class="admin-form"
+  >
     <div class="admin-grid">
-      <!-- LEFT -->
+
       <div class="admin-col-6">
         <div class="admin-section-block">
           <h3 class="admin-section-title">Informasi Produk</h3>
-          <p class="admin-section-subtitle">Isi data utama produk dengan lengkap.</p>
+          <p class="admin-section-subtitle">Isi data utama produk dengan lengkap dan rapi.</p>
 
           <div class="admin-form-group">
             <label for="name">Nama Produk</label>
@@ -27,7 +31,7 @@
               id="name"
               type="text"
               name="name"
-              value="<%= product?.name || '' %>"
+              value="<%= itemData?.name || '' %>"
               placeholder="Contoh: Kaos Oversize Premium Hitam"
               required
             >
@@ -39,7 +43,7 @@
               id="slug"
               type="text"
               name="slug"
-              value="<%= product?.slug || '' %>"
+              value="<%= itemData?.slug || '' %>"
               placeholder="contoh: kaos-oversize-premium-hitam"
             >
           </div>
@@ -50,8 +54,9 @@
               id="category"
               type="text"
               name="category"
-              value="<%= product?.category || '' %>"
-              placeholder="Contoh: Kaos Oversize"
+              value="<%= itemData?.category || '' %>"
+              placeholder="Contoh: Oversize"
+              required
             >
           </div>
 
@@ -61,7 +66,7 @@
               id="brand"
               type="text"
               name="brand"
-              value="<%= product?.brand || '' %>"
+              value="<%= itemData?.brand || '' %>"
               placeholder="Contoh: MWG Oversize"
             >
           </div>
@@ -69,9 +74,8 @@
           <div class="admin-form-group">
             <label for="status">Status</label>
             <select id="status" name="status">
-              <option value="ready" <%= (product?.status || '') === 'ready' ? 'selected' : '' %>>Ready</option>
-              <option value="draft" <%= (product?.status || '') === 'draft' ? 'selected' : '' %>>Draft</option>
-              <option value="hidden" <%= (product?.status || '') === 'hidden' ? 'selected' : '' %>>Hidden</option>
+              <option value="ready" <%= (itemData?.status || 'ready') === 'ready' ? 'selected' : '' %>>Ready</option>
+              <option value="sold_out" <%= itemData?.status === 'sold_out' ? 'selected' : '' %>>Sold Out</option>
             </select>
           </div>
 
@@ -81,8 +85,8 @@
               id="material"
               type="text"
               name="material"
-              value="<%= product?.material || '' %>"
-              placeholder="Contoh: American Cotton 20s"
+              value="<%= itemData?.material || '' %>"
+              placeholder="Contoh: Cotton Combed 24s"
             >
           </div>
 
@@ -92,9 +96,19 @@
               id="fit"
               type="text"
               name="fit"
-              value="<%= product?.fit || '' %>"
-              placeholder="Contoh: Oversize Fit"
+              value="<%= itemData?.fit || '' %>"
+              placeholder="Contoh: Oversize"
             >
+          </div>
+
+          <div class="admin-form-group">
+            <label for="shortDescription">Short Description</label>
+            <textarea
+              id="shortDescription"
+              name="shortDescription"
+              placeholder="Tulis ringkasan singkat produk..."
+              rows="4"
+            ><%= itemData?.shortDescription || itemData?.short_description || '' %></textarea>
           </div>
 
           <div class="admin-form-group">
@@ -103,16 +117,26 @@
               id="description"
               name="description"
               placeholder="Tulis deskripsi produk lengkap..."
-            ><%= product?.description || '' %></textarea>
+              rows="8"
+            ><%= itemData?.description || '' %></textarea>
+          </div>
+
+          <div class="admin-form-group">
+            <label for="details">Detail Tambahan</label>
+            <textarea
+              id="details"
+              name="details"
+              placeholder="Tulis detail tambahan produk..."
+              rows="6"
+            ><%= itemData?.details || '' %></textarea>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT -->
       <div class="admin-col-6">
         <div class="admin-section-block">
           <h3 class="admin-section-title">Harga & Media</h3>
-          <p class="admin-section-subtitle">Atur harga jual, link affiliate, dan gambar produk.</p>
+          <p class="admin-section-subtitle">Atur harga, gambar, dan link affiliate produk.</p>
 
           <div class="admin-form-group">
             <label for="price">Harga</label>
@@ -120,7 +144,7 @@
               id="price"
               type="number"
               name="price"
-              value="<%= product?.price || '' %>"
+              value="<%= itemData?.price || '' %>"
               placeholder="Contoh: 149900"
               min="0"
             >
@@ -132,7 +156,7 @@
               id="compareAtPrice"
               type="number"
               name="compareAtPrice"
-              value="<%= product?.compareAtPrice || '' %>"
+              value="<%= itemData?.compareAtPrice || '' %>"
               placeholder="Contoh: 199900"
               min="0"
             >
@@ -144,48 +168,48 @@
               id="affiliateLink"
               type="url"
               name="affiliateLink"
-              value="<%= product?.affiliateLink || '' %>"
+              value="<%= itemData?.affiliateLink || itemData?.affiliate_link || '' %>"
               placeholder="https://..."
+              required
             >
           </div>
 
           <div class="admin-form-group">
-            <label for="image">Gambar</label>
+            <label for="image">Gambar Utama</label>
             <input
               id="image"
               type="url"
               name="image"
-              value="<%= product?.image || product?.thumbnail || '' %>"
+              value="<%= itemData?.image || itemData?.thumbnail || '' %>"
               placeholder="https://..."
             >
           </div>
 
           <div class="admin-form-group">
-            <label for="thumbnail">Thumbnail</label>
-            <input
-              id="thumbnail"
-              type="url"
-              name="thumbnail"
-              value="<%= product?.thumbnail || '' %>"
-              placeholder="https://..."
-            >
+            <label for="images">Galeri Gambar</label>
+            <textarea
+              id="images"
+              name="images"
+              placeholder="Satu URL per baris atau pisahkan dengan koma"
+              rows="6"
+            ><%= Array.isArray(itemData?.images) ? itemData.images.join('\n') : '' %></textarea>
           </div>
 
           <div class="admin-form-group">
             <label>Visibility</label>
             <div class="admin-check-grid">
               <label class="admin-check">
-                <input type="checkbox" name="featured" value="1" <%= product?.featured ? 'checked' : '' %>>
+                <input type="checkbox" name="featured" value="1" <%= itemData?.featured ? 'checked' : '' %>>
                 <span>Featured</span>
               </label>
 
               <label class="admin-check">
-                <input type="checkbox" name="recommended" value="1" <%= product?.recommended ? 'checked' : '' %>>
+                <input type="checkbox" name="recommended" value="1" <%= itemData?.recommended ? 'checked' : '' %>>
                 <span>Recommended</span>
               </label>
 
               <label class="admin-check">
-                <input type="checkbox" name="visible" value="1" <%= product?.visible !== false ? 'checked' : '' %>>
+                <input type="checkbox" name="visible" value="1" <%= itemData?.visible !== false ? 'checked' : '' %>>
                 <span>Visible</span>
               </label>
             </div>
@@ -193,11 +217,10 @@
         </div>
       </div>
 
-      <!-- SEO -->
       <div class="admin-col-12">
         <div class="admin-section-block">
           <h3 class="admin-section-title">SEO Produk</h3>
-          <p class="admin-section-subtitle">Bagian ini penting untuk Google, ranking, dan tampilan saat dibagikan.</p>
+          <p class="admin-section-subtitle">Bagian ini penting untuk title, description, dan keyword halaman produk.</p>
 
           <div class="admin-grid">
             <div class="admin-col-6">
@@ -207,21 +230,21 @@
                   id="seoTitle"
                   type="text"
                   name="seoTitle"
-                  value="<%= product?.seoTitle || '' %>"
-                  placeholder="Contoh: Kaos Oversize Premium Pria Original | MWG Oversize"
+                  value="<%= itemData?.seoTitle || '' %>"
+                  placeholder="Contoh: Kaos Oversize Premium Pria | MWG Oversize"
                 >
               </div>
             </div>
 
             <div class="admin-col-6">
               <div class="admin-form-group">
-                <label for="seoKeywords">SEO Keywords</label>
+                <label for="keywords">Keywords</label>
                 <input
-                  id="seoKeywords"
+                  id="keywords"
                   type="text"
-                  name="seoKeywords"
-                  value="<%= product?.seoKeywords || '' %>"
-                  placeholder="kaos oversize pria, kaos premium, kaos distro original"
+                  name="keywords"
+                  value="<%= itemData?.keywords || '' %>"
+                  placeholder="kaos oversize pria, kaos premium, rekomendasi kaos pria"
                 >
               </div>
             </div>
@@ -232,41 +255,15 @@
                 <textarea
                   id="seoDescription"
                   name="seoDescription"
-                  placeholder="Tulis meta description produk yang menarik dan mengandung keyword utama..."
-                ><%= product?.seoDescription || '' %></textarea>
-              </div>
-            </div>
-
-            <div class="admin-col-6">
-              <div class="admin-form-group">
-                <label for="canonicalUrl">Canonical URL</label>
-                <input
-                  id="canonicalUrl"
-                  type="url"
-                  name="canonicalUrl"
-                  value="<%= product?.canonicalUrl || '' %>"
-                  placeholder="https://namadomain.com/product/nama-produk"
-                >
-              </div>
-            </div>
-
-            <div class="admin-col-6">
-              <div class="admin-form-group">
-                <label for="ogImage">OG Image</label>
-                <input
-                  id="ogImage"
-                  type="url"
-                  name="ogImage"
-                  value="<%= product?.ogImage || '' %>"
-                  placeholder="https://..."
-                >
+                  placeholder="Tulis meta description produk yang mengandung keyword utama..."
+                  rows="4"
+                ><%= itemData?.seoDescription || '' %></textarea>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PREVIEW -->
       <div class="admin-col-12">
         <div class="admin-section-block">
           <h3 class="admin-section-title">Preview</h3>
@@ -276,26 +273,27 @@
             <div class="admin-preview-image">
               <img
                 id="previewImage"
-                src="<%= product?.image || product?.thumbnail || 'https://dummyimage.com/600x600/f1f5f9/64748b&text=Preview' %>"
+                src="<%= itemData?.image || itemData?.thumbnail || '/assets/images/og-image.jpg' %>"
                 alt="Preview"
               >
             </div>
 
             <div class="admin-preview-content">
-              <h4 id="previewName"><%= product?.name || 'Nama produk akan tampil di sini' %></h4>
-              <p id="previewCategory"><%= product?.category || 'Kategori produk' %></p>
+              <h4 id="previewName"><%= itemData?.name || 'Nama produk akan tampil di sini' %></h4>
+              <p id="previewCategory"><%= itemData?.category || 'Kategori produk' %></p>
               <div class="admin-preview-price" id="previewPrice">
-                <% if (product?.price) { %>
-                  IDR <%= Number(product.price).toLocaleString('id-ID') %>
+                <% if (itemData?.price) { %>
+                  IDR <%= Number(itemData.price).toLocaleString('id-ID') %>
                 <% } else { %>
                   Harga belum diisi
                 <% } %>
               </div>
-              <p id="previewDesc"><%= product?.description || 'Deskripsi produk akan tampil di sini.' %></p>
+              <p id="previewDesc"><%= itemData?.shortDescription || itemData?.short_description || 'Deskripsi singkat produk akan tampil di sini.' %></p>
             </div>
           </div>
         </div>
       </div>
+
     </div>
 
     <div class="admin-form-footer">
@@ -313,7 +311,7 @@
     const nameInput = document.getElementById('name');
     const categoryInput = document.getElementById('category');
     const priceInput = document.getElementById('price');
-    const descInput = document.getElementById('description');
+    const shortDescriptionInput = document.getElementById('shortDescription');
     const imageInput = document.getElementById('image');
 
     const previewName = document.getElementById('previewName');
@@ -332,13 +330,11 @@
       if (previewName) previewName.textContent = nameInput.value || 'Nama produk akan tampil di sini';
       if (previewCategory) previewCategory.textContent = categoryInput.value || 'Kategori produk';
       if (previewPrice) previewPrice.textContent = formatPrice(priceInput.value);
-      if (previewDesc) previewDesc.textContent = descInput.value || 'Deskripsi produk akan tampil di sini.';
-      if (previewImage) {
-        previewImage.src = imageInput.value || 'https://dummyimage.com/600x600/f1f5f9/64748b&text=Preview';
-      }
+      if (previewDesc) previewDesc.textContent = shortDescriptionInput.value || 'Deskripsi singkat produk akan tampil di sini.';
+      if (previewImage) previewImage.src = imageInput.value || '/assets/images/og-image.jpg';
     }
 
-    [nameInput, categoryInput, priceInput, descInput, imageInput].forEach(function (el) {
+    [nameInput, categoryInput, priceInput, shortDescriptionInput, imageInput].forEach(function (el) {
       if (el) el.addEventListener('input', updatePreview);
     });
 
