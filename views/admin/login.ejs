@@ -1,61 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Login</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="googlebot" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#0f1320">
+  <title>Login Admin | MWG Oversize</title>
 
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
   <link rel="stylesheet" href="/assets/css/style.css">
   <link rel="stylesheet" href="/assets/css/admin.css">
 </head>
-<body class="admin-page">
+<body class="admin-page admin-login-page">
 
-  <div class="admin-login-wrap">
-    <div class="admin-login-card">
+  <main class="admin-login-wrap" id="main-content">
+    <section class="admin-login-card" aria-labelledby="admin-login-title">
+      <div class="admin-login-brand">
+        <a href="/" class="admin-login-logo" aria-label="Kembali ke beranda">
+          <img
+            src="<%= (settings && settings.logo) ? settings.logo : '/assets/images/logo.png' %>"
+            alt="Logo <%= (settings && settings.storeName) ? settings.storeName : 'MWG Oversize' %>"
+            loading="eager"
+            fetchpriority="high"
+          >
+        </a>
+      </div>
 
-      <h2>Admin Login</h2>
-      <p>Masuk untuk mengelola toko, produk, order, artikel, dan setting website.</p>
+      <header class="admin-login-header">
+        <h1 id="admin-login-title">Admin Login</h1>
+        <p>Masuk untuk mengelola produk, artikel, order, dan pengaturan website.</p>
+      </header>
 
       <% if (flash && flash.message) { %>
-        <div class="alert alert-<%= flash.type || 'danger' %>">
+        <div class="alert alert-<%= flash.type || 'danger' %> admin-login-alert" role="alert">
           <%= flash.message %>
         </div>
       <% } %>
 
-      <form method="POST" action="/admin/login" class="admin-form">
-        
+      <form method="POST" action="/admin/login" class="admin-form admin-login-form" autocomplete="on" novalidate>
         <div class="form-group">
-          <label>Username</label>
-          <input 
-            class="input" 
+          <label for="admin-username">Username</label>
+          <input
+            id="admin-username"
+            class="input"
             type="text"
-            name="username" 
-            placeholder="Username"
+            name="username"
+            placeholder="Masukkan username"
             autocomplete="username"
-            required>
+            autocapitalize="off"
+            spellcheck="false"
+            inputmode="text"
+            required
+          >
         </div>
 
         <div class="form-group">
-          <label>Password</label>
-          <input 
-            class="input" 
-            type="password" 
-            name="password" 
-            placeholder="Password"
+          <label for="admin-password">Password</label>
+          <input
+            id="admin-password"
+            class="input"
+            type="password"
+            name="password"
+            placeholder="Masukkan password"
             autocomplete="current-password"
-            required>
+            required
+          >
         </div>
 
         <button class="primary-btn w-100" type="submit">
-          <i class="fa fa-lock"></i> Login
+          <i class="fa fa-lock"></i>
+          <span>Login</span>
         </button>
-
       </form>
-
-    </div>
-  </div>
+    </section>
+  </main>
 
 </body>
 </html>
