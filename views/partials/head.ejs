@@ -5,104 +5,117 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0f1320">
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PNZX11W2JE"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-PNZX11W2JE');
-  </script>
+  <meta name="format-detection" content="telephone=no">
 
   <%
-    const isAdminPage = currentPath && currentPath.startsWith('/admin');
+    const clean = (value = '') => String(value || '').trim();
+    const ensureAbsolute = (value = '') => {
+      const raw = clean(value);
+      if (!raw) return '';
+      if (/^https?:\/\//i.test(raw)) return raw;
+      const base = clean(baseUrl).replace(/\/+$/, '');
+      if (!base) return raw.startsWith('/') ? raw : `/${raw}`;
+      return `${base}${raw.startsWith('/') ? raw : `/${raw}`}`;
+    };
 
-    // 🔥 FIX BRAND (ANTI Ozerra / My Online Store)
-    const storeName =
-      (settings && settings.storeName) ||
-      (site && site.name) ||
-      process.env.APP_NAME ||
-      'MWG Oversize';
+    const isAdminPage = clean(currentPath).startsWith('/admin');
+    const storeName = clean(settings?.storeName || 'MWG Oversize');
+    const storeLogo = ensureAbsolute(settings?.logo || '/assets/images/logo.png');
+    const defaultOgImage = ensureAbsolute(settings?.seo?.ogImage || '/assets/images/og-image.jpg');
 
-    const storeLogo =
-      (settings && settings.logo) ||
-      (site && site.logo) ||
-      `${baseUrl}/assets/images/logo.png`;
+    const pageTitle = clean(meta?.title || `${storeName} - Rekomendasi Kaos Pria Terbaik`);
+    const pageDescription = clean(
+      meta?.description ||
+      settings?.seo?.metaDescription ||
+      'Temukan rekomendasi kaos pria terbaik, kaos oversize premium, dan fashion pria kekinian dengan bahan nyaman serta model yang cocok untuk daily outfit.'
+    );
+    const pageKeywords = clean(
+      meta?.keywords ||
+      settings?.seo?.keywords ||
+      'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik, kaos distro pria, fashion pria kekinian'
+    );
+    const canonicalUrl = ensureAbsolute(meta?.canonical || meta?.url || `${baseUrl}${currentPath || '/'}`);
+    const pageUrl = ensureAbsolute(meta?.url || canonicalUrl);
+    const pageImage = ensureAbsolute(meta?.image || defaultOgImage || storeLogo);
+    const robotsValue = clean(meta?.robots || (isAdminPage ? 'noindex,nofollow,noarchive' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'));
+    const bodyClass = isAdminPage ? 'admin-page' : '';
 
-    // 🔥 META (AMBIL DARI SEO HELPER)
-    const pageTitle =
-      (meta && meta.title) ||
-      `${storeName} - Rekomendasi Kaos Pria Terbaik`;
+    const defaultSchemas = [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: storeName,
+        url: clean(baseUrl),
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${clean(baseUrl)}/shop?q={search_term_string}`,
+          'query-input': 'required name=search_term_string'
+        }
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: storeName,
+        url: clean(baseUrl),
+        logo: storeLogo
+      }
+    ];
 
-    const pageDescription =
-      (meta && meta.description) ||
-      'Temukan rekomendasi kaos pria terbaik, oversize dan distro premium dengan bahan nyaman dan model kekinian.';
+    const structuredList = Array.isArray(structuredData)
+      ? structuredData.filter(Boolean)
+      : (structuredData ? [structuredData] : []);
 
-    const pageKeywords =
-      (meta && meta.keywords) ||
-      'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik, kaos distro pria';
-
-    const pageUrl =
-      (meta && meta.url) ||
-      `${baseUrl}${currentPath || '/'}`;
-
-    const pageImage =
-      (meta && meta.image) ||
-      storeLogo;
-
-    const robotsValue = isAdminPage
-      ? 'noindex,nofollow'
-      : 'index,follow,max-image-preview:large';
+    const schemaList = [...defaultSchemas, ...structuredList];
+    const gaMeasurementId = 'G-PNZX11W2JE';
   %>
 
-  <!-- 🔥 TITLE SEO -->
   <title><%= pageTitle %></title>
-
   <meta name="description" content="<%= pageDescription %>">
   <meta name="keywords" content="<%= pageKeywords %>">
   <meta name="robots" content="<%= robotsValue %>">
-  <link rel="canonical" href="<%= pageUrl %>">
+  <link rel="canonical" href="<%= canonicalUrl %>">
 
-  <!-- 🔥 OPEN GRAPH -->
+  <link rel="alternate" href="<%= canonicalUrl %>" hreflang="id-ID">
+  <link rel="alternate" href="<%= canonicalUrl %>" hreflang="x-default">
+
   <meta property="og:locale" content="id_ID">
   <meta property="og:site_name" content="<%= storeName %>">
+  <meta property="og:type" content="<%= clean(currentPath).startsWith('/article/') ? 'article' : 'website' %>">
   <meta property="og:title" content="<%= pageTitle %>">
   <meta property="og:description" content="<%= pageDescription %>">
-  <meta property="og:type" content="website">
   <meta property="og:url" content="<%= pageUrl %>">
   <meta property="og:image" content="<%= pageImage %>">
+  <meta property="og:image:secure_url" content="<%= pageImage %>">
+  <meta property="og:image:alt" content="<%= pageTitle %>">
 
-  <!-- 🔥 TWITTER -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<%= pageTitle %>">
   <meta name="twitter:description" content="<%= pageDescription %>">
   <meta name="twitter:image" content="<%= pageImage %>">
+  <meta name="twitter:image:alt" content="<%= pageTitle %>">
 
-  <!-- 🔥 SCHEMA (BIAR GOOGLE TRUST) -->
-  <script type="application/ld+json">
-    <%- JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": storeName,
-      "url": baseUrl
-    }) %>
-  </script>
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
 
-  <script type="application/ld+json">
-    <%- JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": storeName,
-      "url": baseUrl,
-      "logo": storeLogo
-    }) %>
-  </script>
+  <% if (gaMeasurementId && !isAdminPage) { %>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= gaMeasurementId %>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '<%= gaMeasurementId %>', {
+        page_title: '<%- pageTitle.replace(/'/g, "\\'") %>',
+        page_location: '<%= pageUrl %>'
+      });
+    </script>
+  <% } %>
 
-  <!-- CSS -->
+  <% schemaList.forEach((schema) => { %>
+    <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
+  <% }) %>
+
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
   <link rel="stylesheet" href="/assets/css/style.css">
-
 </head>
-<body class="<%= isAdminPage ? 'admin-page' : '' %>">
+<body class="<%= bodyClass %>">
