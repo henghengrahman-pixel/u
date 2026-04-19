@@ -8,7 +8,7 @@ function viewGlobals(req, res, next) {
 
   const baseUrl = (process.env.BASE_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
 
-  /* ================= SETTINGS ================= */
+  // 🔥 SETTINGS GLOBAL FIX
   res.locals.settings = {
     storeName: settings.storeName || 'MWG Oversize',
     logo: settings.logo || `${baseUrl}/assets/images/logo.png`,
@@ -18,34 +18,26 @@ function viewGlobals(req, res, next) {
   res.locals.baseUrl = baseUrl;
   res.locals.currentPath = req.originalUrl || '/';
 
-  /* ================= DEFAULT SAFE VAR (ANTI EJS ERROR) ================= */
-  res.locals.featured = res.locals.featured || [];
-  res.locals.recommended = res.locals.recommended || [];
-  res.locals.articles = res.locals.articles || [];
-  res.locals.product = res.locals.product || null;
-  res.locals.related = res.locals.related || [];
-  res.locals.structuredData = res.locals.structuredData || null;
-
-  /* ================= CART ================= */
+  // 🔥 CART FIX
   res.locals.cart = cart;
   res.locals.cartCount = cartCount(cart);
   res.locals.cartTotals = cartTotals(cart);
 
-  /* ================= CATEGORY ================= */
+  // 🔥 CATEGORY FIX (ANTI ERROR UNDEFINED)
   const categories = getCategories() || [];
   res.locals.categories = categories.filter(item => item && item.visible !== false);
 
-  /* ================= NAV DATA ================= */
+  // 🔥 NAV DATA FIX
   const products = getVisibleProducts() || [];
   const articles = getVisibleArticles() || [];
 
   res.locals.featuredNavProducts = products.slice(0, 6);
   res.locals.latestArticles = articles.slice(0, 4);
 
-  /* ================= META ================= */
+  // 🔥 META FIX (ANTI KOSONG)
   res.locals.meta = makeMeta(res.locals.meta || {}, res.locals.settings);
 
-  /* ================= FLASH ================= */
+  // 🔥 FLASH FIX
   res.locals.flash = req.session?.flash || null;
   if (req.session) delete req.session.flash;
 
