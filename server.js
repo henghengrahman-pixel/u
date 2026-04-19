@@ -26,16 +26,23 @@ app.disable('x-powered-by');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+/* ================= GLOBAL SECURITY + ROBOTS ================= */
 app.use((req, res, next) => {
   setSecurityHeaders(res);
 
-  if (!IS_PROD) {
-    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  const isAdminRoute = req.path.startsWith('/admin');
+  const isHealthRoute = req.path === '/healthz';
+
+  if (isAdminRoute || isHealthRoute) {
+    setRobotsHeader(res, 'noindex, nofollow, noarchive');
+  } else {
+    clearRobotsHeader(res);
   }
 
-  next();
+  return next();
 });
 
+/* ================= CANONICAL HOST / PROTOCOL ================= */
 app.use((req, res, next) => {
   if (!IS_PROD || !BASE_URL) return next();
 
@@ -60,6 +67,7 @@ app.use((req, res, next) => {
   return next();
 });
 
+/* ================= TRAILING SLASH NORMALIZE ================= */
 app.use((req, res, next) => {
   if (req.path.length > 1 && /\/$/.test(req.path)) {
     const cleanPath = req.path.replace(/\/+$/, '');
@@ -71,9 +79,11 @@ app.use((req, res, next) => {
   return next();
 });
 
+/* ================= BODY ================= */
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(express.json({ limit: '2mb' }));
 
+/* ================= STATIC ================= */
 app.use('/assets', express.static(path.join(__dirname, 'public'), {
   index: false,
   redirect: false,
@@ -81,14 +91,18 @@ app.use('/assets', express.static(path.join(__dirname, 'public'), {
   lastModified: true,
   maxAge: IS_PROD ? '7d' : 0,
   setHeaders(res, filePath) {
-    if (!IS_PROD) return;
-
     if (/\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot)$/i.test(filePath)) {
-      res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+      res.setHeader(
+        'Cache-Control',
+        IS_PROD
+          ? 'public, max-age=604800, stale-while-revalidate=86400'
+          : 'no-cache'
+      );
     }
   }
 }));
 
+/* ================= SESSION ================= */
 app.use(session({
   name: process.env.SESSION_NAME || 'mwg.sid',
   secret: SESSION_SECRET,
@@ -105,6 +119,7 @@ app.use(session({
   }
 }));
 
+/* ================= DEFAULT LOCALS ================= */
 app.use((req, res, next) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`.replace(/\/+$/, '');
   const currentPath = req.path || '/';
@@ -121,24 +136,31 @@ app.use((req, res, next) => {
     image: `${baseUrl}/assets/images/og-image.jpg`,
     url: currentUrl,
     canonical: currentUrl,
-    robots: 'index,follow'
+    robots: currentPath.startsWith('/admin') ? 'noindex,nofollow,noarchive' : 'index,follow'
   };
 
   return next();
 });
 
+/* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
 
+/* ================= HEALTH ================= */
 app.get('/healthz', (req, res) => {
-  res.status(200).json({ ok: true });
+  setRobotsHeader(res, 'noindex, nofollow, noarchive');
+  return res.status(200).json({ ok: true });
 });
 
+/* ================= ROUTES ================= */
 app.use('/', require('./routes/system'));
 app.use('/', require('./routes/site'));
 app.use('/admin', require('./routes/admin'));
 
+/* ================= 404 ================= */
 app.use((req, res) => {
   const storeName = res.locals.settings?.storeName || process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
+
+  setRobotsHeader(res, 'noindex, follow');
 
   res.status(404);
   res.locals.meta = {
@@ -153,6 +175,7 @@ app.use((req, res) => {
   return res.render('404');
 });
 
+/* ================= ERROR ================= */
 app.use((err, req, res, next) => {
   const storeName = res.locals.settings?.storeName || process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
 
@@ -161,6 +184,8 @@ app.use((err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
   }
+
+  setRobotsHeader(res, 'noindex, nofollow');
 
   res.status(500);
   res.locals.meta = {
@@ -175,10 +200,13 @@ app.use((err, req, res, next) => {
   return res.render('500');
 });
 
+/* ================= START ================= */
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`[ENV] NODE_ENV=${NODE_ENV}`);
 });
 
+/* ================= SHUTDOWN ================= */
 function shutdown(signal) {
   console.log(`[SERVER] ${signal} received. Closing server...`);
 
@@ -196,6 +224,7 @@ function shutdown(signal) {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
+/* ================= HELPERS ================= */
 function normalizeBaseUrl(value) {
   const clean = String(value || '').trim().replace(/\/+$/, '');
   if (!clean) return '';
@@ -217,4 +246,12 @@ function setSecurityHeaders(res) {
   if (IS_PROD) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
+}
+
+function setRobotsHeader(res, value) {
+  res.setHeader('X-Robots-Tag', value);
+}
+
+function clearRobotsHeader(res) {
+  res.removeHeader('X-Robots-Tag');
 }
