@@ -5,113 +5,179 @@ const {
   normalizeArticle
 } = require('./jsonDb');
 
+/* ================= UTILS ================= */
+function clean(value = '') {
+  return String(value || '').trim();
+}
+
+function normalizeKey(value = '') {
+  return clean(value).toLowerCase();
+}
+
+function toTimestamp(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+}
+
+function sortByNewest(items = []) {
+  return [...items].sort((a, b) => {
+    const aTime = toTimestamp(a.updated_at || a.updatedAt || a.created_at || a.createdAt);
+    const bTime = toTimestamp(b.updated_at || b.updatedAt || b.created_at || b.createdAt);
+    return bTime - aTime;
+  });
+}
+
+function isVisible(item = {}) {
+  return item.visible !== false;
+}
+
 /* ================= SETTINGS ================= */
 function getSettings() {
-  return getCollection('settings.json') || {};
+  const settings = getCollection('settings.json');
+  return settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {};
 }
 
 function saveSettings(data) {
-  return saveCollection('settings.json', data || {});
+  const payload = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+  return saveCollection('settings.json', payload);
 }
 
 /* ================= PRODUCTS ================= */
 function getProducts() {
-  return getCollection('products.json') || [];
+  const items = getCollection('products.json');
+  if (!Array.isArray(items)) return [];
+  return sortByNewest(items);
 }
 
 function getVisibleProducts() {
-  return getProducts().filter(p => p.visible !== false);
+  return getProducts().filter(isVisible);
 }
 
 function getProductBySlug(slug) {
-  return getProducts().find(p => p.slug === slug);
+  const key = normalizeKey(slug);
+  if (!key) return null;
+
+  return getProducts().find((item) => normalizeKey(item.slug) === key) || null;
 }
 
 function getProductById(id) {
-  return getProducts().find(p => p.id === id);
+  const key = clean(id);
+  if (!key) return null;
+
+  return getProducts().find((item) => clean(item.id) === key) || null;
 }
 
 function createProduct(data) {
   const items = getProducts();
-  const item = normalizeProduct(data); // 🔥 FIX UTAMA
+  const item = normalizeProduct(data);
   items.unshift(item);
   saveCollection('products.json', items);
   return item;
 }
 
 function updateProduct(id, data) {
-  const items = getProducts();
-  const i = items.findIndex(p => p.id === id);
-  if (i === -1) return null;
+  const key = clean(id);
+  if (!key) return null;
 
-  items[i] = normalizeProduct(data, items[i]); // 🔥 FIX UTAMA
+  const items = getProducts();
+  const index = items.findIndex((item) => clean(item.id) === key);
+  if (index === -1) return null;
+
+  items[index] = normalizeProduct(data, items[index]);
   saveCollection('products.json', items);
-  return items[i];
+  return items[index];
 }
 
 function deleteProduct(id) {
+  const key = clean(id);
+  if (!key) return false;
+
   const items = getProducts();
-  const filtered = items.filter(p => p.id !== id);
+  const filtered = items.filter((item) => clean(item.id) !== key);
+
+  if (filtered.length === items.length) return false;
+
   saveCollection('products.json', filtered);
-  return items.length !== filtered.length;
+  return true;
 }
 
 /* ================= ARTICLES ================= */
 function getArticles() {
-  return getCollection('articles.json') || [];
+  const items = getCollection('articles.json');
+  if (!Array.isArray(items)) return [];
+  return sortByNewest(items);
 }
 
 function getVisibleArticles() {
-  return getArticles().filter(a => a.visible !== false);
+  return getArticles().filter(isVisible);
 }
 
 function getArticleBySlug(slug) {
-  return getArticles().find(a => a.slug === slug);
+  const key = normalizeKey(slug);
+  if (!key) return null;
+
+  return getArticles().find((item) => normalizeKey(item.slug) === key) || null;
 }
 
 function getArticleById(id) {
-  return getArticles().find(a => a.id === id);
+  const key = clean(id);
+  if (!key) return null;
+
+  return getArticles().find((item) => clean(item.id) === key) || null;
 }
 
 function createArticle(data) {
   const items = getArticles();
-  const item = normalizeArticle(data); // 🔥 FIX
+  const item = normalizeArticle(data);
   items.unshift(item);
   saveCollection('articles.json', items);
   return item;
 }
 
 function updateArticle(id, data) {
-  const items = getArticles();
-  const i = items.findIndex(a => a.id === id);
-  if (i === -1) return null;
+  const key = clean(id);
+  if (!key) return null;
 
-  items[i] = normalizeArticle(data, items[i]); // 🔥 FIX
+  const items = getArticles();
+  const index = items.findIndex((item) => clean(item.id) === key);
+  if (index === -1) return null;
+
+  items[index] = normalizeArticle(data, items[index]);
   saveCollection('articles.json', items);
-  return items[i];
+  return items[index];
 }
 
 function deleteArticle(id) {
+  const key = clean(id);
+  if (!key) return false;
+
   const items = getArticles();
-  const filtered = items.filter(a => a.id !== id);
+  const filtered = items.filter((item) => clean(item.id) !== key);
+
+  if (filtered.length === items.length) return false;
+
   saveCollection('articles.json', filtered);
-  return items.length !== filtered.length;
+  return true;
 }
 
 /* ================= ORDERS ================= */
 function getOrders() {
-  return getCollection('orders.json') || [];
+  const items = getCollection('orders.json');
+  if (!Array.isArray(items)) return [];
+  return sortByNewest(items);
 }
 
 function updateOrderStatus(id, status) {
-  const items = getOrders();
-  const index = items.findIndex(order => order.id === id);
+  const key = clean(id);
+  if (!key) return null;
 
+  const items = getOrders();
+  const index = items.findIndex((order) => clean(order.id) === key);
   if (index === -1) return null;
 
   items[index] = {
     ...items[index],
-    status: String(status || '').trim() || items[index].status || 'pending',
+    status: clean(status) || clean(items[index].status) || 'pending',
     updated_at: new Date().toISOString()
   };
 
@@ -121,17 +187,23 @@ function updateOrderStatus(id, status) {
 
 /* ================= CATEGORY ================= */
 function getCategories() {
-  const products = getProducts();
-  const map = {};
+  const map = new Map();
 
-  products.forEach(p => {
-    const name = (p.category || 'lainnya').toLowerCase().trim();
-    if (!map[name]) {
-      map[name] = { name, visible: true };
-    }
+  getVisibleProducts().forEach((product) => {
+    const rawName = clean(product.category || 'lainnya');
+    const key = normalizeKey(rawName);
+
+    if (!key || map.has(key)) return;
+
+    map.set(key, {
+      name: rawName,
+      slug: key,
+      visible: true,
+      count: getVisibleProducts().filter((item) => normalizeKey(item.category || 'lainnya') === key).length
+    });
   });
 
-  return Object.values(map);
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, 'id'));
 }
 
 /* ================= EXPORT ================= */
