@@ -1,59 +1,76 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
-<section class="section articles-page-section">
-  <div class="container">
-    <div class="articles-page-header text-center">
-      <div class="section-title">
-        <h1 class="title">Artikel &amp; Tips Fashion Pria</h1>
-      </div>
-      <p class="articles-page-subtitle">
-        Temukan artikel, panduan, dan rekomendasi fashion pria terbaru untuk membantu Anda
-        memilih kaos pria yang nyaman, memahami detail produk, dan menemukan style yang
-        paling cocok untuk penampilan harian.
-      </p>
-    </div>
+<%
+  const safeText = (value = '') => String(value || '').trim();
+  const articleItems = Array.isArray(articles) ? articles : [];
+%>
 
-    <% if (articles && articles.length) { %>
-      <div class="article-grid-responsive">
-        <% articles.forEach(function(article){ %>
-          <div class="article-grid-item">
-            <article class="article-card-modern articles-page-card">
-              <a href="/article/<%= article.slug %>" class="article-card-thumb" aria-label="<%= article.title %>">
-                <img
-                  src="<%= article.image || article.thumbnail || '/assets/images/placeholder-article.jpg' %>"
-                  alt="<%= article.title %>"
-                  loading="lazy"
-                >
-              </a>
+<main id="main-content">
+  <section class="section articles-page-section">
+    <div class="container">
+      <div class="articles-page-header text-center">
+        <div class="section-title">
+          <h1 class="title">Artikel &amp; Tips Fashion Pria</h1>
+        </div>
 
-              <div class="article-card-content">
-                <h3 class="article-card-title">
-                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
-                </h3>
-
-                <p class="article-card-excerpt">
-                  <%= article.excerpt || 'Baca panduan lengkap untuk mendapatkan referensi fashion pria yang lebih tepat, menarik, dan mudah diterapkan.' %>
-                </p>
-
-                <a href="/article/<%= article.slug %>" class="read-more" aria-label="Baca artikel <%= article.title %>">
-                  Baca Selengkapnya <i class="fa fa-arrow-right"></i>
-                </a>
-              </div>
-            </article>
-          </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-box text-center">
-        <h3>Artikel sedang disiapkan</h3>
-        <p>
-          Panduan dan rekomendasi fashion pria akan segera hadir di halaman ini untuk membantu
-          Anda menemukan pilihan yang lebih tepat.
+        <p class="articles-page-subtitle">
+          Temukan artikel, panduan, dan rekomendasi fashion pria terbaru untuk membantu Anda
+          memilih kaos pria yang nyaman, memahami detail produk, dan menemukan style yang
+          paling cocok untuk penampilan harian.
         </p>
       </div>
-    <% } %>
-  </div>
-</section>
+
+      <% if (articleItems.length) { %>
+        <div class="article-grid-responsive">
+          <% articleItems.forEach(function(article){ %>
+            <div class="article-grid-item">
+              <article class="article-card-modern articles-page-card">
+                <a
+                  href="/article/<%= article.slug %>"
+                  class="article-card-thumb"
+                  aria-label="<%= safeText(article.title) %>"
+                >
+                  <img
+                    src="<%= article.image || article.thumbnail || '/assets/images/og-image.jpg' %>"
+                    alt="<%= safeText(article.title) %>"
+                    loading="lazy"
+                    decoding="async"
+                  >
+                </a>
+
+                <div class="article-card-content">
+                  <h2 class="article-card-title">
+                    <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                  </h2>
+
+                  <p class="article-card-excerpt">
+                    <%= article.excerpt || 'Baca panduan lengkap untuk mendapatkan referensi fashion pria yang lebih tepat, menarik, dan mudah diterapkan.' %>
+                  </p>
+
+                  <a
+                    href="/article/<%= article.slug %>"
+                    class="read-more"
+                    aria-label="Baca artikel <%= safeText(article.title) %>"
+                  >
+                    Baca Selengkapnya <i class="fa fa-arrow-right"></i>
+                  </a>
+                </div>
+              </article>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-box text-center">
+          <h2>Artikel sedang disiapkan</h2>
+          <p>
+            Panduan dan rekomendasi fashion pria akan segera hadir di halaman ini untuk membantu
+            Anda menemukan pilihan yang lebih tepat.
+          </p>
+        </div>
+      <% } %>
+    </div>
+  </section>
+</main>
 
 <%- include('partials/footer') %>
