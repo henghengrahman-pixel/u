@@ -7,6 +7,10 @@ function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function writeJsonAtomic(filePath, data) {
   ensureDir(path.dirname(filePath));
   const tempPath = `${filePath}.tmp`;
@@ -18,20 +22,20 @@ function readJson(filePath, fallback) {
   try {
     if (!fs.existsSync(filePath)) {
       writeJsonAtomic(filePath, fallback);
-      return structuredClone(fallback);
+      return clone(fallback);
     }
 
     const raw = fs.readFileSync(filePath, 'utf8');
 
     if (!raw.trim()) {
       writeJsonAtomic(filePath, fallback);
-      return structuredClone(fallback);
+      return clone(fallback);
     }
 
     return JSON.parse(raw);
   } catch (error) {
-    console.error(`Failed to read JSON: ${filePath}`, error);
-    return structuredClone(fallback);
+    console.error(`[JSON READ ERROR] ${filePath}`, error);
+    return clone(fallback);
   }
 }
 
@@ -48,49 +52,63 @@ function cleanString(value = '') {
 }
 
 function cleanNumber(value = 0) {
-  const num = Number(value || 0);
+  if (value === null || value === undefined || value === '') return 0;
+  const normalized = String(value).replace(/[^\d.,-]/g, '').replace(',', '.');
+  const num = Number(normalized);
   return Number.isFinite(num) ? num : 0;
 }
 
 function cleanBoolean(value, fallback = false) {
   if (value === undefined || value === null || value === '') return fallback;
-  return value === true || value === 'on' || value === 'true' || value === 1 || value === '1';
+  return value === true || value === 'true' || value === 'on' || value === 1 || value === '1';
+}
+
+function cleanHtml(value = '') {
+  return cleanString(value);
 }
 
 function normalizeImageArray(value, fallbackImage = '') {
   if (Array.isArray(value)) {
-    return value.map(item => cleanString(item)).filter(Boolean);
+    return [...new Set(value.map((item) => cleanString(item)).filter(Boolean))];
   }
 
   if (typeof value === 'string') {
-    return value
-      .split(/\r?\n|,/)
-      .map(item => cleanString(item))
-      .filter(Boolean);
+    return [...new Set(
+      value
+        .split(/\r?\n|,/)
+        .map((item) => cleanString(item))
+        .filter(Boolean)
+    )];
   }
 
   return fallbackImage ? [cleanString(fallbackImage)].filter(Boolean) : [];
 }
 
+function appName() {
+  return cleanString(process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize');
+}
+
 function defaultSettings() {
+  const brand = appName();
+
   return {
-    storeName: process.env.APP_NAME || 'Ozerra',
-    logo: process.env.SITE_LOGO || 'https://dummyimage.com/180x50/ffffff/111111&text=OZERRA',
-    whatsapp: process.env.SITE_WHATSAPP || '+6280000000000',
-    phone: process.env.SITE_PHONE || '+62 800 0000 0000',
-    email: process.env.SITE_EMAIL || 'hello@example.com',
-    address: process.env.SITE_ADDRESS || 'Indonesia',
+    storeName: brand,
+    logo: cleanString(process.env.SITE_LOGO || '/assets/images/logo.png'),
+    whatsapp: cleanString(process.env.SITE_WHATSAPP || '+6280000000000'),
+    phone: cleanString(process.env.SITE_PHONE || '+62 800 0000 0000'),
+    email: cleanString(process.env.SITE_EMAIL || 'hello@mwgoversize.com'),
+    address: cleanString(process.env.SITE_ADDRESS || 'Indonesia'),
     seo: {
-      metaTitle: process.env.DEFAULT_SEO_TITLE || 'Ozerra - Koleksi Fashion Pilihan',
-      metaDescription:
+      metaTitle: cleanString(process.env.DEFAULT_SEO_TITLE || 'MWG Oversize - Rekomendasi Kaos Pria Terbaik'),
+      metaDescription: cleanString(
         process.env.DEFAULT_SEO_DESCRIPTION ||
-        'Temukan koleksi fashion pilihan dengan informasi lengkap dan tampilan yang nyaman untuk dijelajahi.',
-      ogImage:
-        process.env.DEFAULT_OG_IMAGE ||
-        'https://dummyimage.com/1200x630/f5f5f5/333333&text=Ozerra',
-      keywords:
+        'Temukan rekomendasi kaos pria terbaik, kaos oversize premium, dan fashion pria kekinian dengan bahan nyaman serta model yang cocok untuk daily outfit.'
+      ),
+      ogImage: cleanString(process.env.DEFAULT_OG_IMAGE || '/assets/images/og-image.jpg'),
+      keywords: cleanString(
         process.env.DEFAULT_SEO_KEYWORDS ||
-        'kaos oversize, kaos pria, fashion pria, rekomendasi kaos, outfit harian'
+        'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik, kaos distro pria, fashion pria kekinian'
+      )
     }
   };
 }
@@ -105,6 +123,7 @@ function defaultCategories() {
 
 function defaultProducts() {
   const now = nowIso();
+  const brand = appName();
 
   return [
     {
@@ -112,7 +131,7 @@ function defaultProducts() {
       name: 'Kaos Oversize Pria Premium Hitam',
       slug: 'kaos-oversize-pria-premium-hitam',
       category: 'Oversize',
-      brand: process.env.APP_NAME || 'Ozerra',
+      brand,
       status: 'ready',
       price: 129000,
       compareAtPrice: 159000,
@@ -121,7 +140,8 @@ function defaultProducts() {
         'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80',
         'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80'
       ],
-      shortDescription: 'Kaos oversize pria dengan bahan adem dan nyaman untuk dipakai harian.',
+      shortDescription: 'Kaos oversize pria dengan bahan adem, potongan modern, dan nyaman dipakai untuk aktivitas harian.',
+      short_description: 'Kaos oversize pria dengan bahan adem, potongan modern, dan nyaman dipakai untuk aktivitas harian.',
       description: '<p>Kaos oversize pria dengan tampilan clean, bahan nyaman, dan cocok untuk outfit harian.</p>',
       details: '<ul><li>Bahan nyaman</li><li>Potongan modern</li><li>Cocok untuk daily wear</li></ul>',
       material: 'Cotton Combed 24s',
@@ -131,14 +151,17 @@ function defaultProducts() {
       recommended: true,
       visible: true,
       created_at: now,
-      updated_at: now
+      updated_at: now,
+      seoTitle: 'Kaos Oversize Pria Premium Hitam',
+      seoDescription: 'Rekomendasi kaos oversize pria premium hitam dengan bahan nyaman, potongan modern, dan cocok untuk outfit harian pria.',
+      keywords: 'kaos oversize pria premium hitam, kaos oversize pria, rekomendasi kaos pria'
     },
     {
       id: 'prd-002',
       name: 'Kaos Basic Pria Putih Clean Look',
       slug: 'kaos-basic-pria-putih-clean-look',
       category: 'Basic',
-      brand: process.env.APP_NAME || 'Ozerra',
+      brand,
       status: 'ready',
       price: 99000,
       compareAtPrice: 0,
@@ -146,7 +169,8 @@ function defaultProducts() {
       images: [
         'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80'
       ],
-      shortDescription: 'Kaos basic pria dengan tampilan simpel, bersih, dan mudah dipadukan.',
+      shortDescription: 'Kaos basic pria dengan tampilan simpel, clean, dan mudah dipadukan untuk gaya harian.',
+      short_description: 'Kaos basic pria dengan tampilan simpel, clean, dan mudah dipadukan untuk gaya harian.',
       description: '<p>Kaos basic pria untuk kebutuhan harian dengan gaya clean dan nyaman dipakai.</p>',
       details: '<ul><li>Tampilan clean</li><li>Nyaman untuk harian</li><li>Mudah dipadukan</li></ul>',
       material: 'Cotton Combed 30s',
@@ -156,14 +180,17 @@ function defaultProducts() {
       recommended: true,
       visible: true,
       created_at: now,
-      updated_at: now
+      updated_at: now,
+      seoTitle: 'Kaos Basic Pria Putih Clean Look',
+      seoDescription: 'Rekomendasi kaos basic pria putih dengan tampilan clean, bahan nyaman, dan cocok untuk daily outfit.',
+      keywords: 'kaos basic pria putih, kaos pria basic, rekomendasi kaos pria'
     },
     {
       id: 'prd-003',
       name: 'Kaos Casual Pria Abu Modern',
       slug: 'kaos-casual-pria-abu-modern',
       category: 'Casual',
-      brand: process.env.APP_NAME || 'Ozerra',
+      brand,
       status: 'sold_out',
       price: 119000,
       compareAtPrice: 139000,
@@ -171,7 +198,8 @@ function defaultProducts() {
       images: [
         'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80'
       ],
-      shortDescription: 'Contoh produk sold out untuk menjaga tampilan card tetap normal.',
+      shortDescription: 'Kaos casual pria abu dengan look modern dan nyaman untuk gaya santai harian.',
+      short_description: 'Kaos casual pria abu dengan look modern dan nyaman untuk gaya santai harian.',
       description: '<p>Produk contoh dengan status sold out.</p>',
       details: '<ul><li>Status sold out</li></ul>',
       material: 'Cotton Soft',
@@ -181,7 +209,10 @@ function defaultProducts() {
       recommended: false,
       visible: true,
       created_at: now,
-      updated_at: now
+      updated_at: now,
+      seoTitle: 'Kaos Casual Pria Abu Modern',
+      seoDescription: 'Kaos casual pria abu modern dengan bahan nyaman dan desain simpel untuk daily style.',
+      keywords: 'kaos casual pria abu, kaos pria modern, kaos casual pria'
     }
   ];
 }
@@ -195,11 +226,14 @@ function defaultArticles() {
       title: 'Rekomendasi Kaos Oversize Pria untuk Harian',
       slug: 'rekomendasi-kaos-oversize-pria-untuk-harian',
       excerpt: 'Panduan memilih kaos oversize pria yang nyaman, rapi, dan cocok untuk kebutuhan harian.',
-      content: '<p>Artikel contoh untuk membangun trust, SEO, dan membantu customer memahami pilihan produk dengan lebih baik.</p>',
+      content: '<p>Artikel panduan memilih kaos oversize pria untuk kebutuhan harian, style kasual, dan kenyamanan maksimal.</p>',
       image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1200&q=80',
       visible: true,
       created_at: now,
-      updated_at: now
+      updated_at: now,
+      seoTitle: 'Rekomendasi Kaos Oversize Pria untuk Harian',
+      seoDescription: 'Panduan memilih kaos oversize pria yang nyaman, rapi, dan cocok untuk outfit harian.',
+      keywords: 'rekomendasi kaos oversize pria, kaos oversize pria, tips pilih kaos pria'
     }
   ];
 }
@@ -267,12 +301,20 @@ function normalizeProduct(payload = {}, existing = null) {
     cleanString(existing?.image) ||
     cleanString(existing?.thumbnail);
 
+  const shortDescription = cleanString(
+    payload.shortDescription !== undefined
+      ? payload.shortDescription
+      : (payload.short_description !== undefined
+        ? payload.short_description
+        : existing?.shortDescription || existing?.short_description)
+  );
+
   return {
     id: existing?.id || payload.id || uid('prd'),
     name,
     slug,
     category: cleanString(payload.category || existing?.category || ''),
-    brand: cleanString(payload.brand || existing?.brand || process.env.APP_NAME || 'Ozerra'),
+    brand: cleanString(payload.brand || existing?.brand || appName()),
     status: cleanString(payload.status || existing?.status || 'ready') === 'sold_out' ? 'sold_out' : 'ready',
 
     price: cleanNumber(
@@ -291,20 +333,11 @@ function normalizeProduct(payload = {}, existing = null) {
     thumbnail: image,
     images: images.length ? images : (image ? [image] : []),
 
-    shortDescription: cleanString(
-      payload.shortDescription !== undefined
-        ? payload.shortDescription
-        : (payload.short_description !== undefined ? payload.short_description : existing?.shortDescription || existing?.short_description)
-    ),
+    shortDescription,
+    short_description: shortDescription,
 
-    short_description: cleanString(
-      payload.short_description !== undefined
-        ? payload.short_description
-        : (payload.shortDescription !== undefined ? payload.shortDescription : existing?.short_description || existing?.shortDescription)
-    ),
-
-    description: cleanString(payload.description || existing?.description || ''),
-    details: cleanString(payload.details || existing?.details || ''),
+    description: cleanHtml(payload.description || existing?.description || ''),
+    details: cleanHtml(payload.details || existing?.details || ''),
     material: cleanString(payload.material || existing?.material || ''),
     fit: cleanString(payload.fit || existing?.fit || ''),
     affiliateLink: cleanString(
@@ -339,7 +372,7 @@ function normalizeArticle(payload = {}, existing = null) {
     title,
     slug: slugify(payload.slug || title || existing?.slug || uid('article')),
     excerpt: cleanString(payload.excerpt || existing?.excerpt || ''),
-    content: cleanString(payload.content || existing?.content || ''),
+    content: cleanHtml(payload.content || existing?.content || ''),
     image: cleanString(payload.image || payload.thumbnail || existing?.image || existing?.thumbnail || ''),
     thumbnail: cleanString(payload.thumbnail || payload.image || existing?.thumbnail || existing?.image || ''),
     visible: payload.visible === undefined
