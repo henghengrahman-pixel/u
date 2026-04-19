@@ -1,48 +1,121 @@
-<%- include('partials-top', { 
-  pageTitle: 'Dashboard', 
-  pageDescription: 'Ringkasan cepat aktivitas toko dan performa terbaru.' 
+<%- include('partials-top', {
+  pageTitle: 'Dashboard',
+  pageDescription: 'Ringkasan cepat aktivitas website, produk, order, dan artikel.'
 }) %>
 
+<%
+  const orders = Array.isArray(recentOrders) ? recentOrders : [];
+  const products = Array.isArray(recentProducts) ? recentProducts : [];
+  const articles = Array.isArray(recentArticles) ? recentArticles : [];
+
+  function safeText(value = '') {
+    return String(value || '').trim();
+  }
+
+  function formatDate(value) {
+    if (!value) return '-';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleString('id-ID');
+  }
+
+  function formatCurrency(value) {
+    return `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+  }
+
+  function orderBadgeClass(status = '') {
+    const rawStatus = safeText(status).toLowerCase();
+
+    if (['paid', 'success', 'completed', 'done'].includes(rawStatus)) return 'success';
+    if (['pending', 'process', 'processing', 'waiting'].includes(rawStatus)) return 'warning';
+    if (['cancelled', 'canceled', 'failed', 'rejected'].includes(rawStatus)) return 'danger';
+
+    return 'info';
+  }
+%>
+
 <div class="admin-toolbar">
-  <h1>Dashboard</h1>
-  <p>Ringkasan cepat aktivitas toko dan performa terbaru.</p>
+  <div>
+    <h1>Dashboard</h1>
+    <p>Ringkasan cepat aktivitas website, produk, order, dan artikel terbaru.</p>
+  </div>
 </div>
 
 <div class="admin-grid">
 
-  <!-- STATS -->
   <div class="admin-col-4">
     <div class="admin-card admin-stat-box">
       <div class="admin-stat-title">Total Products</div>
-      <div class="admin-stat-value"><%= totalProducts || 0 %></div>
+      <div class="admin-stat-value"><%= Number(totalProducts || 0) %></div>
+      <div class="admin-stat-action">
+        <a href="/admin/products">Kelola Produk</a>
+      </div>
     </div>
   </div>
 
   <div class="admin-col-4">
     <div class="admin-card admin-stat-box">
       <div class="admin-stat-title">Total Orders</div>
-      <div class="admin-stat-value"><%= totalOrders || 0 %></div>
+      <div class="admin-stat-value"><%= Number(totalOrders || 0) %></div>
+      <div class="admin-stat-action">
+        <a href="/admin/orders">Lihat Orders</a>
+      </div>
     </div>
   </div>
 
   <div class="admin-col-4">
     <div class="admin-card admin-stat-box">
       <div class="admin-stat-title">Total Articles</div>
-      <div class="admin-stat-value"><%= totalArticles || 0 %></div>
+      <div class="admin-stat-value"><%= Number(totalArticles || 0) %></div>
+      <div class="admin-stat-action">
+        <a href="/admin/articles">Kelola Artikel</a>
+      </div>
     </div>
   </div>
 
-  <!-- RECENT ORDERS -->
+  <div class="admin-col-12">
+    <div class="admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h3 class="admin-section-title">Quick Actions</h3>
+          <p class="admin-section-subtitle">Akses cepat untuk mengelola data utama website.</p>
+        </div>
+      </div>
+
+      <div class="admin-action-grid">
+        <a href="/admin/products/create" class="admin-action-card">
+          <strong>Tambah Produk</strong>
+          <span>Buat produk affiliate baru</span>
+        </a>
+
+        <a href="/admin/articles/create" class="admin-action-card">
+          <strong>Tulis Artikel</strong>
+          <span>Tambah artikel baru untuk SEO</span>
+        </a>
+
+        <a href="/admin/settings" class="admin-action-card">
+          <strong>Update Settings</strong>
+          <span>Atur brand, kontak, dan SEO</span>
+        </a>
+
+        <a href="/admin/orders" class="admin-action-card">
+          <strong>Cek Orders</strong>
+          <span>Lihat status order terbaru</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="admin-col-12">
     <div class="admin-card">
       <div class="admin-card-head">
         <div>
           <h3 class="admin-section-title">Recent Orders</h3>
-          <p class="admin-section-subtitle">Daftar order terbaru yang masuk ke toko.</p>
+          <p class="admin-section-subtitle">Daftar order terbaru yang masuk ke website.</p>
         </div>
       </div>
 
-      <% if (recentOrders && recentOrders.length) { %>
+      <% if (orders.length) { %>
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead>
@@ -55,42 +128,17 @@
               </tr>
             </thead>
             <tbody>
-              <% recentOrders.forEach(function(order){ %>
+              <% orders.forEach(function(order){ %>
                 <tr>
+                  <td><strong>#<%= safeText(order.id) || '-' %></strong></td>
+                  <td><%= safeText(order.customer_name || order.name) || '-' %></td>
                   <td>
-                    <strong>#<%= order.id || '-' %></strong>
-                  </td>
-
-                  <td>
-                    <%= order.customer_name || order.name || '-' %>
-                  </td>
-
-                  <td>
-                    <% 
-                      const rawStatus = String(order.status || 'pending').toLowerCase();
-                      let badgeClass = 'info';
-
-                      if (['paid', 'success', 'completed', 'done'].includes(rawStatus)) {
-                        badgeClass = 'success';
-                      } else if (['pending', 'process', 'processing', 'waiting'].includes(rawStatus)) {
-                        badgeClass = 'warning';
-                      } else if (['cancelled', 'canceled', 'failed', 'rejected'].includes(rawStatus)) {
-                        badgeClass = 'danger';
-                      }
-                    %>
-
-                    <span class="admin-badge <%= badgeClass %>">
-                      <%= rawStatus %>
+                    <span class="admin-badge <%= orderBadgeClass(order.status) %>">
+                      <%= safeText(order.status || 'pending').toLowerCase() %>
                     </span>
                   </td>
-
-                  <td>
-                    Rp <%= Number(order.total || 0).toLocaleString('id-ID') %>
-                  </td>
-
-                  <td>
-                    <%= order.created_at ? new Date(order.created_at).toLocaleString('id-ID') : '-' %>
-                  </td>
+                  <td><%= formatCurrency(order.total || 0) %></td>
+                  <td><%= formatDate(order.created_at) %></td>
                 </tr>
               <% }) %>
             </tbody>
@@ -100,7 +148,83 @@
         <div class="admin-empty">
           <div class="admin-empty-icon">📦</div>
           <h4>Belum ada order masuk</h4>
-          <p>Order terbaru akan tampil di sini setelah customer melakukan checkout.</p>
+          <p>Order terbaru akan tampil di sini setelah ada data order yang tersimpan.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="admin-col-6">
+    <div class="admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h3 class="admin-section-title">Produk Terbaru</h3>
+          <p class="admin-section-subtitle">Produk yang paling baru ditambahkan atau diupdate.</p>
+        </div>
+        <a href="/admin/products" class="admin-link-inline">Lihat Semua</a>
+      </div>
+
+      <% if (products.length) { %>
+        <div class="admin-list-wrap">
+          <% products.forEach(function(item){ %>
+            <div class="admin-list-item">
+              <div class="admin-list-main">
+                <strong><%= safeText(item.name) || '-' %></strong>
+                <span><%= safeText(item.category) || 'Tanpa kategori' %></span>
+              </div>
+
+              <div class="admin-list-side">
+                <span class="admin-badge <%= item.visible === false ? 'danger' : 'success' %>">
+                  <%= item.visible === false ? 'hidden' : 'visible' %>
+                </span>
+                <a href="/admin/products/<%= item.id %>/edit">Edit</a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">
+          <div class="admin-empty-icon">🛍️</div>
+          <h4>Belum ada produk</h4>
+          <p>Tambahkan produk pertama untuk mulai mengisi halaman shop.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="admin-col-6">
+    <div class="admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h3 class="admin-section-title">Artikel Terbaru</h3>
+          <p class="admin-section-subtitle">Artikel terbaru untuk mendukung SEO dan internal linking.</p>
+        </div>
+        <a href="/admin/articles" class="admin-link-inline">Lihat Semua</a>
+      </div>
+
+      <% if (articles.length) { %>
+        <div class="admin-list-wrap">
+          <% articles.forEach(function(item){ %>
+            <div class="admin-list-item">
+              <div class="admin-list-main">
+                <strong><%= safeText(item.title) || '-' %></strong>
+                <span><%= formatDate(item.updated_at || item.created_at) %></span>
+              </div>
+
+              <div class="admin-list-side">
+                <span class="admin-badge <%= item.visible === false ? 'danger' : 'success' %>">
+                  <%= item.visible === false ? 'hidden' : 'visible' %>
+                </span>
+                <a href="/admin/articles/<%= item.id %>/edit">Edit</a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">
+          <div class="admin-empty-icon">📝</div>
+          <h4>Belum ada artikel</h4>
+          <p>Buat artikel pertama untuk memperkuat halaman SEO website.</p>
         </div>
       <% } %>
     </div>
