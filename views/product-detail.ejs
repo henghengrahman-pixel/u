@@ -2,181 +2,299 @@
 <%- include('partials/header') %>
 
 <%
+  const safeText = (value = '') => String(value || '').trim();
+  const productName = safeText(product?.name || 'Produk');
+  const productCategory = safeText(product?.category || 'Pria');
+  const productFit = safeText(product?.fit || 'Oversize');
+  const productMaterial = safeText(product?.material || 'Premium Cotton');
+  const productPrice = Number(product?.price || 0);
+  const productComparePrice = Number(product?.compareAtPrice || 0);
+  const productDescription =
+    safeText(product?.shortDescription) ||
+    `${productName} adalah salah satu pilihan kaos ${productCategory} terbaik dengan bahan ${productMaterial} yang nyaman dipakai seharian.`;
+
+  const relatedProducts = Array.isArray(recommended) ? recommended : [];
   const galleryImages = [];
-  const firstImage = product?.image || '';
+  const firstImage = safeText(product?.image || '');
 
   if (firstImage) galleryImages.push(firstImage);
 
   if (Array.isArray(product?.images)) {
     product.images.forEach(function (img) {
-      if (img && !galleryImages.includes(img)) {
-        galleryImages.push(img);
+      const imageUrl = safeText(img);
+      if (imageUrl && !galleryImages.includes(imageUrl)) {
+        galleryImages.push(imageUrl);
       }
     });
   }
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `Apakah ${productName} nyaman dipakai?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${productName} menggunakan bahan ${productMaterial} yang nyaman dipakai untuk aktivitas harian.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Apakah ${productName} cocok untuk outfit harian?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${productName} cocok untuk gaya casual, santai, hingga semi streetwear karena potongan ${productFit.toLowerCase()} dan tampilannya mudah dipadukan.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Bagaimana cara cek ukuran dan review ${productName}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Ukuran, variasi, dan review pembeli bisa langsung dicek melalui halaman marketplace dari tombol CTA di halaman ini.`
+        }
+      }
+    ]
+  };
 %>
 
-<section class="section product-detail-section">
-  <div class="container">
-    <div class="product-breadcrumb">
-      <a href="/">Home</a>
-      <span>/</span>
-      <a href="/shop">Rekomendasi</a>
-      <% if (product.category) { %>
+<main id="main-content">
+  <section class="section product-detail-section">
+    <div class="container">
+      <nav class="product-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
         <span>/</span>
-        <a href="/shop?category=<%= encodeURIComponent(product.category) %>">
-          <%= product.category %>
-        </a>
-      <% } %>
-      <span>/</span>
-      <span><%= product.name %></span>
-    </div>
+        <a href="/shop">Rekomendasi</a>
+        <% if (productCategory) { %>
+          <span>/</span>
+          <a href="/shop?category=<%= encodeURIComponent(productCategory) %>">
+            <%= productCategory %>
+          </a>
+        <% } %>
+        <span>/</span>
+        <span aria-current="page"><%= productName %></span>
+      </nav>
 
-    <div class="row product-detail-row">
-      <div class="col-md-7 product-gallery-column">
-        <div class="product-gallery-wrap">
-          <div class="product-main-preview" id="product-main-preview">
-            <button type="button" class="product-zoom-btn" id="open-image-popup" aria-label="Lihat gambar lebih besar">
-              <i class="fa fa-search-plus"></i>
-            </button>
+      <div class="row product-detail-row">
+        <div class="col-md-7 product-gallery-column">
+          <div class="product-gallery-wrap">
+            <div class="product-main-preview" id="product-main-preview">
+              <button type="button" class="product-zoom-btn" id="open-image-popup" aria-label="Lihat gambar lebih besar">
+                <i class="fa fa-search-plus"></i>
+              </button>
 
-            <img
-              id="main-product-image"
-              src="<%= galleryImages[0] || '' %>"
-              alt="<%= product.name %> kaos <%= product.category || 'pria' %> terbaik"
-            >
-          </div>
-
-          <% if (galleryImages.length > 1) { %>
-            <div class="thumb-list" id="product-thumb-list">
-              <% galleryImages.forEach(function(img, i){ %>
-                <button
-                  type="button"
-                  class="product-thumb-item <%= i === 0 ? 'active' : '' %>"
-                  data-image="<%= img %>"
-                >
-                  <img src="<%= img %>" alt="<%= product.name %> foto <%= i + 1 %>">
-                </button>
-              <% }) %>
+              <img
+                id="main-product-image"
+                src="<%= galleryImages[0] || '/assets/images/og-image.jpg' %>"
+                alt="<%= productName %> - rekomendasi kaos <%= productCategory.toLowerCase() %>"
+                decoding="async"
+                fetchpriority="high"
+              >
             </div>
-          <% } %>
+
+            <% if (galleryImages.length > 1) { %>
+              <div class="thumb-list" id="product-thumb-list">
+                <% galleryImages.forEach(function(img, i){ %>
+                  <button
+                    type="button"
+                    class="product-thumb-item <%= i === 0 ? 'active' : '' %>"
+                    data-image="<%= img %>"
+                    aria-label="Lihat foto <%= i + 1 %> <%= productName %>"
+                  >
+                    <img
+                      src="<%= img %>"
+                      alt="<%= productName %> foto <%= i + 1 %>"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  </button>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
         </div>
-      </div>
 
-      <div class="col-md-5 product-info-column">
-        <div class="product-details">
-          <h1 class="product-name"><%= product.name %></h1>
+        <div class="col-md-5 product-info-column">
+          <article class="product-details">
+            <h1 class="product-name"><%= productName %></h1>
 
-          <div class="product-price-wrap">
-            <h2 class="product-price">
-              IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
-              <% if (product.compareAtPrice) { %>
-                <del class="product-old-price">
-                  IDR <%= Number(product.compareAtPrice).toLocaleString('id-ID') %>
-                </del>
-              <% } %>
-            </h2>
+            <div class="product-price-wrap">
+              <div class="product-price" aria-label="Harga produk">
+                IDR <%= productPrice.toLocaleString('id-ID') %>
 
-            <span class="product-available">
-              ✔ Stok tersedia
-            </span>
-          </div>
+                <% if (productComparePrice > 0) { %>
+                  <del class="product-old-price">
+                    IDR <%= productComparePrice.toLocaleString('id-ID') %>
+                  </del>
+                <% } %>
+              </div>
 
-          <p class="product-short-description">
-            <strong><%= product.name %></strong> adalah salah satu pilihan kaos <%= product.category || 'pria' %> terbaik
-            dengan bahan <strong><%= product.material || 'premium' %></strong> yang nyaman dipakai seharian.
-            Model <strong><%= product.fit || 'oversize' %></strong> memberikan tampilan lebih modern,
-            rapi, dan cocok untuk berbagai gaya outfit pria masa kini.
-          </p>
+              <span class="product-available">
+                ✔ Stok tersedia
+              </span>
+            </div>
 
-          <p class="product-short-description">
-            Cocok dipakai untuk aktivitas harian, nongkrong, atau tampil lebih percaya diri tanpa ribet mix outfit.
-          </p>
+            <p class="product-short-description">
+              <strong><%= productName %></strong> adalah salah satu pilihan kaos <%= productCategory %> terbaik
+              dengan bahan <strong><%= productMaterial %></strong> yang nyaman dipakai seharian.
+              Model <strong><%= productFit %></strong> memberikan tampilan lebih modern,
+              rapi, dan cocok untuk berbagai gaya outfit pria masa kini.
+            </p>
 
-          <div class="product-buy-actions">
-            <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn">
-              🔥 Cek Harga & Detail
-            </a>
+            <p class="product-short-description">
+              <%= safeText(product?.description).replace(/<[^>]*>/g, '').trim() || 'Cocok dipakai untuk aktivitas harian, nongkrong, atau tampil lebih percaya diri tanpa ribet mix outfit.' %>
+            </p>
 
-            <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
-              Lihat Review & Variasi
-            </a>
-          </div>
+            <div class="product-buy-actions">
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="add-to-cart-btn" aria-label="Cek harga dan detail <%= productName %>">
+                🔥 Cek Harga &amp; Detail
+              </a>
 
-          <div class="product-trust mt-15">
-            <ul class="product-trust-list">
-              <li>✔ Produk dipilih dari yang paling banyak diminati</li>
-              <li>✔ Bisa cek langsung ulasan asli pembeli</li>
-              <li>✔ Lebih aman karena beli lewat marketplace</li>
+              <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn" aria-label="Lihat review dan variasi <%= productName %>">
+                Lihat Review &amp; Variasi
+              </a>
+            </div>
+
+            <div class="product-trust mt-15">
+              <ul class="product-trust-list">
+                <li>✔ Produk dipilih dari yang paling banyak diminati</li>
+                <li>✔ Bisa cek langsung ulasan asli pembeli</li>
+                <li>✔ Lebih aman karena beli lewat marketplace</li>
+              </ul>
+            </div>
+
+            <ul class="product-links mt-15">
+              <li>Category:</li>
+              <li>
+                <a href="/shop?category=<%= encodeURIComponent(productCategory) %>"><%= productCategory %></a>
+              </li>
             </ul>
+
+            <ul class="product-links">
+              <li>Fit:</li>
+              <li><%= productFit %></li>
+            </ul>
+
+            <ul class="product-links">
+              <li>Material:</li>
+              <li><%= productMaterial %></li>
+            </ul>
+
+            <div class="mt-15">
+              <a href="/kaos-oversize-pria">👉 Lihat rekomendasi kaos oversize lainnya</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section product-content-section">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Kenapa <%= productName %> Layak Dipertimbangkan?</h2>
+        <p class="section-subtitle">
+          Halaman ini membantu kamu membandingkan detail utama sebelum lanjut cek review,
+          variasi, dan harga di marketplace.
+        </p>
+      </div>
+
+      <div class="row trust-grid-row">
+        <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+          <div class="trust-card">
+            <h3>Nyaman untuk Harian</h3>
+            <p>
+              Material <strong><%= productMaterial %></strong> dan potongan <strong><%= productFit %></strong>
+              membuat produk ini cocok untuk aktivitas santai sampai outfit harian yang lebih rapi.
+            </p>
           </div>
+        </div>
 
-          <ul class="product-links mt-15">
-            <li>Category:</li>
-            <li><%= product.category %></li>
-          </ul>
+        <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+          <div class="trust-card">
+            <h3>Mudah Dipadukan</h3>
+            <p>
+              Model kaos <%= productCategory.toLowerCase() %> seperti ini umumnya mudah dipadukan
+              dengan jeans, chino, atau outer ringan untuk tampilan yang tetap clean.
+            </p>
+          </div>
+        </div>
 
-          <ul class="product-links">
-            <li>Fit:</li>
-            <li><%= product.fit || 'Oversize' %></li>
-          </ul>
-
-          <ul class="product-links">
-            <li>Material:</li>
-            <li><%= product.material || 'Premium Cotton' %></li>
-          </ul>
-
-          <div class="mt-15">
-            <a href="/kaos-oversize-pria">👉 Lihat rekomendasi kaos oversize lainnya</a>
+        <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+          <div class="trust-card">
+            <h3>Lebih Aman Saat Memilih</h3>
+            <p>
+              Kamu bisa langsung cek ulasan pembeli, ukuran, dan variasi produk di marketplace
+              sebelum memutuskan pilihan yang paling sesuai.
+            </p>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="section">
-  <div class="container">
-    <h2>Pertanyaan yang Sering Ditanyakan</h2>
+  <section class="section product-faq-section">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Pertanyaan yang Sering Ditanyakan</h2>
+      </div>
 
-    <h3>Apakah nyaman dipakai?</h3>
-    <p>Ya, bahan <%= product.material || 'premium' %> terkenal adem dan cocok dipakai seharian.</p>
+      <div class="faq-list">
+        <article class="faq-item">
+          <h3>Apakah nyaman dipakai?</h3>
+          <p>Ya, bahan <%= productMaterial %> nyaman dipakai untuk aktivitas harian dan cocok untuk penggunaan yang lebih fleksibel.</p>
+        </article>
 
-    <h3>Apakah cocok untuk outfit harian?</h3>
-    <p>Sangat cocok untuk gaya casual, santai, hingga semi streetwear.</p>
+        <article class="faq-item">
+          <h3>Apakah cocok untuk outfit harian?</h3>
+          <p>Sangat cocok untuk gaya casual, santai, hingga semi streetwear karena modelnya mudah dipadukan.</p>
+        </article>
 
-    <h3>Apakah tersedia ukuran lengkap?</h3>
-    <p>Detail ukuran bisa langsung dicek di halaman marketplace melalui tombol di atas.</p>
-  </div>
-</section>
-
-<section class="section recommended-products-section">
-  <div class="container">
-    <h2 class="title">Rekomendasi Serupa</h2>
-
-    <div class="row">
-      <% if (recommended && recommended.length) { %>
-        <% recommended.forEach(function(product){ %>
-          <div class="col-md-3 col-sm-6 col-xs-6">
-            <%- include('partials/product-card', { product: product }) %>
-          </div>
-        <% }) %>
-      <% } %>
+        <article class="faq-item">
+          <h3>Apakah tersedia ukuran lengkap?</h3>
+          <p>Detail ukuran, variasi, dan review pembeli bisa langsung dicek di halaman marketplace melalui tombol di atas.</p>
+        </article>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <% if (relatedProducts.length) { %>
+    <section class="section recommended-products-section">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2 class="title">Rekomendasi Serupa</h2>
+          <p class="section-subtitle">
+            Lihat juga pilihan lain yang masih relevan dengan model, kategori, atau gaya yang serupa.
+          </p>
+        </div>
+
+        <div class="row">
+          <% relatedProducts.forEach(function(item){ %>
+            <div class="col-md-3 col-sm-6 col-xs-6">
+              <%- include('partials/product-card', { product: item }) %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+
+  <script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
+</main>
 
 <div class="product-image-modal" id="product-image-modal" aria-hidden="true">
   <div class="product-image-modal-backdrop" id="product-image-modal-backdrop"></div>
-  <div class="product-image-modal-dialog">
+  <div class="product-image-modal-dialog" role="dialog" aria-modal="true" aria-label="Preview gambar produk">
     <button type="button" class="product-image-modal-close" id="close-image-popup" aria-label="Tutup">
       <i class="fa fa-times"></i>
     </button>
 
     <img
       id="popup-product-image"
-      src="<%= galleryImages[0] || '' %>"
-      alt="<%= product.name %> preview"
+      src="<%= galleryImages[0] || '/assets/images/og-image.jpg' %>"
+      alt="<%= productName %> preview"
     >
   </div>
 </div>
@@ -184,10 +302,10 @@
 <div class="mobile-buy-bar">
   <div class="mobile-buy-bar-inner">
     <div class="mobile-buy-price">
-      IDR <%= Number(product.price || 0).toLocaleString('id-ID') %>
+      IDR <%= productPrice.toLocaleString('id-ID') %>
     </div>
 
-    <a href="/go/<%= product.slug %>" target="_blank" class="mobile-buy-now">
+    <a href="/go/<%= product.slug %>" target="_blank" rel="nofollow sponsored noopener" class="mobile-buy-now">
       🔥 Beli Sekarang
     </a>
   </div>
@@ -253,6 +371,7 @@
     function openModal() {
       if (!modal) return;
       modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-open');
       if (popupImage) popupImage.src = mainImage.src;
     }
@@ -260,6 +379,7 @@
     function closeModal() {
       if (!modal) return;
       modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('modal-open');
     }
 
