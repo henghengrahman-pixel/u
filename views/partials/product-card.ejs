@@ -1,12 +1,19 @@
 <%
-  const productSlug = product && product.slug ? product.slug : '';
+  const safeText = (value = '') => String(value || '').trim();
+
+  const productSlug = safeText(product?.slug);
   const productUrl = productSlug ? `/product/${productSlug}` : '#';
   const productGoUrl = productSlug ? `/go/${productSlug}` : '#';
 
+  const productName = safeText(product?.name || 'Produk Pilihan');
+  const productCategory = safeText(product?.category || 'Kaos Pria');
+  const productMaterial = safeText(product?.material || 'Bahan nyaman');
+  const productFit = safeText(product?.fit || 'Fit terbaik');
+
   const productImage =
-    (product && product.image) ||
-    (product && product.images && product.images.length ? product.images[0] : '') ||
-    '/assets/images/placeholder-product.jpg';
+    safeText(product?.image) ||
+    (Array.isArray(product?.images) && product.images.length ? safeText(product.images[0]) : '') ||
+    '/assets/images/og-image.jpg';
 
   const price = Number(product?.price || 0);
   const compareAtPrice = Number(product?.compareAtPrice || 0);
@@ -16,36 +23,45 @@
     ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
     : 0;
 
-  const isSoldOut = product?.status === 'sold_out';
-  const safeName = product?.name || 'Produk Pilihan';
-  const safeCategory = product?.category || 'Kaos Pria';
-  const safeMaterial = product?.material || 'bahan nyaman';
-  const safeFit = product?.fit || 'fit terbaik';
+  const isSoldOut = safeText(product?.status) === 'sold_out';
+
+  const shortCopy =
+    safeText(product?.shortDescription) ||
+    `Rekomendasi ${productCategory.toLowerCase()} dengan ${productMaterial.toLowerCase()} dan model ${productFit.toLowerCase()} yang nyaman dipakai harian.`;
 %>
 
-<div class="product product-card-clean">
+<article class="product product-card-clean" itemscope itemtype="https://schema.org/Product">
+  <meta itemprop="name" content="<%= productName %>">
+  <meta itemprop="category" content="<%= productCategory %>">
+  <meta itemprop="description" content="<%= shortCopy %>">
+  <meta itemprop="image" content="<%= productImage %>">
+
   <div class="product-img">
     <% if (productSlug) { %>
-      <a href="<%= productUrl %>" class="product-image-link" aria-label="<%= safeName %>">
+      <a href="<%= productUrl %>" class="product-image-link" aria-label="<%= productName %>" itemprop="url">
         <img
           src="<%= productImage %>"
-          alt="<%= safeName %> - <%= safeCategory %> original"
+          alt="<%= productName %> - <%= productCategory %>"
           loading="lazy"
+          decoding="async"
+          itemprop="image"
         >
       </a>
     <% } else { %>
       <span class="product-image-link">
         <img
           src="<%= productImage %>"
-          alt="<%= safeName %>"
+          alt="<%= productName %>"
           loading="lazy"
+          decoding="async"
+          itemprop="image"
         >
       </span>
     <% } %>
 
     <% if (product?.is_new) { %>
       <div class="product-label">
-        <span class="new">Pilihan Baru</span>
+        <span class="new">Baru</span>
       </div>
     <% } else if (hasDiscount) { %>
       <div class="product-label">
@@ -55,72 +71,69 @@
   </div>
 
   <div class="product-body">
-    <p class="product-category"><%= safeCategory %></p>
+    <p class="product-category"><%= productCategory %></p>
 
-    <h3 class="product-name">
+    <h3 class="product-name" itemprop="name">
       <% if (productSlug) { %>
-        <a href="<%= productUrl %>"><%= safeName %></a>
+        <a href="<%= productUrl %>"><%= productName %></a>
       <% } else { %>
-        <span><%= safeName %></span>
+        <span><%= productName %></span>
       <% } %>
     </h3>
 
-    <p class="product-card-copy">
-      Rekomendasi <%= safeCategory.toLowerCase() %> dengan <%= safeMaterial %> dan model <%= safeFit %> yang nyaman dipakai harian.
+    <p class="product-card-copy" itemprop="description">
+      <%= shortCopy %>
     </p>
 
     <% if (price > 0) { %>
-      <h4 class="product-price">
-        IDR <%= price.toLocaleString('id-ID') %>
+      <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+        <meta itemprop="priceCurrency" content="IDR">
+        <meta itemprop="price" content="<%= price %>">
+        <meta itemprop="availability" content="<%= isSoldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' %>">
+
+        <span class="product-price-current">
+          IDR <%= price.toLocaleString('id-ID') %>
+        </span>
 
         <% if (compareAtPrice > 0) { %>
           <del class="product-old-price">
             IDR <%= compareAtPrice.toLocaleString('id-ID') %>
           </del>
         <% } %>
-      </h4>
+      </div>
     <% } %>
 
-    <% if (!isSoldOut) { %>
-      <div class="product-card-trust">
-        <span>✔ Banyak diminati</span>
-      </div>
-    <% } else { %>
-      <div class="product-card-trust sold-out-text">
-        <span>Stok sedang habis</span>
-      </div>
-    <% } %>
+    <div class="product-card-trust <%= isSoldOut ? 'sold-out-text' : '' %>">
+      <span><%= isSoldOut ? 'Stok sedang habis' : '✔ Banyak diminati' %></span>
+    </div>
 
     <div class="product-actions">
       <% if (isSoldOut) { %>
-        <button class="buy-now-btn" type="button" disabled>
-          Sold Out
-        </button>
-
-        <button class="add-to-cart-btn" type="button" disabled>
-          Tidak Tersedia
-        </button>
+        <button class="add-to-cart-btn" type="button" disabled>Sold Out</button>
+        <button class="buy-now-btn" type="button" disabled>Tidak Tersedia</button>
       <% } else { %>
         <% if (productSlug) { %>
-          <a href="<%= productUrl %>" class="add-to-cart-btn">
-            Cek Detail
+          <a href="<%= productUrl %>" class="add-to-cart-btn" aria-label="Lihat detail <%= productName %>">
+            Lihat Detail
           </a>
         <% } else { %>
-          <button class="add-to-cart-btn" type="button" disabled>
-            Cek Detail
-          </button>
+          <button class="add-to-cart-btn" type="button" disabled>Lihat Detail</button>
         <% } %>
 
         <% if (productSlug) { %>
-          <a href="<%= productGoUrl %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+          <a
+            href="<%= productGoUrl %>"
+            target="_blank"
+            rel="nofollow sponsored noopener"
+            class="buy-now-btn"
+            aria-label="Cek harga <%= productName %>"
+          >
             Cek Harga
           </a>
         <% } else { %>
-          <button class="buy-now-btn" type="button" disabled>
-            Cek Harga
-          </button>
+          <button class="buy-now-btn" type="button" disabled>Cek Harga</button>
         <% } %>
       <% } %>
     </div>
   </div>
-</div>
+</article>
