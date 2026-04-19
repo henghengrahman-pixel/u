@@ -4,105 +4,170 @@
   topAction: '<a href="/admin/products/create" class="primary-btn"><i class="fa fa-plus"></i> Add Product</a>'
 }) %>
 
-<div class="admin-card">
-  <% if (products.length) { %>
-    <div class="table-responsive">
-      <table class="table admin-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Status</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Affiliate</th>
-            <th>Visible</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% products.forEach(function(item){ %>
-            <tr>
-              <td>
-                <div class="admin-product-cell">
-                  <img
-                    src="<%= item.image || item.thumbnail || 'https://dummyimage.com/120x120/f1f5f9/64748b&text=No+Image' %>"
-                    alt="<%= item.name %>"
-                  >
-                  <div>
-                    <strong><%= item.name %></strong><br>
-                    <small class="text-muted-2"><%= item.slug %></small><br>
+<%
+  const items = Array.isArray(products) ? products : [];
 
-                    <% if (item.brand) { %>
-                      <small class="text-muted-2">Brand: <%= item.brand %></small><br>
-                    <% } %>
+  function safeText(value = '') {
+    return String(value || '').trim();
+  }
 
-                    <% if (item.featured || item.recommended) { %>
-                      <small class="text-muted-2">
-                        <% if (item.featured) { %><span>Featured</span><% } %>
-                        <% if (item.featured && item.recommended) { %> • <% } %>
-                        <% if (item.recommended) { %><span>Recommended</span><% } %>
-                      </small>
-                    <% } %>
-                  </div>
-                </div>
-              </td>
+  function formatPrice(value) {
+    const number = Number(value || 0);
+    if (!number) return '-';
+    return `IDR ${number.toLocaleString('id-ID')}`;
+  }
 
-              <td>
-                <span class="admin-badge <%= item.status %>"><%= item.status %></span>
-              </td>
+  function productStatusBadge(status = '') {
+    const raw = safeText(status).toLowerCase();
+    if (raw === 'sold_out') return 'danger';
+    if (raw === 'ready') return 'success';
+    return 'info';
+  }
+%>
 
-              <td><%= item.category || '-' %></td>
-
-              <td>
-                <% if (Number(item.price || 0) > 0) { %>
-                  <strong>IDR <%= Number(item.price || 0).toLocaleString('id-ID') %></strong>
-                  <% if (Number(item.compareAtPrice || 0) > 0) { %>
-                    <br>
-                    <small class="text-muted-2">
-                      <del>IDR <%= Number(item.compareAtPrice || 0).toLocaleString('id-ID') %></del>
-                    </small>
-                  <% } %>
-                <% } else { %>
-                  -
-                <% } %>
-              </td>
-
-              <td>
-                <% if (item.affiliateLink) { %>
-                  <a
-                    href="<%= item.affiliateLink %>"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="btn btn-default btn-sm"
-                  >
-                    Open Link
-                  </a>
-                <% } else { %>
-                  <span class="text-muted-2">Belum ada</span>
-                <% } %>
-              </td>
-
-              <td><%= item.visible ? 'Yes' : 'No' %></td>
-
-              <td>
-                <div class="admin-actions">
-                  <a class="btn btn-default btn-sm" href="/admin/products/<%= item.id %>/edit">Edit</a>
-
-                  <form method="post" action="/admin/products/<%= item.id %>/delete" onsubmit="return confirm('Hapus produk ini?')">
-                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+<div class="admin-grid">
+  <div class="admin-col-4">
+    <div class="admin-card admin-stat-box">
+      <div class="admin-stat-title">Total Products</div>
+      <div class="admin-stat-value"><%= items.length %></div>
     </div>
-  <% } else { %>
-    <div class="admin-empty">
-      Belum ada produk. Klik <strong>Add Product</strong> untuk menambah produk baru.
+  </div>
+
+  <div class="admin-col-4">
+    <div class="admin-card admin-stat-box">
+      <div class="admin-stat-title">Visible Products</div>
+      <div class="admin-stat-value"><%= items.filter(item => item && item.visible !== false).length %></div>
     </div>
-  <% } %>
+  </div>
+
+  <div class="admin-col-4">
+    <div class="admin-card admin-stat-box">
+      <div class="admin-stat-title">Hidden Products</div>
+      <div class="admin-stat-value"><%= items.filter(item => item && item.visible === false).length %></div>
+    </div>
+  </div>
+
+  <div class="admin-col-12">
+    <div class="admin-card">
+      <div class="admin-card-head">
+        <div>
+          <h3 class="admin-section-title">Product List</h3>
+          <p class="admin-section-subtitle">Semua produk affiliate yang tampil di halaman website.</p>
+        </div>
+      </div>
+
+      <% if (items.length) { %>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Affiliate</th>
+                <th>Visible</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% items.forEach(function(item){ %>
+                <tr>
+                  <td>
+                    <div class="admin-product-cell">
+                      <img
+                        src="<%= item.image || item.thumbnail || '/assets/images/og-image.jpg' %>"
+                        alt="<%= safeText(item.name || 'Product') %>"
+                        loading="lazy"
+                        decoding="async"
+                      >
+
+                      <div>
+                        <strong><%= safeText(item.name || '-') %></strong><br>
+                        <small class="text-muted-2"><%= safeText(item.slug || '-') %></small><br>
+
+                        <% if (item.brand) { %>
+                          <small class="text-muted-2">Brand: <%= item.brand %></small><br>
+                        <% } %>
+
+                        <% if (item.featured || item.recommended) { %>
+                          <small class="text-muted-2">
+                            <% if (item.featured) { %><span>Featured</span><% } %>
+                            <% if (item.featured && item.recommended) { %> • <% } %>
+                            <% if (item.recommended) { %><span>Recommended</span><% } %>
+                          </small>
+                        <% } %>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span class="admin-badge <%= productStatusBadge(item.status) %>">
+                      <%= safeText(item.status || 'ready') %>
+                    </span>
+                  </td>
+
+                  <td><%= safeText(item.category || '-') %></td>
+
+                  <td>
+                    <% if (Number(item.price || 0) > 0) { %>
+                      <strong><%= formatPrice(item.price) %></strong>
+
+                      <% if (Number(item.compareAtPrice || 0) > 0) { %>
+                        <br>
+                        <small class="text-muted-2">
+                          <del><%= formatPrice(item.compareAtPrice) %></del>
+                        </small>
+                      <% } %>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </td>
+
+                  <td>
+                    <% if (item.affiliateLink) { %>
+                      <a
+                        href="<%= item.affiliateLink %>"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-default btn-sm"
+                      >
+                        Open Link
+                      </a>
+                    <% } else { %>
+                      <span class="text-muted-2">Belum ada</span>
+                    <% } %>
+                  </td>
+
+                  <td>
+                    <span class="admin-badge <%= item.visible === false ? 'danger' : 'success' %>">
+                      <%= item.visible === false ? 'No' : 'Yes' %>
+                    </span>
+                  </td>
+
+                  <td>
+                    <div class="admin-actions">
+                      <a class="btn btn-default btn-sm" href="/admin/products/<%= item.id %>/edit">Edit</a>
+
+                      <form method="post" action="/admin/products/<%= item.id %>/delete" onsubmit="return confirm('Hapus produk ini?')">
+                        <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="admin-empty">
+          <div class="admin-empty-icon">🛍️</div>
+          <h4>Belum ada produk</h4>
+          <p>Klik <strong>Add Product</strong> untuk menambah produk affiliate baru.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
 </div>
 
 <%- include('partials-bottom') %>
