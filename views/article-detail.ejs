@@ -1,116 +1,136 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
-<section class="section article-detail-page-section">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
-        <article class="admin-card article-detail-card article-content">
-          <div class="article-detail-body">
-            <p class="article-detail-breadcrumb">
-              <a href="/">Home</a>
-              <span>/</span>
-              <a href="/articles">Artikel</a>
-              <span>/</span>
-              <span><%= article.title || '' %></span>
-            </p>
+<%
+  const safeText = (value = '') => String(value || '').trim();
+  const articleTitle = safeText(article?.title || '');
+  const articleExcerpt = safeText(article?.excerpt || '');
+  const articleImage = safeText(article?.image || article?.thumbnail || '/assets/images/og-image.jpg');
+  const relatedArticles = Array.isArray(articles) ? articles : [];
+  const relatedProducts = Array.isArray(products) ? products : [];
+%>
 
-            <h1 class="article-detail-title"><%= article.title || '' %></h1>
+<main id="main-content">
+  <section class="section article-detail-page-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
+          <article class="article-detail-card article-content">
+            <div class="article-detail-body">
+              <nav class="article-detail-breadcrumb" aria-label="Breadcrumb">
+                <a href="/">Home</a>
+                <span>/</span>
+                <a href="/articles">Artikel</a>
+                <span>/</span>
+                <span aria-current="page"><%= articleTitle %></span>
+              </nav>
 
-            <% if (article && article.excerpt) { %>
-              <p class="article-detail-excerpt text-muted-2">
-                <%= article.excerpt %>
-              </p>
-            <% } %>
+              <header class="article-detail-header">
+                <h1 class="article-detail-title"><%= articleTitle %></h1>
 
-            <% if (article && (article.image || article.thumbnail)) { %>
-              <div class="article-detail-thumb">
-                <img
-                  src="<%= article.image || article.thumbnail %>"
-                  alt="<%= article.title || '' %>"
-                  loading="eager"
-                >
+                <% if (articleExcerpt) { %>
+                  <p class="article-detail-excerpt text-muted-2">
+                    <%= articleExcerpt %>
+                  </p>
+                <% } %>
+              </header>
+
+              <% if (articleImage) { %>
+                <figure class="article-detail-thumb">
+                  <img
+                    src="<%= articleImage %>"
+                    alt="<%= articleTitle %>"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
+                  >
+                </figure>
+              <% } %>
+
+              <div class="article-detail-content">
+                <%- article && article.content ? article.content : '' %>
               </div>
-            <% } %>
 
-            <div class="article-detail-content">
-              <%- article && article.content ? article.content : '' %>
+              <div class="article-detail-actions">
+                <a href="/articles" class="secondary-success-btn">Kembali ke Artikel</a>
+              </div>
             </div>
-
-            <div class="article-detail-actions">
-              <a href="/articles" class="secondary-success-btn">Kembali ke Artikel</a>
-            </div>
-          </div>
-        </article>
+          </article>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<% if (Array.isArray(articles) && articles.length) { %>
-  <section class="section home-articles-section">
-    <div class="container">
-      <div class="section-heading text-center">
-        <h2 class="title">Baca Artikel Lainnya</h2>
-        <p class="section-subtitle">
-          Temukan artikel lain seputar kaos pria, outfit casual, tips memilih bahan yang nyaman,
-          dan inspirasi fashion pria yang lebih menarik untuk dipakai sehari-hari.
-        </p>
-      </div>
+  <% if (relatedArticles.length) { %>
+    <section class="section home-articles-section">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2 class="title">Baca Artikel Lainnya</h2>
+          <p class="section-subtitle">
+            Temukan artikel lain seputar kaos pria, outfit casual, tips memilih bahan yang nyaman,
+            dan inspirasi fashion pria yang lebih menarik untuk dipakai sehari-hari.
+          </p>
+        </div>
 
-      <div class="article-grid-responsive">
-        <% articles.forEach(function(item){ %>
-          <div class="article-grid-item">
-            <article class="article-card-modern">
-              <a href="/article/<%= item.slug %>" class="article-card-thumb">
-                <img
-                  src="<%= item.image || item.thumbnail || '/assets/images/placeholder-article.jpg' %>"
-                  alt="<%= item.title || '' %>"
-                  loading="lazy"
+        <div class="article-grid-responsive">
+          <% relatedArticles.forEach(function(item){ %>
+            <div class="article-grid-item">
+              <article class="article-card-modern">
+                <a
+                  href="/article/<%= item.slug %>"
+                  class="article-card-thumb"
+                  aria-label="<%= safeText(item.title) %>"
                 >
-              </a>
-
-              <div class="article-card-content">
-                <h3 class="article-card-title">
-                  <a href="/article/<%= item.slug %>"><%= item.title || '' %></a>
-                </h3>
-
-                <p class="article-card-excerpt">
-                  <%= item.excerpt || 'Baca artikel lengkap untuk mendapatkan referensi fashion pria yang lebih tepat dan mudah diterapkan.' %>
-                </p>
-
-                <a href="/article/<%= item.slug %>" class="read-more">
-                  Baca Selengkapnya →
+                  <img
+                    src="<%= item.image || item.thumbnail || '/assets/images/og-image.jpg' %>"
+                    alt="<%= safeText(item.title) %>"
+                    loading="lazy"
+                    decoding="async"
+                  >
                 </a>
-              </div>
-            </article>
-          </div>
-        <% }) %>
-      </div>
-    </div>
-  </section>
-<% } %>
 
-<% if (Array.isArray(products) && products.length) { %>
-  <section class="section recommended-products-section">
-    <div class="container">
-      <div class="section-heading text-center">
-        <h2 class="title">Rekomendasi Produk Pilihan</h2>
-        <p class="section-subtitle">
-          Lihat juga pilihan kaos pria yang kami kurasi untuk membantu Anda menemukan model yang nyaman,
-          menarik, dan layak dipertimbangkan.
-        </p>
-      </div>
+                <div class="article-card-content">
+                  <h3 class="article-card-title">
+                    <a href="/article/<%= item.slug %>"><%= item.title || '' %></a>
+                  </h3>
 
-      <div class="row product-grid-row">
-        <% products.forEach(function(product){ %>
-          <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
-            <%- include('partials/product-card', { product: product }) %>
-          </div>
-        <% }) %>
+                  <p class="article-card-excerpt">
+                    <%= item.excerpt || 'Baca artikel lengkap untuk mendapatkan referensi fashion pria yang lebih tepat dan mudah diterapkan.' %>
+                  </p>
+
+                  <a href="/article/<%= item.slug %>" class="read-more">
+                    Baca Selengkapnya →
+                  </a>
+                </div>
+              </article>
+            </div>
+          <% }) %>
+        </div>
       </div>
-    </div>
-  </section>
-<% } %>
+    </section>
+  <% } %>
+
+  <% if (relatedProducts.length) { %>
+    <section class="section recommended-products-section">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2 class="title">Rekomendasi Produk Pilihan</h2>
+          <p class="section-subtitle">
+            Lihat juga pilihan kaos pria yang kami kurasi untuk membantu Anda menemukan model yang nyaman,
+            menarik, dan layak dipertimbangkan.
+          </p>
+        </div>
+
+        <div class="row product-grid-row">
+          <% relatedProducts.forEach(function(product){ %>
+            <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
+              <%- include('partials/product-card', { product: product }) %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+</main>
 
 <%- include('partials/footer') %>
