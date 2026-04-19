@@ -4,55 +4,37 @@
 <%
   const safeText = (value = '') => String(value || '').trim();
   const productItems = Array.isArray(products) ? products : [];
-  const categoryItems = Array.isArray(categories) ? categories.filter(item => item && item.visible !== false) : [];
   const currentQuery = safeText(query);
   const currentCategory = safeText(category);
+
+  const pageTitle = currentCategory
+    ? `Rekomendasi Kaos ${currentCategory} Pria Pilihan`
+    : (currentQuery ? `Hasil Pencarian "${currentQuery}"` : 'Rekomendasi Kaos Pria Pilihan');
+
+  const pageSubtitle = currentCategory
+    ? `Temukan rekomendasi kaos ${currentCategory} pria terbaik yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang lebih rapi untuk membantu Anda memilih dengan lebih yakin.`
+    : (currentQuery
+      ? `Menampilkan hasil pencarian untuk "${currentQuery}" dari koleksi rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik yang sudah kami kurasi.`
+      : `Temukan rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang lebih rapi untuk membantu Anda memilih dengan lebih yakin.`);
 %>
 
 <main id="main-content">
   <section class="section shop-page-section">
     <div class="container">
       <div class="shop-page-header text-center">
-        <nav class="breadcrumb-wrap" aria-label="Breadcrumb">
-          <ol class="breadcrumb-list list-unstyled">
-            <li><a href="/">Home</a></li>
-            <li aria-current="page">Shop</li>
-          </ol>
-        </nav>
-
         <div class="section-title">
-          <h1 class="title">
-            <%= currentCategory ? `Rekomendasi Kaos ${currentCategory} Pria Pilihan` : (currentQuery ? `Hasil Pencarian: ${currentQuery}` : 'Rekomendasi Kaos Pria Pilihan') %>
-          </h1>
+          <h1 class="title"><%= pageTitle %></h1>
         </div>
 
         <p class="shop-page-subtitle">
-          <%= currentCategory
-            ? `Temukan rekomendasi kaos ${currentCategory} pria yang kami kurasi berdasarkan kenyamanan bahan, model kekinian, dan tampilan yang lebih rapi untuk kebutuhan harian.`
-            : (currentQuery
-              ? `Menampilkan hasil pencarian untuk "${currentQuery}" dari koleksi rekomendasi kaos pria, kaos oversize, dan pilihan fashion pria terbaik.`
-              : 'Temukan rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang lebih rapi untuk membantu Anda memilih dengan lebih yakin.') %>
+          <%= pageSubtitle %>
         </p>
-
-        <% if (categoryItems.length) { %>
-          <div class="popular-category-links text-center shop-category-links">
-            <a href="/shop" class="<%= !currentCategory ? 'active' : '' %>">Semua</a>
-            <% categoryItems.slice(0, 8).forEach(function(item){ %>
-              <a
-                href="/shop?category=<%= encodeURIComponent(item.name) %>"
-                class="<%= safeText(item.name).toLowerCase() === currentCategory.toLowerCase() ? 'active' : '' %>"
-              >
-                <%= item.name %>
-              </a>
-            <% }) %>
-          </div>
-        <% } %>
       </div>
 
       <% if (productItems.length) { %>
         <div class="row product-grid-row">
           <% productItems.forEach(function(product){ %>
-            <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
+            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 product-grid-item">
               <%- include('partials/product-card', { product: product }) %>
             </div>
           <% }) %>
