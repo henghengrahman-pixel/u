@@ -22,83 +22,38 @@
       return `${base}${raw.startsWith('/') ? raw : `/${raw}`}`;
     };
 
-    const truncate = (value = '', max = 160) => {
-      const text = clean(value).replace(/\s+/g, ' ');
-      if (text.length <= max) return text;
-      return `${text.slice(0, max - 3).trim()}...`;
-    };
-
     const isAdminPage = clean(currentPath).startsWith('/admin');
     const isArticlePage = clean(currentPath).startsWith('/article/');
-    const isShopFilter = clean(currentPath) === '/shop' && (clean(currentUrl).includes('?q=') || clean(currentUrl).includes('?category='));
+    const isShopFilter = clean(currentPath) === '/shop' && (clean(currentUrl).includes('?'));
 
     const storeName = clean(settings?.storeName || 'MWG Oversize');
-    const storeLogo = ensureAbsolute(settings?.logo || '/assets/images/logo.png');
     const defaultOgImage = ensureAbsolute(settings?.seo?.ogImage || '/assets/images/og-image.jpg');
-    const faviconUrl = ensureAbsolute(settings?.favicon || settings?.logo || '/assets/images/logo.png');
 
-    const pageTitle = clean(meta?.title || settings?.seo?.metaTitle);
-    const pageDescription = truncate(meta?.description || settings?.seo?.metaDescription, 160);
-    const pageKeywords = clean(meta?.keywords || settings?.seo?.keywords);
+    const pageTitle = clean(meta?.title);
+    const pageDescription = clean(meta?.description);
+    const pageKeywords = clean(meta?.keywords);
 
     const canonicalUrl = ensureAbsolute(meta?.canonical || currentUrl);
     const pageUrl = ensureAbsolute(meta?.url || canonicalUrl);
-    const pageImage = ensureAbsolute(meta?.image || defaultOgImage || storeLogo);
+    const pageImage = ensureAbsolute(meta?.image || defaultOgImage);
 
     let robotsValue = clean(meta?.robots);
 
-    if (isAdminPage) {
-      robotsValue = 'noindex,nofollow,noarchive';
-    }
-
-    if (isShopFilter) {
-      robotsValue = 'noindex,follow';
-    }
-
-    if (!robotsValue) {
-      robotsValue = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1';
-    }
+    if (isAdminPage) robotsValue = 'noindex,nofollow,noarchive';
+    if (isShopFilter) robotsValue = 'noindex,follow';
+    if (!robotsValue) robotsValue = 'index,follow';
 
     const bodyClass = isAdminPage ? 'admin-page' : '';
 
-    const structuredList = Array.isArray(structuredData)
-      ? structuredData.filter(Boolean)
-      : (structuredData ? [structuredData] : []);
+    /* ================= FIX DI SINI ================= */
+    const safeStructuredData =
+      typeof structuredData !== 'undefined'
+        ? structuredData
+        : null;
 
-    const hasSchemaType = (type) => {
-      return structuredList.some((schema) => {
-        const t = schema && schema['@type'];
-        return Array.isArray(t) ? t.includes(type) : t === type;
-      });
-    };
-
-    const schemaList = [];
-
-    if (!isAdminPage && !hasSchemaType('WebSite')) {
-      schemaList.push({
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: storeName,
-        url: clean(baseUrl),
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${clean(baseUrl)}/shop?q={search_term_string}`,
-          'query-input': 'required name=search_term_string'
-        }
-      });
-    }
-
-    if (!isAdminPage && !hasSchemaType('Organization')) {
-      schemaList.push({
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: storeName,
-        url: clean(baseUrl),
-        logo: storeLogo
-      });
-    }
-
-    structuredList.forEach(s => schemaList.push(s));
+    const structuredList = Array.isArray(safeStructuredData)
+      ? safeStructuredData.filter(Boolean)
+      : (safeStructuredData ? [safeStructuredData] : []);
   %>
 
   <title><%= pageTitle %></title>
@@ -111,17 +66,6 @@
 
   <link rel="canonical" href="<%= canonicalUrl %>">
 
-  <link rel="alternate" href="<%= canonicalUrl %>" hreflang="id-ID">
-  <link rel="alternate" href="<%= canonicalUrl %>" hreflang="x-default">
-
-  <% if (faviconUrl) { %>
-    <link rel="icon" href="<%= faviconUrl %>">
-    <link rel="shortcut icon" href="<%= faviconUrl %>">
-    <link rel="apple-touch-icon" href="<%= faviconUrl %>">
-  <% } %>
-
-  <meta property="og:locale" content="id_ID">
-  <meta property="og:site_name" content="<%= storeName %>">
   <meta property="og:type" content="<%= isArticlePage ? 'article' : 'website' %>">
   <meta property="og:title" content="<%= pageTitle %>">
   <meta property="og:description" content="<%= pageDescription %>">
@@ -133,7 +77,7 @@
   <meta name="twitter:description" content="<%= pageDescription %>">
   <meta name="twitter:image" content="<%= pageImage %>">
 
-  <% schemaList.forEach((schema) => { %>
+  <% structuredList.forEach((schema) => { %>
     <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
   <% }) %>
 
