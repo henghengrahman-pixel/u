@@ -1,43 +1,78 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
-<section class="section shop-page-section">
-  <div class="container">
-    <div class="shop-page-header text-center">
-      <div class="section-title">
-        <h1 class="title">Rekomendasi Kaos Pria Pilihan</h1>
-      </div>
+<%
+  const safeText = (value = '') => String(value || '').trim();
+  const productItems = Array.isArray(products) ? products : [];
+  const categoryItems = Array.isArray(categories) ? categories.filter(item => item && item.visible !== false) : [];
+  const currentQuery = safeText(query);
+  const currentCategory = safeText(category);
+%>
 
-      <p class="shop-page-subtitle">
-        Temukan rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik
-        yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang
-        lebih rapi untuk membantu Anda memilih dengan lebih yakin.
-      </p>
-    </div>
+<main id="main-content">
+  <section class="section shop-page-section">
+    <div class="container">
+      <div class="shop-page-header text-center">
+        <nav class="breadcrumb-wrap" aria-label="Breadcrumb">
+          <ol class="breadcrumb-list list-unstyled">
+            <li><a href="/">Home</a></li>
+            <li aria-current="page">Shop</li>
+          </ol>
+        </nav>
 
-    <% if (products && products.length) { %>
-      <div class="row product-grid-row">
-        <% products.forEach(function(product){ %>
-          <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
-            <%- include('partials/product-card', { product: product }) %>
+        <div class="section-title">
+          <h1 class="title">
+            <%= currentCategory ? `Rekomendasi Kaos ${currentCategory} Pria Pilihan` : (currentQuery ? `Hasil Pencarian: ${currentQuery}` : 'Rekomendasi Kaos Pria Pilihan') %>
+          </h1>
+        </div>
+
+        <p class="shop-page-subtitle">
+          <%= currentCategory
+            ? `Temukan rekomendasi kaos ${currentCategory} pria yang kami kurasi berdasarkan kenyamanan bahan, model kekinian, dan tampilan yang lebih rapi untuk kebutuhan harian.`
+            : (currentQuery
+              ? `Menampilkan hasil pencarian untuk "${currentQuery}" dari koleksi rekomendasi kaos pria, kaos oversize, dan pilihan fashion pria terbaik.`
+              : 'Temukan rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang lebih rapi untuk membantu Anda memilih dengan lebih yakin.') %>
+        </p>
+
+        <% if (categoryItems.length) { %>
+          <div class="popular-category-links text-center shop-category-links">
+            <a href="/shop" class="<%= !currentCategory ? 'active' : '' %>">Semua</a>
+            <% categoryItems.slice(0, 8).forEach(function(item){ %>
+              <a
+                href="/shop?category=<%= encodeURIComponent(item.name) %>"
+                class="<%= safeText(item.name).toLowerCase() === currentCategory.toLowerCase() ? 'active' : '' %>"
+              >
+                <%= item.name %>
+              </a>
+            <% }) %>
           </div>
-        <% }) %>
+        <% } %>
       </div>
-    <% } else { %>
-      <div class="row">
-        <div class="col-md-12">
-          <div class="empty-box text-center shop-empty-state">
-            <h3>Rekomendasi belum tersedia</h3>
-            <p>
-              Produk yang Anda cari belum tersedia saat ini. Silakan kembali ke beranda
-              atau jelajahi rekomendasi lainnya untuk menemukan pilihan yang lebih cocok.
-            </p>
-            <a href="/" class="primary-btn">Kembali ke Beranda</a>
+
+      <% if (productItems.length) { %>
+        <div class="row product-grid-row">
+          <% productItems.forEach(function(product){ %>
+            <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
+              <%- include('partials/product-card', { product: product }) %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="empty-box text-center shop-empty-state">
+              <h2>Rekomendasi belum tersedia</h2>
+              <p>
+                Produk yang Anda cari belum tersedia saat ini. Silakan kembali ke beranda
+                atau jelajahi rekomendasi lainnya untuk menemukan pilihan yang lebih cocok.
+              </p>
+              <a href="/" class="primary-btn">Kembali ke Beranda</a>
+            </div>
           </div>
         </div>
-      </div>
-    <% } %>
-  </div>
-</section>
+      <% } %>
+    </div>
+  </section>
+</main>
 
 <%- include('partials/footer') %>
