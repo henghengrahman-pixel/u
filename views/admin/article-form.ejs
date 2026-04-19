@@ -1,171 +1,179 @@
+<%
+  const itemData = typeof item !== 'undefined' && item ? item : null;
+  const isEdit = Boolean(itemData && itemData.id);
+%>
+
 <%- include('partials-top', {
-  pageTitle: item ? 'Edit Article' : 'Create Article',
-  pageDescription: 'Tulis artikel blog untuk memperkuat SEO, internal link, dan halaman konten website.'
+  pageTitle: isEdit ? 'Edit Article' : 'Create Article',
+  pageDescription: 'Tulis artikel blog untuk memperkuat SEO, internal linking, dan halaman konten website.'
 }) %>
 
 <div class="admin-card">
-  <form method="post" action="<%= item ? '/admin/articles/' + item.id + '/edit' : '/admin/articles/create' %>" class="admin-form">
-    <div class="row">
-      <div class="col-md-8">
-        <div class="row">
-          <div class="col-md-8">
-            <div class="form-group">
-              <label>Title</label>
-              <input
-                class="input"
-                name="title"
-                value="<%= item?.title || '' %>"
-                placeholder="Contoh: Cara Memilih Kaos Oversize Pria yang Nyaman"
-                required
-              >
-            </div>
-          </div>
+  <form
+    method="post"
+    action="<%= isEdit ? '/admin/articles/' + itemData.id + '/edit' : '/admin/articles/create' %>"
+    class="admin-form"
+  >
+    <div class="admin-grid">
 
-          <div class="col-md-4">
-            <div class="form-group">
-              <label>Slug</label>
-              <input
-                class="input"
-                name="slug"
-                value="<%= item?.slug || '' %>"
-                placeholder="otomatis jika kosong"
-              >
-            </div>
-          </div>
+      <div class="admin-col-8">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">Informasi Artikel</h3>
+          <p class="admin-section-subtitle">Isi artikel dengan struktur yang jelas dan relevan untuk SEO.</p>
 
-          <div class="col-md-12">
-            <div class="form-group">
-              <label>Excerpt</label>
-              <textarea
-                class="input"
-                name="excerpt"
-                placeholder="Ringkasan artikel singkat untuk card dan halaman artikel."
-              ><%= item?.excerpt || '' %></textarea>
+          <div class="admin-grid">
+            <div class="admin-col-8">
+              <div class="admin-form-group">
+                <label for="title">Title</label>
+                <input
+                  id="title"
+                  type="text"
+                  name="title"
+                  value="<%= itemData?.title || '' %>"
+                  placeholder="Contoh: Cara Memilih Kaos Oversize Pria yang Nyaman"
+                  required
+                >
+              </div>
             </div>
-          </div>
 
-          <div class="col-md-12">
-            <div class="form-group">
-              <label>Description</label>
-              <textarea
-                class="input"
-                name="description"
-                placeholder="Deskripsi singkat artikel untuk meta description dan ringkasan SEO."
-              ><%= item?.description || item?.excerpt || '' %></textarea>
+            <div class="admin-col-4">
+              <div class="admin-form-group">
+                <label for="slug">Slug</label>
+                <input
+                  id="slug"
+                  type="text"
+                  name="slug"
+                  value="<%= itemData?.slug || '' %>"
+                  placeholder="otomatis jika kosong"
+                >
+              </div>
             </div>
-          </div>
 
-          <div class="col-md-6">
-            <div class="form-group">
-              <label>Thumbnail URL</label>
-              <input
-                class="input"
-                type="url"
-                name="thumbnail"
-                value="<%= item?.thumbnail || '' %>"
-                placeholder="https://..."
-              >
+            <div class="admin-col-12">
+              <div class="admin-form-group">
+                <label for="excerpt">Excerpt</label>
+                <textarea
+                  id="excerpt"
+                  name="excerpt"
+                  rows="4"
+                  placeholder="Ringkasan artikel singkat untuk card dan halaman artikel."
+                  required
+                ><%= itemData?.excerpt || '' %></textarea>
+              </div>
             </div>
-          </div>
 
-          <div class="col-md-6">
-            <div class="form-group">
-              <label>Image URL</label>
-              <input
-                class="input"
-                type="url"
-                name="image"
-                value="<%= item?.image || item?.thumbnail || '' %>"
-                placeholder="https://..."
-                id="adminArticleImageInput"
-              >
-            </div>
-          </div>
-
-          <div class="col-md-12">
-            <div class="form-group">
-              <label>Content HTML</label>
-              <textarea
-                class="input textarea-lg"
-                name="content"
-                placeholder="<p>Isi artikel...</p>"
-              ><%= item?.content || '' %></textarea>
+            <div class="admin-col-12">
+              <div class="admin-form-group">
+                <label for="content">Content HTML</label>
+                <textarea
+                  id="content"
+                  class="textarea-lg"
+                  name="content"
+                  rows="18"
+                  placeholder="<p>Isi artikel...</p>"
+                  required
+                ><%= itemData?.content || '' %></textarea>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="admin-card" style="margin-bottom:0;background:#fafbff;">
-          <div class="admin-card-title">
-            <h4>Visibility & Preview</h4>
+      <div class="admin-col-4">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">Media & Visibility</h3>
+          <p class="admin-section-subtitle">Atur gambar utama dan status tampil artikel.</p>
+
+          <div class="admin-form-group">
+            <label for="image">Image URL</label>
+            <input
+              id="image"
+              type="url"
+              name="image"
+              value="<%= itemData?.image || itemData?.thumbnail || '' %>"
+              placeholder="https://..."
+            >
           </div>
 
-          <div class="admin-check-grid">
-            <label class="admin-check">
-              <input type="checkbox" name="visible" <%= item?.visible !== false ? 'checked' : '' %>>
-              Visible
-            </label>
+          <div class="admin-form-group">
+            <label for="thumbnail">Thumbnail URL</label>
+            <input
+              id="thumbnail"
+              type="url"
+              name="thumbnail"
+              value="<%= itemData?.thumbnail || itemData?.image || '' %>"
+              placeholder="https://..."
+            >
           </div>
 
-          <hr>
+          <div class="admin-form-group">
+            <label>Visibility</label>
+            <div class="admin-check-grid">
+              <label class="admin-check">
+                <input type="checkbox" name="visible" value="1" <%= itemData?.visible !== false ? 'checked' : '' %>>
+                <span>Visible</span>
+              </label>
+            </div>
+          </div>
 
-          <div class="form-group">
+          <div class="admin-form-group">
             <label>Preview Image</label>
             <img
               id="adminArticleImagePreview"
               class="admin-thumb-preview"
-              src="<%= item?.image || item?.thumbnail || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Article+Preview' %>"
+              src="<%= itemData?.image || itemData?.thumbnail || '/assets/images/og-image.jpg' %>"
               alt="Article Preview"
             >
           </div>
 
-          <div class="form-group">
+          <div class="admin-form-group">
             <label>Tips</label>
             <p class="text-muted-2" style="margin-bottom:0;">
-              Pakai judul yang jelas, slug pendek, image yang bagus, dan isi artikel yang relevan ke produk biar SEO lebih kuat.
+              Gunakan judul yang jelas, excerpt ringkas, gambar yang relevan, dan konten yang benar-benar membantu agar SEO lebih kuat.
             </p>
           </div>
         </div>
       </div>
 
-      <div class="col-md-12">
-        <div class="admin-card" style="background:#fafbff;">
-          <div class="admin-card-title">
-            <h4>SEO Article</h4>
-          </div>
+      <div class="admin-col-12">
+        <div class="admin-section-block">
+          <h3 class="admin-section-title">SEO Article</h3>
+          <p class="admin-section-subtitle">Atur title, description, dan keyword untuk hasil pencarian Google.</p>
 
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>SEO Title</label>
+          <div class="admin-grid">
+            <div class="admin-col-12">
+              <div class="admin-form-group">
+                <label for="seoTitle">SEO Title</label>
                 <input
-                  class="input"
+                  id="seoTitle"
+                  type="text"
                   name="seoTitle"
-                  value="<%= item?.seoTitle || '' %>"
-                  placeholder="Contoh: Cara Memilih Kaos Oversize Pria yang Nyaman - MWG Oversize"
+                  value="<%= itemData?.seoTitle || '' %>"
+                  placeholder="Contoh: Cara Memilih Kaos Oversize Pria yang Nyaman | MWG Oversize"
                 >
               </div>
             </div>
 
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>SEO Description</label>
+            <div class="admin-col-12">
+              <div class="admin-form-group">
+                <label for="seoDescription">SEO Description</label>
                 <textarea
-                  class="input"
+                  id="seoDescription"
                   name="seoDescription"
+                  rows="4"
                   placeholder="Deskripsi SEO singkat yang tampil di Google."
-                ><%= item?.seoDescription || item?.description || item?.excerpt || '' %></textarea>
+                ><%= itemData?.seoDescription || itemData?.description || itemData?.excerpt || '' %></textarea>
               </div>
             </div>
 
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>Keywords</label>
+            <div class="admin-col-12">
+              <div class="admin-form-group">
+                <label for="keywords">Keywords</label>
                 <input
-                  class="input"
+                  id="keywords"
+                  type="text"
                   name="keywords"
-                  value="<%= item?.keywords || '' %>"
+                  value="<%= itemData?.keywords || '' %>"
                   placeholder="kaos oversize pria, tips outfit pria, artikel fashion pria"
                 >
               </div>
@@ -174,31 +182,62 @@
         </div>
       </div>
 
-      <div class="col-md-12">
-        <div class="admin-actions mt-15">
-          <button class="primary-btn" type="submit"><%= item ? 'Update Article' : 'Save Article' %></button>
-          <a href="/admin/articles" class="btn btn-default">Back</a>
+      <div class="admin-col-12">
+        <div class="admin-form-footer">
+          <a href="/admin/articles" class="secondary-btn">Kembali</a>
+          <button class="primary-btn" type="submit">
+            <i class="fa fa-save"></i>
+            <span><%= isEdit ? 'Update Article' : 'Save Article' %></span>
+          </button>
         </div>
       </div>
+
     </div>
   </form>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var imageInput = document.getElementById('adminArticleImageInput');
+  (function () {
+    var imageInput = document.getElementById('image');
+    var thumbnailInput = document.getElementById('thumbnail');
     var preview = document.getElementById('adminArticleImagePreview');
+    var titleInput = document.getElementById('title');
+    var slugInput = document.getElementById('slug');
 
-    if (!imageInput || !preview) return;
+    if (!preview) return;
 
-    function updatePreview() {
-      var value = String(imageInput.value || '').trim();
-      preview.src = value || 'https://dummyimage.com/400x280/f1f5f9/64748b&text=Article+Preview';
+    function slugify(value) {
+      return String(value || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
     }
 
-    imageInput.addEventListener('input', updatePreview);
+    function updatePreview() {
+      var imageValue = String((imageInput && imageInput.value) || '').trim();
+      var thumbnailValue = String((thumbnailInput && thumbnailInput.value) || '').trim();
+      preview.src = imageValue || thumbnailValue || '/assets/images/og-image.jpg';
+    }
+
+    if (titleInput && slugInput) {
+      titleInput.addEventListener('input', function () {
+        if (!slugInput.dataset.touched || !slugInput.value.trim()) {
+          slugInput.value = slugify(titleInput.value);
+        }
+      });
+
+      slugInput.addEventListener('input', function () {
+        slugInput.dataset.touched = 'true';
+      });
+    }
+
+    if (imageInput) imageInput.addEventListener('input', updatePreview);
+    if (thumbnailInput) thumbnailInput.addEventListener('input', updatePreview);
+
     updatePreview();
-  });
+  })();
 </script>
 
 <%- include('partials-bottom') %>
