@@ -62,12 +62,18 @@ function defaultDescription() {
   return 'Temukan rekomendasi kaos pria terbaik, oversize premium, dan pilihan fashion pria kekinian dengan bahan nyaman serta model yang mudah dipadukan.';
 }
 
+/* ================= FIX UTAMA ================= */
+function resolveBaseUrl(settings = {}) {
+  return normalizeBaseUrl(
+    settings?.baseUrl ||
+    process.env.BASE_URL ||
+    ''
+  );
+}
+
 function makeMeta(input = {}, settings = {}) {
   const brand = siteName(settings);
-
-  const baseUrl =
-    normalizeBaseUrl(settings?.baseUrl) ||
-    normalizeBaseUrl(process.env.BASE_URL || '');
+  const baseUrl = resolveBaseUrl(settings);
 
   const titleRaw = clean(input.title);
   const descriptionRaw = clean(input.description);
@@ -98,30 +104,161 @@ function makeMeta(input = {}, settings = {}) {
   };
 }
 
-/* ================= PRODUCT SCHEMA ================= */
-function productSchema(product = {}, baseUrl = '') {
-  if (!product || !product.name) return null;
+/* ================= PRODUCT META ================= */
+function productMeta(product = {}, settings = {}) {
+  if (!product || typeof product !== 'object') {
+    return makeMeta({}, settings);
+  }
+
+  const name = clean(product.name);
+  const category = clean(product.category || 'pria');
+  const material = clean(product.material || 'premium');
+  const fit = clean(product.fit || 'nyaman');
+
+  return makeMeta({
+    title:
+      clean(product.seoTitle) ||
+      `${name} - Rekomendasi Kaos ${category} Terbaik`,
+    description:
+      clean(product.seoDescription) ||
+      `${name} merupakan salah satu rekomendasi kaos ${category} terbaik dengan bahan ${material} dan fit ${fit}. Cocok untuk outfit pria kekinian dan nyaman dipakai sehari-hari.`,
+    keywords:
+      keywordsToString(product.keywords) ||
+      keywordsToString([
+        name,
+        `kaos ${category}`,
+        'kaos pria terbaik',
+        'rekomendasi kaos pria',
+        'kaos oversize pria',
+        material,
+        fit
+      ]),
+    image: product.image,
+    canonical: `/product/${clean(product.slug)}`,
+    robots: 'index,follow'
+  }, settings);
+}
+
+/* ================= HOME ================= */
+function homeMeta(settings = {}) {
+  return makeMeta({
+    title: 'Rekomendasi Kaos Pria Terbaik, Oversize Premium & Fashion Kekinian',
+    description: 'Temukan rekomendasi kaos pria terbaik, kaos oversize premium, dan pilihan fashion pria kekinian yang nyaman dipakai untuk daily outfit.',
+    keywords: [
+      'rekomendasi kaos pria',
+      'kaos oversize pria',
+      'kaos pria terbaik',
+      'kaos distro pria',
+      'fashion pria kekinian'
+    ],
+    canonical: '/'
+  }, settings);
+}
+
+/* ================= SHOP ================= */
+function shopMeta(settings = {}, options = {}) {
+  const query = clean(options.query);
+  const category = clean(options.category);
+  const isFiltered = Boolean(query || category);
+
+  const title = category
+    ? `Rekomendasi Kaos ${category} Pria Terbaik`
+    : query
+      ? `Hasil Pencarian "${query}" - Rekomendasi Kaos Pria`
+      : 'Shop Rekomendasi Kaos Pria Terbaik';
+
+  const description = category
+    ? `Kumpulan rekomendasi kaos ${category} pria terbaik dengan bahan nyaman, model kekinian, dan pilihan terbaik untuk style harian.`
+    : query
+      ? `Hasil pencarian untuk "${query}" pada koleksi rekomendasi kaos pria terbaik.`
+      : 'Jelajahi koleksi rekomendasi kaos pria terbaik, oversize premium, dan fashion pria kekinian yang sudah dikurasi.';
+
+  return makeMeta({
+    title,
+    description,
+    keywords: [
+      'shop kaos pria',
+      'rekomendasi kaos pria',
+      'kaos oversize pria',
+      'kaos pria terbaik',
+      category,
+      query
+    ],
+    canonical: '/shop',
+    robots: isFiltered ? 'noindex,follow' : 'index,follow'
+  }, settings);
+}
+
+/* ================= ARTICLE ================= */
+function articleMeta(article = {}, settings = {}) {
+  const title = clean(article.title);
+  const description = clean(article.excerpt || article.summary || article.content);
+
+  return makeMeta({
+    title: title ? `${title} | Artikel Fashion Pria` : 'Artikel Fashion Pria',
+    description,
+    keywords: [
+      'artikel fashion pria',
+      'tips outfit pria',
+      title,
+      clean(article.category),
+      clean(article.keywords)
+    ],
+    image: article.image,
+    canonical: article.slug ? `/article/${clean(article.slug)}` : '/articles',
+    robots: 'index,follow'
+  }, settings);
+}
+
+/* ================= SCHEMA ================= */
+function organizationSchema(settings = {}) {
+  const brand = siteName(settings);
+  const baseUrl = resolveBaseUrl(settings);
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    image: [product.image],
-    description: stripHtml(product.description || product.shortDescription || ''),
-    sku: product.id,
-    brand: {
-      '@type': 'Brand',
-      name: product.brand || 'MWG Oversize'
-    },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'IDR',
-      price: product.price,
-      availability: product.status === 'sold_out'
-        ? 'https://schema.org/OutOfStock'
-        : 'https://schema.org/InStock',
-      url: absoluteUrl(`/product/${product.slug}`, baseUrl)
+    '@type': 'Organization',
+    name: brand,
+    url: baseUrl,
+    logo: absoluteUrl(settings?.logo || '/assets/images/logo.png', baseUrl)
+  };
+}
+
+function websiteSchema(settings = {}) {
+  const brand = siteName(settings);
+  const baseUrl = resolveBaseUrl(settings);
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: brand,
+    url: absoluteUrl('/', baseUrl),
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${absoluteUrl('/shop', baseUrl)}?q={search_term_string}`,
+      'query-input': 'required name=search_term_string'
     }
+  };
+}
+
+function breadcrumbSchema(items = [], settings = {}) {
+  const baseUrl = resolveBaseUrl(settings);
+
+  const normalizedItems = items
+    .filter((item) => item && item.name && item.url)
+    .map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: clean(item.name),
+      item: absoluteUrl(item.url, baseUrl)
+    }));
+
+  if (!normalizedItems.length) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: normalizedItems
   };
 }
 
@@ -130,5 +267,11 @@ module.exports = {
   truncate,
   absoluteUrl,
   makeMeta,
-  productSchema
+  productMeta,
+  homeMeta,
+  shopMeta,
+  articleMeta,
+  organizationSchema,
+  websiteSchema,
+  breadcrumbSchema
 };
