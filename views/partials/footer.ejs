@@ -1,13 +1,14 @@
 <%
-  const safeStoreName = settings?.storeName || 'MWG Oversize';
+  const safeText = (value = '') => String(value || '').trim();
+  const safeStoreName = safeText(settings?.storeName || 'MWG Oversize');
   const safeDescription =
-    settings?.seo?.metaDescription ||
+    safeText(settings?.seo?.metaDescription) ||
     'Rekomendasi kaos pria, kaos oversize, dan pilihan fashion pria terbaik dengan tampilan modern, bahan nyaman, dan referensi yang lebih mudah dipilih.';
-  const safeTelegram = settings?.telegram ? String(settings.telegram).replace('@', '').trim() : '';
-  const safeCategories = typeof categories !== 'undefined' && Array.isArray(categories) ? categories : [];
+  const safeTelegram = safeText(settings?.telegram).replace(/^@/, '');
+  const safeCategories = Array.isArray(categories) ? categories.filter(item => item && item.visible !== false) : [];
 %>
 
-<footer id="footer">
+<footer id="footer" class="site-footer-clean">
   <div class="section">
     <div class="container">
       <div class="row footer-grid">
@@ -15,9 +16,7 @@
         <div class="col-md-4 col-sm-6 col-xs-12">
           <div class="footer">
             <h3 class="footer-title">Tentang <%= safeStoreName %></h3>
-            <p>
-              <%= safeDescription %>
-            </p>
+            <p><%= safeDescription %></p>
 
             <ul class="footer-links">
               <% if (settings?.address) { %>
@@ -98,7 +97,7 @@
               <li><span>Kurasi produk lebih selektif</span></li>
               <li><span>Fokus pada model yang nyaman dipakai</span></li>
               <li><span>Referensi outfit pria lebih mudah dipilih</span></li>
-              <li><a href="/sitemap.xml">Sitemap</a></li>
+              <li><span>Tampilan lebih rapi dan mudah dijelajahi</span></li>
             </ul>
           </div>
         </div>
