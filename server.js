@@ -16,10 +16,6 @@ const IS_PROD = NODE_ENV === 'production';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'mwg-secret-change-this';
 const BASE_URL = normalizeBaseUrl(process.env.BASE_URL || '');
 
-if (IS_PROD && SESSION_SECRET === 'mwg-secret-change-this') {
-  console.warn('[SECURITY] SESSION_SECRET masih default. Ganti di environment production.');
-}
-
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
@@ -30,126 +26,68 @@ app.set('views', path.join(__dirname, 'views'));
 app.use((req, res, next) => {
   setSecurityHeaders(res);
 
-  const isAdminRoute = req.path.startsWith('/admin');
-  const isHealthRoute = req.path === '/healthz';
+  const path = req.path || '';
+  const isAdmin = path.startsWith('/admin');
+  const isHealth = path === '/healthz';
 
-  if (isAdminRoute || isHealthRoute) {
-    setRobotsHeader(res, 'noindex, nofollow, noarchive');
+  if (isAdmin || isHealth) {
+    res.setHeader('X-Robots-Tag', 'noindex,nofollow,noarchive');
   } else {
-    clearRobotsHeader(res);
+    res.setHeader('X-Robots-Tag', 'index,follow');
   }
 
-  return next();
+  next();
 });
 
-/* ================= CANONICAL HOST / PROTOCOL ================= */
+/* ================= CANONICAL HOST ================= */
 app.use((req, res, next) => {
   if (!IS_PROD || !BASE_URL) return next();
 
   try {
     const target = new URL(BASE_URL);
-    const forwardedProto = String(req.headers['x-forwarded-proto'] || req.protocol || 'http')
-      .split(',')[0]
-      .trim()
-      .toLowerCase();
-    const requestHost = String(req.get('host') || '').trim().toLowerCase();
-    const targetHost = String(target.host || '').trim().toLowerCase();
-    const targetProto = String(target.protocol || 'https:').replace(':', '').toLowerCase();
+    const host = req.get('host');
+    const proto = (req.headers['x-forwarded-proto'] || req.protocol).split(',')[0];
 
-    if (requestHost && (requestHost !== targetHost || forwardedProto !== targetProto)) {
-      const redirectUrl = new URL(req.originalUrl || '/', BASE_URL).toString();
-      return res.redirect(301, redirectUrl);
+    if (host !== target.host || proto !== target.protocol.replace(':', '')) {
+      return res.redirect(301, BASE_URL + req.originalUrl);
     }
-  } catch (error) {
-    console.error('[BASE_URL REDIRECT ERROR]', error);
-  }
+  } catch (e) {}
 
-  return next();
+  next();
 });
 
-/* ================= TRAILING SLASH NORMALIZE ================= */
+/* ================= TRAILING SLASH ================= */
 app.use((req, res, next) => {
-  if (req.path.length > 1 && /\/$/.test(req.path)) {
-    const cleanPath = req.path.replace(/\/+$/, '');
-    const queryIndex = req.originalUrl.indexOf('?');
-    const query = queryIndex >= 0 ? req.originalUrl.slice(queryIndex) : '';
-    return res.redirect(301, `${cleanPath}${query}`);
+  if (req.path.length > 1 && req.path.endsWith('/')) {
+    return res.redirect(301, req.path.slice(0, -1));
   }
-
-  return next();
+  next();
 });
 
 /* ================= BODY ================= */
-app.use(express.urlencoded({ extended: true, limit: '2mb' }));
-app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 /* ================= STATIC ================= */
 app.use('/assets', express.static(path.join(__dirname, 'public'), {
-  index: false,
-  redirect: false,
-  etag: true,
-  lastModified: true,
-  maxAge: IS_PROD ? '7d' : 0,
-  setHeaders(res, filePath) {
-    if (/\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot)$/i.test(filePath)) {
-      res.setHeader(
-        'Cache-Control',
-        IS_PROD
-          ? 'public, max-age=604800, stale-while-revalidate=86400'
-          : 'no-cache'
-      );
-    }
-  }
+  maxAge: IS_PROD ? '7d' : 0
 }));
 
 /* ================= SESSION ================= */
 app.use(session({
-  name: process.env.SESSION_NAME || 'mwg.sid',
+  name: 'mwg.sid',
   secret: SESSION_SECRET,
-  proxy: IS_PROD,
   resave: false,
   saveUninitialized: false,
-  rolling: false,
-  unset: 'destroy',
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: 'auto',
-    maxAge: 1000 * 60 * 60 * 24 * 7
+    secure: 'auto'
   }
 }));
 
-/* ================= DEFAULT LOCALS ================= */
-app.use((req, res, next) => {
-  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`.replace(/\/+$/, '');
-  const currentPath = req.path || '/';
-  const currentUrl = `${baseUrl}${req.originalUrl || '/'}`;
-  const storeName = process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
-
-  res.locals.baseUrl = baseUrl;
-  res.locals.currentPath = currentPath;
-  res.locals.currentUrl = currentUrl;
-  res.locals.meta = {
-    title: `${storeName} - Rekomendasi Kaos Pria Terbaik`,
-    description: 'Temukan rekomendasi kaos pria terbaik mulai dari oversize hingga distro premium dengan bahan nyaman dan desain kekinian.',
-    keywords: 'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik',
-    image: `${baseUrl}/assets/images/og-image.jpg`,
-    url: currentUrl,
-    canonical: currentUrl,
-    robots: currentPath.startsWith('/admin') ? 'noindex,nofollow,noarchive' : 'index,follow'
-  };
-
-  return next();
-});
-
 /* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
-
-/* ================= HEALTH ================= */
-app.get('/healthz', (req, res) => {
-  setRobotsHeader(res, 'noindex, nofollow, noarchive');
-  return res.status(200).json({ ok: true });
-});
 
 /* ================= ROUTES ================= */
 app.use('/', require('./routes/system'));
@@ -158,71 +96,28 @@ app.use('/admin', require('./routes/admin'));
 
 /* ================= 404 ================= */
 app.use((req, res) => {
-  const storeName = res.locals.settings?.storeName || process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
-
-  setRobotsHeader(res, 'noindex, follow');
+  res.setHeader('X-Robots-Tag', 'noindex,nofollow');
 
   res.status(404);
-  res.locals.meta = {
-    ...res.locals.meta,
-    title: `Halaman Tidak Ditemukan | ${storeName}`,
-    description: 'Halaman yang kamu cari tidak tersedia atau sudah dipindahkan.',
-    canonical: res.locals.currentUrl,
-    url: res.locals.currentUrl,
-    robots: 'noindex,follow'
-  };
-
   return res.render('404');
 });
 
 /* ================= ERROR ================= */
 app.use((err, req, res, next) => {
-  const storeName = res.locals.settings?.storeName || process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
-
   console.error(err);
 
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
 
-  setRobotsHeader(res, 'noindex, nofollow');
+  res.setHeader('X-Robots-Tag', 'noindex,nofollow');
 
   res.status(500);
-  res.locals.meta = {
-    ...res.locals.meta,
-    title: `Server Error | ${storeName}`,
-    description: 'Terjadi kesalahan pada server.',
-    canonical: res.locals.currentUrl,
-    url: res.locals.currentUrl,
-    robots: 'noindex,nofollow'
-  };
-
   return res.render('500');
 });
 
 /* ================= START ================= */
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`[ENV] NODE_ENV=${NODE_ENV}`);
 });
-
-/* ================= SHUTDOWN ================= */
-function shutdown(signal) {
-  console.log(`[SERVER] ${signal} received. Closing server...`);
-
-  server.close(() => {
-    console.log('[SERVER] Closed cleanly.');
-    process.exit(0);
-  });
-
-  setTimeout(() => {
-    console.error('[SERVER] Force shutdown.');
-    process.exit(1);
-  }, 10000).unref();
-}
-
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 /* ================= HELPERS ================= */
 function normalizeBaseUrl(value) {
@@ -240,18 +135,8 @@ function setSecurityHeaders(res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  res.setHeader('Permissions-Policy', 'accelerometer=(), autoplay=(), camera=(), geolocation=(), microphone=(), payment=(), usb=()');
 
   if (IS_PROD) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
-}
-
-function setRobotsHeader(res, value) {
-  res.setHeader('X-Robots-Tag', value);
-}
-
-function clearRobotsHeader(res) {
-  res.removeHeader('X-Robots-Tag');
 }
