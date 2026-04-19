@@ -1,132 +1,209 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
-<section class="section shop-page-section seo-landing-section">
-  <div class="container">
+<%
+  const safeText = (value = '') => String(value || '').trim();
+  const productItems = Array.isArray(products) ? products : [];
+  const articleItems = Array.isArray(articles) ? articles : [];
 
-    <!-- HERO -->
-    <div class="shop-page-header">
-      <div class="section-title">
-        <h1 class="title">Kaos Oversize Pria</h1>
-      </div>
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Bagaimana cara memilih kaos oversize pria yang nyaman?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Pilih bahan yang nyaman, ukuran yang tetap proporsional, model yang mudah dipadukan, dan cek detail produk serta ulasan sebelum membeli.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Apakah kaos oversize pria cocok untuk outfit harian?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Ya. Kaos oversize pria cocok untuk outfit harian karena memberi kesan santai, modern, dan mudah dipadukan dengan jeans, chino, atau celana casual.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Apa yang perlu dicek sebelum membeli kaos oversize pria?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Cek bahan, fit, ukuran, detail foto, variasi warna, dan review pembeli agar pilihan lebih aman dan sesuai kebutuhan.'
+        }
+      }
+    ]
+  };
+%>
 
-      <p class="shop-page-subtitle">
-        Temukan rekomendasi kaos oversize pria dengan bahan nyaman, tampilan clean, dan model kekinian untuk gaya harian.
-      </p>
-    </div>
+<main id="main-content">
+  <section class="section seo-landing-section">
+    <div class="container">
+      <nav class="product-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span aria-current="page">Kaos Oversize Pria</span>
+      </nav>
 
-    <!-- SEO CONTENT TOP -->
-    <div class="admin-card" style="margin-bottom:30px;">
-      <div class="article-content">
-        <h2>Rekomendasi Kaos Oversize Pria Terbaik</h2>
-
-        <p>
-          Kaos oversize pria menjadi pilihan populer karena nyaman, mudah dipadukan, dan cocok untuk gaya casual modern.
-          Model ini memberikan kesan santai namun tetap rapi untuk aktivitas sehari-hari.
-        </p>
-
-        <p>
-          Saat memilih kaos oversize pria, penting untuk memperhatikan bahan, ukuran, dan kenyamanan.
-          Pilih bahan adem seperti cotton combed agar tetap nyaman dipakai di iklim tropis.
-        </p>
-
-        <h2>Cara Memilih Kaos Oversize Pria</h2>
-        <ul>
-          <li>Pilih bahan yang adem dan tidak panas.</li>
-          <li>Pastikan ukuran tetap proporsional.</li>
-          <li>Pilih warna netral agar mudah dipadukan.</li>
-          <li>Cek detail produk sebelum membeli.</li>
-        </ul>
-
-        <p>
-          Lihat juga koleksi lainnya di
-          <a href="/shop">halaman shop</a>.
-        </p>
-      </div>
-    </div>
-
-    <!-- PRODUCT GRID -->
-    <% if (Array.isArray(products) && products.length) { %>
-      <div class="row">
-        <% products.forEach(function(product){ %>
-          <div class="col-md-3 col-sm-6 col-xs-6">
-            <%- include('partials/product-card', { product }) %>
-          </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <div class="empty-box text-center">
-        <h3>Produk belum tersedia</h3>
-        <p>Produk kaos oversize pria akan segera ditampilkan.</p>
-      </div>
-    <% } %>
-
-    <!-- SEO CONTENT BOTTOM -->
-    <div class="admin-card" style="margin-top:30px;">
-      <div class="article-content">
-        <h2>Kenapa Kaos Oversize Pria Banyak Dicari?</h2>
-
-        <p>
-          Kaos oversize pria populer karena memberikan tampilan modern, nyaman, dan fleksibel dipadukan dengan berbagai outfit.
-        </p>
-
-        <h2>Kaos Oversize Cocok untuk Siapa?</h2>
-
-        <p>
-          Model ini cocok untuk berbagai tipe tubuh dan aktivitas, mulai dari harian hingga streetwear.
-        </p>
-      </div>
-    </div>
-
-    <!-- ARTICLES -->
-    <% if (Array.isArray(articles) && articles.length) { %>
-      <section class="section home-articles-section" style="padding-bottom:0;">
-        <div class="home-section-head">
-          <div class="section-title">
-            <h2 class="title">Artikel Terkait</h2>
-          </div>
-          <p class="home-section-subtitle">
-            Baca juga panduan dan rekomendasi lainnya.
-          </p>
+      <div class="shop-page-header text-center">
+        <div class="section-title">
+          <h1 class="title">Kaos Oversize Pria</h1>
         </div>
 
-        <div class="row">
-          <% articles.forEach(function(article){ %>
-            <div class="col-md-4 col-sm-6 col-xs-12">
-              <article class="admin-card article-card home-article-card">
+        <p class="shop-page-subtitle">
+          Temukan rekomendasi kaos oversize pria dengan bahan nyaman, model kekinian,
+          dan tampilan yang tetap rapi untuk gaya harian yang lebih modern.
+        </p>
+      </div>
 
-                <a href="/article/<%= article.slug %>">
-                  <img
-                    src="<%= article.image || article.thumbnail || '' %>"
-                    alt="<%= article.title %>"
-                    loading="lazy"
-                  >
-                </a>
+      <div class="seo-content-block article-content">
+        <h2>Rekomendasi Kaos Oversize Pria Terbaik</h2>
+        <p>
+          Kaos oversize pria menjadi salah satu model yang paling banyak dicari karena nyaman dipakai,
+          mudah dipadukan, dan cocok untuk berbagai gaya casual modern. Potongan yang lebih longgar
+          memberi kesan santai, tetapi tetap bisa terlihat rapi saat dipadukan dengan outfit yang tepat.
+        </p>
+        <p>
+          Di halaman ini kamu bisa menemukan pilihan <strong>kaos oversize pria</strong> yang sudah dikurasi
+          berdasarkan kenyamanan bahan, model yang relevan untuk dipakai harian, serta tampilan yang lebih
+          aman dipilih untuk gaya casual, streetwear ringan, sampai outfit santai sehari-hari.
+        </p>
+      </div>
 
-                <div class="article-card-content">
-                  <h3>
-                    <a href="/article/<%= article.slug %>">
-                      <%= article.title %>
-                    </a>
-                  </h3>
-
-                  <% if (article.excerpt) { %>
-                    <p><%= article.excerpt %></p>
-                  <% } %>
-
-                  <a href="/article/<%= article.slug %>">
-                    Baca Selengkapnya →
-                  </a>
-                </div>
-
-              </article>
+      <% if (productItems.length) { %>
+        <div class="row product-grid-row">
+          <% productItems.forEach(function(product){ %>
+            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 product-grid-item">
+              <%- include('partials/product-card', { product: product }) %>
             </div>
           <% }) %>
         </div>
-      </section>
-    <% } %>
+      <% } else { %>
+        <div class="empty-box text-center">
+          <h2>Produk belum tersedia</h2>
+          <p>Produk kaos oversize pria akan segera ditampilkan di halaman ini.</p>
+        </div>
+      <% } %>
 
-  </div>
-</section>
+      <div class="seo-content-block article-content">
+        <h2>Cara Memilih Kaos Oversize Pria</h2>
+        <p>
+          Saat memilih kaos oversize pria, ada beberapa hal penting yang sebaiknya diperhatikan agar hasilnya
+          tidak hanya bagus dilihat, tetapi juga nyaman dipakai dalam aktivitas harian.
+        </p>
+
+        <ul>
+          <li>Pilih bahan yang nyaman dan tidak terasa gerah saat dipakai.</li>
+          <li>Pastikan fit oversize tetap proporsional dan tidak terlalu berlebihan.</li>
+          <li>Pilih warna atau model yang mudah dipadukan dengan outfit harian.</li>
+          <li>Cek detail produk, foto, variasi, dan ulasan sebelum membeli.</li>
+        </ul>
+
+        <p>
+          Kalau kamu ingin melihat pilihan model lain, kamu juga bisa lanjut ke
+          <a href="/shop">halaman shop</a> untuk membandingkan kategori kaos pria lainnya.
+        </p>
+      </div>
+
+      <div class="seo-content-block article-content">
+        <h2>Kenapa Kaos Oversize Pria Banyak Dicari?</h2>
+        <p>
+          Kaos oversize pria populer karena memberi keseimbangan antara kenyamanan dan tampilan modern.
+          Model ini cocok untuk kamu yang ingin outfit santai, tetapi tetap terlihat clean dan mudah dipadukan
+          dengan bawahan yang sederhana.
+        </p>
+
+        <h2>Kaos Oversize Cocok untuk Siapa?</h2>
+        <p>
+          Model ini cocok untuk berbagai kebutuhan, mulai dari outfit harian, nongkrong, sampai gaya casual
+          yang lebih santai. Dengan pilihan bahan dan ukuran yang tepat, kaos oversize bisa dipakai oleh
+          berbagai tipe tubuh tanpa membuat tampilan terlihat berlebihan.
+        </p>
+      </div>
+
+      <section class="section product-faq-section">
+        <div class="section-heading text-center">
+          <h2>Pertanyaan yang Sering Ditanyakan</h2>
+        </div>
+
+        <div class="faq-list">
+          <article class="faq-item">
+            <h3>Bagaimana cara memilih kaos oversize pria yang nyaman?</h3>
+            <p>
+              Fokus pada bahan, ukuran yang tetap proporsional, model yang mudah dipadukan,
+              serta cek detail produk dan review sebelum membeli.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Apakah kaos oversize pria cocok untuk outfit harian?</h3>
+            <p>
+              Ya, kaos oversize pria cocok untuk outfit harian karena memberi kesan santai,
+              modern, dan tetap fleksibel dipadukan dengan berbagai bawahan.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Apa yang perlu dicek sebelum membeli?</h3>
+            <p>
+              Cek bahan, fit, ukuran, foto produk, variasi, dan ulasan pembeli agar pilihan
+              lebih aman dan sesuai kebutuhan.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <% if (articleItems.length) { %>
+        <section class="section home-articles-section">
+          <div class="section-heading text-center">
+            <h2 class="title">Artikel Terkait</h2>
+            <p class="section-subtitle">
+              Baca juga panduan dan rekomendasi lain seputar kaos pria dan fashion harian.
+            </p>
+          </div>
+
+          <div class="article-grid-responsive">
+            <% articleItems.forEach(function(article){ %>
+              <div class="article-grid-item">
+                <article class="article-card-modern">
+                  <a
+                    href="/article/<%= article.slug %>"
+                    class="article-card-thumb"
+                    aria-label="<%= safeText(article.title) %>"
+                  >
+                    <img
+                      src="<%= article.image || article.thumbnail || '/assets/images/og-image.jpg' %>"
+                      alt="<%= safeText(article.title) %>"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  </a>
+
+                  <div class="article-card-content">
+                    <h3 class="article-card-title">
+                      <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                    </h3>
+
+                    <p class="article-card-excerpt">
+                      <%= article.excerpt || 'Baca panduan lengkap untuk membantu memilih kaos pria yang lebih tepat dan nyaman dipakai.' %>
+                    </p>
+
+                    <a href="/article/<%= article.slug %>" class="read-more">
+                      Baca Selengkapnya →
+                    </a>
+                  </div>
+                </article>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
+    </div>
+  </section>
+</main>
 
 <%- include('partials/footer') %>
