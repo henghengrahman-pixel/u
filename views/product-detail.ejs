@@ -2,161 +2,468 @@
 <%- include('partials/header') %>
 
 <%
-const safeText = (value = '') => String(value || '').trim();
-const stripHtml = (value = '') => safeText(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const safeText = (value = '') => String(value || '').trim();
+  const stripHtml = (value = '') => safeText(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-const productName = safeText(product?.name || 'Produk');
-const productSlug = safeText(product?.slug || '');
-const productCategory = safeText(product?.category || 'Pria');
-const productFit = safeText(product?.fit || 'Oversize');
-const productMaterial = safeText(product?.material || 'Premium Cotton');
-const productPrice = Number(product?.price || 0);
-const productComparePrice = Number(product?.compareAtPrice || 0);
+  const productName = safeText(product?.name || 'Produk');
+  const productSlug = safeText(product?.slug || '');
+  const productCategory = safeText(product?.category || 'Pria');
+  const productFit = safeText(product?.fit || 'Oversize');
+  const productMaterial = safeText(product?.material || 'Premium Cotton');
+  const productPrice = Number(product?.price || 0);
+  const productComparePrice = Number(product?.compareAtPrice || 0);
 
-const shortDescription =
-  safeText(product?.shortDescription) ||
-  `${productName} adalah rekomendasi kaos ${productCategory.toLowerCase()} dengan bahan ${productMaterial} dan fit ${productFit.toLowerCase()} yang nyaman dipakai harian.`;
+  const shortDescription =
+    safeText(product?.shortDescription) ||
+    `${productName} adalah rekomendasi kaos ${productCategory.toLowerCase()} dengan bahan ${productMaterial} dan fit ${productFit.toLowerCase()} yang nyaman dipakai harian.`;
 
-const cleanDescription =
-  stripHtml(product?.description) ||
-  'Cocok untuk outfit harian, gaya casual, dan tampilan yang lebih rapi tanpa terlihat berlebihan.';
+  const cleanDescription =
+    stripHtml(product?.description) ||
+    'Cocok untuk outfit harian, gaya casual, dan tampilan yang lebih rapi tanpa terlihat berlebihan.';
 
-const detailText =
-  stripHtml(product?.details) ||
-  'Produk ini layak dipertimbangkan untuk kamu yang ingin kaos nyaman, mudah dipadukan, dan tetap terlihat modern.';
+  const detailText =
+    stripHtml(product?.details) ||
+    'Produk ini layak dipertimbangkan untuk kamu yang ingin kaos nyaman, mudah dipadukan, dan tetap terlihat modern.';
 
-const relatedProducts = Array.isArray(recommended) ? recommended : [];
+  const relatedProducts = Array.isArray(recommended) ? recommended : [];
 
-const galleryImages = [];
-const firstImage = safeText(product?.image || '');
+  const galleryImages = [];
+  const firstImage = safeText(product?.image || '');
 
-if (firstImage) galleryImages.push(firstImage);
+  if (firstImage) galleryImages.push(firstImage);
 
-if (Array.isArray(product?.images)) {
-  product.images.forEach(function (img) {
-    const imageUrl = safeText(img);
-    if (imageUrl && !galleryImages.includes(imageUrl)) {
-      galleryImages.push(imageUrl);
-    }
-  });
-}
-
-if (!galleryImages.length) {
-  galleryImages.push('/assets/images/og-image.jpg');
-}
-
-const sellingPoints = [
-  `Bahan ${productMaterial} nyaman untuk dipakai harian`,
-  `Model ${productFit} memberi tampilan lebih modern`,
-  `Mudah dipadukan dengan jeans, chino, atau outer`,
-  `Bisa cek ukuran, variasi, dan ulasan langsung di marketplace`
-];
-
-/* ================= SCHEMA SEO ================= */
-const baseUrl = (typeof locals !== 'undefined' && locals.baseUrl) ? locals.baseUrl : '';
-
-const productSchema = {
-  "@context": "https://schema.org",
-  "@type": "Product",
-  "name": productName,
-  "image": galleryImages,
-  "description": cleanDescription,
-  "sku": productSlug,
-  "brand": {
-    "@type": "Brand",
-    "name": "MWG Oversize"
-  },
-  "offers": {
-    "@type": "Offer",
-    "priceCurrency": "IDR",
-    "price": productPrice,
-    "availability": "https://schema.org/InStock",
-    "url": baseUrl + '/product/' + productSlug
-  }
-};
-
-const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Home",
-      "item": baseUrl + "/"
-    },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "Shop",
-      "item": baseUrl + "/shop"
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": productCategory,
-      "item": baseUrl + "/shop?category=" + encodeURIComponent(productCategory)
-    },
-    {
-      "@type": "ListItem",
-      "position": 4,
-      "name": productName,
-      "item": baseUrl + "/product/" + productSlug
-    }
-  ]
-};
-
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": `Apakah ${productName} nyaman dipakai?`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": `${productName} menggunakan bahan ${productMaterial} yang nyaman dipakai untuk aktivitas harian.`
+  if (Array.isArray(product?.images)) {
+    product.images.forEach(function (img) {
+      const imageUrl = safeText(img);
+      if (imageUrl && !galleryImages.includes(imageUrl)) {
+        galleryImages.push(imageUrl);
       }
-    }
-  ]
-};
+    });
+  }
+
+  if (!galleryImages.length) {
+    galleryImages.push('/assets/images/og-image.jpg');
+  }
+
+  const sellingPoints = [
+    `Bahan ${productMaterial} nyaman untuk dipakai harian`,
+    `Model ${productFit} memberi tampilan lebih modern`,
+    `Mudah dipadukan dengan jeans, chino, atau outer`,
+    `Bisa cek ukuran, variasi, dan ulasan langsung di marketplace`
+  ];
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `Apakah ${productName} nyaman dipakai?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${productName} menggunakan bahan ${productMaterial} yang nyaman dipakai untuk aktivitas harian.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Apakah ${productName} cocok untuk outfit harian?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `${productName} cocok untuk gaya casual dan outfit harian karena modelnya mudah dipadukan dan tetap terlihat rapi.`
+        }
+      },
+      {
+        '@type': 'Question',
+        name: `Bagaimana cara cek ukuran dan review ${productName}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Detail ukuran, variasi, dan review pembeli bisa langsung dicek melalui halaman marketplace dari tombol CTA di halaman ini.`
+        }
+      }
+    ]
+  };
 %>
 
 <main id="main-content">
-<section class="section product-detail-section">
-<div class="container">
+  <section class="section product-detail-section">
+    <div class="container">
+      <nav class="product-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/shop">Shop</a>
+        <% if (productCategory) { %>
+          <span>/</span>
+          <a href="/shop?category=<%= encodeURIComponent(productCategory) %>"><%= productCategory %></a>
+        <% } %>
+        <span>/</span>
+        <span aria-current="page"><%= productName %></span>
+      </nav>
 
-<nav class="product-breadcrumb">
-<a href="/">Home</a> /
-<a href="/shop">Shop</a> /
-<span><%= productName %></span>
-</nav>
+      <div class="row product-detail-row">
+        <div class="col-md-6 product-gallery-column">
+          <div class="product-gallery-wrap">
+            <div class="product-main-preview" id="product-main-preview">
+              <button type="button" class="product-zoom-btn" id="open-image-popup" aria-label="Lihat gambar lebih besar">
+                <i class="fa fa-search-plus"></i>
+              </button>
 
-<div class="row">
-<div class="col-md-6">
-<img src="<%= galleryImages[0] %>" alt="<%= productName %>" class="img-responsive">
-</div>
+              <img
+                id="main-product-image"
+                src="<%= galleryImages[0] %>"
+                alt="<%= productName %> - kaos <%= productCategory.toLowerCase() %>"
+                decoding="async"
+                fetchpriority="high"
+              >
+            </div>
 
-<div class="col-md-6">
-<h1><%= productName %> – Kaos Oversize Pria Premium</h1>
+            <% if (galleryImages.length > 1) { %>
+              <div class="thumb-list" id="product-thumb-list">
+                <% galleryImages.forEach(function(img, i){ %>
+                  <button
+                    type="button"
+                    class="product-thumb-item <%= i === 0 ? 'active' : '' %>"
+                    data-image="<%= img %>"
+                    aria-label="Lihat foto <%= i + 1 %> <%= productName %>"
+                  >
+                    <img
+                      src="<%= img %>"
+                      alt="<%= productName %> foto <%= i + 1 %>"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  </button>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
 
-<p>IDR <%= productPrice.toLocaleString('id-ID') %></p>
+        <div class="col-md-6 product-info-column">
+          <article class="product-details product-details-clean">
+            <h1 class="product-name"><%= productName %></h1>
 
-<p><%= shortDescription %></p>
+            <div class="product-price-wrap product-price-wrap-clean">
+              <div class="product-price" aria-label="Harga produk">
+                IDR <%= productPrice.toLocaleString('id-ID') %>
+              </div>
 
-<a href="/go/<%= productSlug %>" target="_blank" rel="nofollow sponsored" class="btn btn-primary">
-🔥 Cek Harga
-</a>
-</div>
-</div>
+              <% if (productComparePrice > 0) { %>
+                <div class="product-old-price-wrap">
+                  <del class="product-old-price">
+                    IDR <%= productComparePrice.toLocaleString('id-ID') %>
+                  </del>
+                </div>
+              <% } %>
 
-</div>
-</section>
+              <span class="product-available">✔ Stok tersedia</span>
+            </div>
 
-<script type="application/ld+json"><%- JSON.stringify(productSchema) %></script>
-<script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema) %></script>
-<script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
+            <p class="product-short-description">
+              <%= shortDescription %>
+            </p>
 
+            <ul class="product-selling-points">
+              <% sellingPoints.forEach(function(point){ %>
+                <li><%= point %></li>
+              <% }) %>
+            </ul>
+
+            <div class="product-buy-actions">
+              <a
+                href="/go/<%= productSlug %>"
+                target="_blank"
+                rel="nofollow sponsored noopener"
+                class="add-to-cart-btn"
+                aria-label="Cek harga dan detail <%= productName %>"
+              >
+                🔥 Cek Harga &amp; Detail
+              </a>
+
+              <a
+                href="/go/<%= productSlug %>"
+                target="_blank"
+                rel="nofollow sponsored noopener"
+                class="buy-now-btn"
+                aria-label="Lihat review dan variasi <%= productName %>"
+              >
+                Lihat Review &amp; Variasi
+              </a>
+            </div>
+
+            <div class="product-meta-card">
+              <ul class="product-links product-links-clean">
+                <li><span>Kategori</span><strong><a href="/shop?category=<%= encodeURIComponent(productCategory) %>"><%= productCategory %></a></strong></li>
+                <li><span>Fit</span><strong><%= productFit %></strong></li>
+                <li><span>Material</span><strong><%= productMaterial %></strong></li>
+              </ul>
+            </div>
+
+            <div class="product-inline-link">
+              <a href="/kaos-oversize-pria">Lihat rekomendasi kaos oversize lainnya</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section product-content-section">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Ringkasan Produk</h2>
+        <p class="section-subtitle">
+          Informasi inti yang perlu kamu lihat sebelum lanjut cek harga, review, dan variasi di marketplace.
+        </p>
+      </div>
+
+      <div class="row trust-grid-row">
+        <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+          <div class="trust-card">
+            <h3>Nyaman Dipakai Harian</h3>
+            <p>
+              <%= productName %> memakai bahan <strong><%= productMaterial %></strong> yang nyaman dan aman untuk aktivitas sehari-hari.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+          <div class="trust-card">
+            <h3>Model Lebih Mudah Dipadukan</h3>
+            <p>
+              Fit <strong><%= productFit %></strong> membuat produk ini cocok untuk gaya casual, clean, sampai streetwear ringan.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+          <div class="trust-card">
+            <h3>Lebih Aman Saat Memilih</h3>
+            <p>
+              Kamu bisa cek variasi, ukuran, dan ulasan pembeli langsung di marketplace sebelum memutuskan pilihan.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-description-clean">
+        <h2>Deskripsi Singkat</h2>
+        <p><%= cleanDescription %></p>
+
+        <% if (detailText) { %>
+          <h3>Catatan Tambahan</h3>
+          <p><%= detailText %></p>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <section class="section product-faq-section">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Pertanyaan yang Sering Ditanyakan</h2>
+      </div>
+
+      <div class="faq-list">
+        <article class="faq-item">
+          <h3>Apakah nyaman dipakai?</h3>
+          <p>Ya, bahan <%= productMaterial %> nyaman dipakai untuk aktivitas harian dan tetap enak digunakan dalam waktu lama.</p>
+        </article>
+
+        <article class="faq-item">
+          <h3>Apakah cocok untuk outfit harian?</h3>
+          <p>Ya, modelnya mudah dipadukan untuk gaya casual, santai, dan tampilan harian yang lebih rapi.</p>
+        </article>
+
+        <article class="faq-item">
+          <h3>Bagaimana cara cek ukuran dan review?</h3>
+          <p>Gunakan tombol CTA di atas untuk membuka halaman marketplace dan melihat ukuran, variasi, serta ulasan pembeli.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <% if (relatedProducts.length) { %>
+    <section class="section recommended-products-section">
+      <div class="container">
+        <div class="section-heading text-center">
+          <h2 class="title">Rekomendasi Serupa</h2>
+          <p class="section-subtitle">
+            Pilihan lain yang masih relevan dengan model, kategori, atau gaya yang serupa.
+          </p>
+        </div>
+
+        <div class="row">
+          <% relatedProducts.forEach(function(item){ %>
+            <div class="col-md-3 col-sm-6 col-xs-6">
+              <%- include('partials/product-card', { product: item }) %>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+
+  <script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
 </main>
+
+<div class="product-image-modal" id="product-image-modal" aria-hidden="true">
+  <div class="product-image-modal-backdrop" id="product-image-modal-backdrop"></div>
+  <div class="product-image-modal-dialog" role="dialog" aria-modal="true" aria-label="Preview gambar produk">
+    <button type="button" class="product-image-modal-close" id="close-image-popup" aria-label="Tutup">
+      <i class="fa fa-times"></i>
+    </button>
+
+    <img
+      id="popup-product-image"
+      src="<%= galleryImages[0] %>"
+      alt="<%= productName %> preview"
+    >
+  </div>
+</div>
+
+<div class="mobile-buy-bar">
+  <div class="mobile-buy-bar-inner">
+    <div class="mobile-buy-price">
+      IDR <%= productPrice.toLocaleString('id-ID') %>
+    </div>
+
+    <a href="/go/<%= productSlug %>" target="_blank" rel="nofollow sponsored noopener" class="mobile-buy-now">
+      🔥 Beli Sekarang
+    </a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var mainImage = document.getElementById('main-product-image');
+    var popupImage = document.getElementById('popup-product-image');
+    var thumbs = Array.prototype.slice.call(document.querySelectorAll('.product-thumb-item'));
+    var modal = document.getElementById('product-image-modal');
+    var openBtn = document.getElementById('open-image-popup');
+    var closeBtn = document.getElementById('close-image-popup');
+    var backdrop = document.getElementById('product-image-modal-backdrop');
+    var preview = document.getElementById('product-main-preview');
+
+    if (!mainImage || !preview) return;
+
+    var images = thumbs.length
+      ? thumbs.map(function (item) { return item.getAttribute('data-image'); }).filter(Boolean)
+      : [mainImage.getAttribute('src')].filter(Boolean);
+
+    if (!images.length) return;
+
+    var currentIndex = 0;
+    var startX = 0;
+    var endX = 0;
+    var dragging = false;
+
+    function setImage(index) {
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+
+      currentIndex = index;
+      mainImage.src = images[currentIndex];
+      if (popupImage) popupImage.src = images[currentIndex];
+
+      thumbs.forEach(function (thumb, i) {
+        thumb.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function nextImage() {
+      setImage(currentIndex + 1);
+    }
+
+    function prevImage() {
+      setImage(currentIndex - 1);
+    }
+
+    function handleMove(diff) {
+      if (Math.abs(diff) < 35) return;
+      if (diff < 0) nextImage();
+      else prevImage();
+    }
+
+    thumbs.forEach(function (thumb, index) {
+      thumb.addEventListener('click', function () {
+        setImage(index);
+      });
+    });
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      if (popupImage) popupImage.src = mainImage.src;
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    if (openBtn) {
+      openBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal();
+      });
+    }
+
+    mainImage.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (backdrop) backdrop.addEventListener('click', closeModal);
+
+    preview.addEventListener('touchstart', function (e) {
+      startX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    preview.addEventListener('touchend', function (e) {
+      endX = e.changedTouches[0].screenX;
+      handleMove(endX - startX);
+    }, { passive: true });
+
+    preview.addEventListener('mousedown', function (e) {
+      dragging = true;
+      startX = e.clientX;
+    });
+
+    preview.addEventListener('mouseup', function (e) {
+      if (!dragging) return;
+      dragging = false;
+      endX = e.clientX;
+      handleMove(endX - startX);
+    });
+
+    preview.addEventListener('mouseleave', function (e) {
+      if (!dragging) return;
+      dragging = false;
+      endX = e.clientX;
+      handleMove(endX - startX);
+    });
+
+    if (modal) {
+      modal.addEventListener('touchstart', function (e) {
+        startX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      modal.addEventListener('touchend', function (e) {
+        endX = e.changedTouches[0].screenX;
+        handleMove(endX - startX);
+      }, { passive: true });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') prevImage();
+    });
+
+    setImage(0);
+  });
+</script>
 
 <%- include('partials/footer') %>
