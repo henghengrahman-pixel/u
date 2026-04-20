@@ -9,6 +9,9 @@ const { makeMeta } = require('./helpers/seo');
 const { getCart, cartCount, cartTotals } = require('./helpers/cart');
 const { generateSeoPages } = require('./helpers/seo-pages');
 
+/* ================= CACHE SEO PAGES (ANTI BERAT) ================= */
+const SEO_PAGES = generateSeoPages();
+
 function viewGlobals(req, res, next) {
   const settings = getSettings() || {};
   const cart = getCart(req);
@@ -68,8 +71,13 @@ function viewGlobals(req, res, next) {
     res.setHeader('X-Robots-Tag', res.locals.meta.robots);
   }
 
-  /* ================= 🔥 SEO LINKS (FIX ERROR REQUIRE) ================= */
-  res.locals.seoLinks = generateSeoPages().slice(0, 100);
+  /* ================= 🔥 GLOBAL INTERNAL LINK (FIX FINAL) ================= */
+  try {
+    const shuffled = SEO_PAGES.sort(() => 0.5 - Math.random());
+    res.locals.internalLinks = shuffled.slice(0, 50); // 50 link per page (optimal)
+  } catch (e) {
+    res.locals.internalLinks = [];
+  }
 
   /* ================= STRUCTURED DATA ================= */
   res.locals.structuredData = null;
