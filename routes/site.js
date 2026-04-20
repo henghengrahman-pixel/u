@@ -5,22 +5,14 @@ const { generateSeoPages } = require('../helpers/seo-pages');
 
 const PRIMARY_SEO_LANDING = '/kaos-oversize-pria';
 
-/*
-|--------------------------------------------------------------------------
-| 🔥 CACHE SEO PAGES (ANTI BERAT)
-|--------------------------------------------------------------------------
-*/
+/* ================= CACHE SEO ================= */
 const seoPages = generateSeoPages();
 const seoMap = {};
 seoPages.forEach(p => {
   seoMap[p.slug] = p;
 });
 
-/*
-|--------------------------------------------------------------------------
-| 🔥 SNIPER KEYWORDS (LOW COMP)
-|--------------------------------------------------------------------------
-*/
+/* ================= SNIPER ================= */
 const sniperKeywords = [
   'kaos oversize pria bahan tebal murah',
   'kaos oversize pria terbaik untuk nongkrong',
@@ -29,11 +21,7 @@ const sniperKeywords = [
   'kaos pria kekinian harga terjangkau'
 ];
 
-/*
-|--------------------------------------------------------------------------
-| MAIN PAGES
-|--------------------------------------------------------------------------
-*/
+/* ================= MAIN ================= */
 router.get('/', siteController.home);
 router.get('/shop', siteController.shop);
 router.get('/product/:slug', siteController.productDetail);
@@ -41,18 +29,15 @@ router.get('/articles', siteController.articles);
 router.get('/article/:slug', siteController.articleDetail);
 router.get('/contact', siteController.contact);
 
-/*
-|--------------------------------------------------------------------------
-| SEO LANDING (MONEY PAGE)
-|--------------------------------------------------------------------------
-*/
+/* ================= HUB (MONEY PAGE) ================= */
 router.get(PRIMARY_SEO_LANDING, siteController.seoKaosOversizePria);
 
-/*
-|--------------------------------------------------------------------------
-| 🔥 AUTO SEO 1000 PAGE
-|--------------------------------------------------------------------------
-*/
+/* ================= 🔥 CATEGORY (TOPICAL AUTHORITY CORE) ================= */
+router.get('/kaos-oversize-pria-murah', siteController.seoCategoryMurah);
+router.get('/kaos-oversize-pria-premium', siteController.seoCategoryPremium);
+router.get('/kaos-oversize-pria-terbaik', siteController.seoCategoryTerbaik);
+
+/* ================= 🔥 AUTO SEO MASS PAGE ================= */
 router.get('/s/:slug', (req, res) => {
   const page = seoMap[req.params.slug];
 
@@ -64,11 +49,7 @@ router.get('/s/:slug', (req, res) => {
   return siteController.seoDynamic(req, res, page, products);
 });
 
-/*
-|--------------------------------------------------------------------------
-| 🔥 SNIPER ROUTES (FAST RANKING)
-|--------------------------------------------------------------------------
-*/
+/* ================= 🔥 SNIPER FAST RANK ================= */
 sniperKeywords.forEach(keyword => {
   const slug = keyword.replace(/\s+/g, '-');
 
@@ -77,30 +58,24 @@ sniperKeywords.forEach(keyword => {
   });
 });
 
-/*
-|--------------------------------------------------------------------------
-| SEO ALIAS → CENTRAL LANDING
-|--------------------------------------------------------------------------
-*/
+/* ================= 🔥 INTERNAL LINK BOOST (SEO POWER) ================= */
+router.get('/internal-links', (req, res) => {
+  const links = seoPages.slice(0, 200); // aman limit
+  res.render('internal-links', { links });
+});
+
+/* ================= SEO ALIAS ================= */
 [
   '/rekomendasi-kaos-pria',
   '/kaos-pria-terbaik',
-  '/kaos-distro-pria',
-  '/kaos-oversize-pria-murah',
-  '/kaos-oversize-pria-premium',
-  '/kaos-pria-murah',
-  '/kaos-pria-kekinian'
+  '/kaos-distro-pria'
 ].forEach((path) => {
   router.get(path, (req, res) => {
     return res.redirect(301, PRIMARY_SEO_LANDING);
   });
 });
 
-/*
-|--------------------------------------------------------------------------
-| AFFILIATE REDIRECT (SEO SAFE)
-|--------------------------------------------------------------------------
-*/
+/* ================= AFFILIATE ================= */
 router.get('/go/:slug', (req, res) => {
   try {
     const product = getProductBySlug(req.params.slug);
@@ -116,7 +91,6 @@ router.get('/go/:slug', (req, res) => {
 
     res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     res.set('Cache-Control', 'no-store');
-    res.set('Pragma', 'no-cache');
 
     return res.redirect(302, targetUrl);
   } catch (error) {
@@ -125,40 +99,27 @@ router.get('/go/:slug', (req, res) => {
   }
 });
 
-/*
-|--------------------------------------------------------------------------
-| LEGACY CLEAN
-|--------------------------------------------------------------------------
-*/
-['/cart', '/checkout'].forEach((path) => {
-  router.get(path, (req, res) => res.redirect(301, '/shop'));
+/* ================= CLEAN ================= */
+['/cart','/checkout'].forEach(p=>{
+  router.get(p,(req,res)=>res.redirect(301,'/shop'));
 });
 
-['/cart/add', '/buy-now', '/cart/update', '/checkout'].forEach((path) => {
-  router.post(path, (req, res) => res.redirect(301, '/shop'));
+['/cart/add','/buy-now','/cart/update','/checkout'].forEach(p=>{
+  router.post(p,(req,res)=>res.redirect(301,'/shop'));
 });
 
-router.post('/cart/remove/:productId', (req, res) => {
-  return res.redirect(301, '/shop');
+router.post('/cart/remove/:id',(req,res)=>{
+  res.redirect(301,'/shop');
 });
 
 module.exports = router;
 
-/*
-|--------------------------------------------------------------------------
-| HELPER
-|--------------------------------------------------------------------------
-*/
+/* ================= HELPER ================= */
 function normalizeAffiliateUrl(value) {
-  const raw = String(value || '').trim();
-  if (!raw) return '';
-
   try {
-    const parsed = new URL(raw);
-    const protocol = parsed.protocol.toLowerCase();
-    if (protocol !== 'http:' && protocol !== 'https:') return '';
-    return parsed.toString();
-  } catch (_) {
+    const url = new URL(String(value || '').trim());
+    return ['http:','https:'].includes(url.protocol) ? url.toString() : '';
+  } catch {
     return '';
   }
 }
