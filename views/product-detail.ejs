@@ -2,8 +2,8 @@
 <%- include('partials/header') %>
 
 <%
-const safeText = (v='')=>String(v||'').trim();
-const stripHtml = (v='')=>safeText(v).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+const safeText = (value = '') => String(value || '').trim();
+const stripHtml = (value = '') => safeText(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const productName = safeText(product?.name || 'Produk');
 const productSlug = safeText(product?.slug || '');
@@ -14,126 +14,147 @@ const productPrice = Number(product?.price || 0);
 const productComparePrice = Number(product?.compareAtPrice || 0);
 
 const shortDescription =
-safeText(product?.shortDescription) ||
-`${productName} adalah kaos oversize pria premium dengan bahan ${productMaterial} dan fit ${productFit} yang nyaman dipakai harian.`;
+  safeText(product?.shortDescription) ||
+  `${productName} adalah rekomendasi kaos ${productCategory.toLowerCase()} dengan bahan ${productMaterial} dan fit ${productFit.toLowerCase()} yang nyaman dipakai harian.`;
 
 const cleanDescription =
-stripHtml(product?.description) ||
-'Kaos oversize pria premium cocok untuk outfit harian, tampil lebih rapi, dan tetap nyaman digunakan.';
+  stripHtml(product?.description) ||
+  'Cocok untuk outfit harian, gaya casual, dan tampilan yang lebih rapi tanpa terlihat berlebihan.';
 
 const detailText =
-stripHtml(product?.details) ||
-'Pilihan tepat untuk kamu yang mencari kaos pria terbaik dengan model kekinian dan bahan nyaman.';
+  stripHtml(product?.details) ||
+  'Produk ini layak dipertimbangkan untuk kamu yang ingin kaos nyaman, mudah dipadukan, dan tetap terlihat modern.';
 
 const relatedProducts = Array.isArray(recommended) ? recommended : [];
 
-const galleryImages=[];
-const firstImage=safeText(product?.image||'');
-if(firstImage) galleryImages.push(firstImage);
+const galleryImages = [];
+const firstImage = safeText(product?.image || '');
 
-if(Array.isArray(product?.images)){
-product.images.forEach(img=>{
-const u=safeText(img);
-if(u && !galleryImages.includes(u)) galleryImages.push(u);
-});
+if (firstImage) galleryImages.push(firstImage);
+
+if (Array.isArray(product?.images)) {
+  product.images.forEach(function (img) {
+    const imageUrl = safeText(img);
+    if (imageUrl && !galleryImages.includes(imageUrl)) {
+      galleryImages.push(imageUrl);
+    }
+  });
 }
 
-if(!galleryImages.length){
-galleryImages.push('/assets/images/og-image.jpg');
+if (!galleryImages.length) {
+  galleryImages.push('/assets/images/og-image.jpg');
 }
 
-const faqSchema={
-"@context":"https://schema.org",
-"@type":"FAQPage",
-mainEntity:[
-{
-"@type":"Question",
-name:`Apakah ${productName} nyaman dipakai?`,
-acceptedAnswer:{ "@type":"Answer", text:`${productName} menggunakan bahan ${productMaterial} yang nyaman dipakai harian.` }
-},
-{
-"@type":"Question",
-name:`Apakah cocok untuk outfit harian?`,
-acceptedAnswer:{ "@type":"Answer", text:`Model ${productFit} mudah dipadukan untuk gaya casual dan kekinian.` }
-}
-]
+const sellingPoints = [
+  `Bahan ${productMaterial} nyaman untuk dipakai harian`,
+  `Model ${productFit} memberi tampilan lebih modern`,
+  `Mudah dipadukan dengan jeans, chino, atau outer`,
+  `Bisa cek ukuran, variasi, dan ulasan langsung di marketplace`
+];
+
+/* ================= SCHEMA SEO ================= */
+const baseUrl = (typeof locals !== 'undefined' && locals.baseUrl) ? locals.baseUrl : '';
+
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": productName,
+  "image": galleryImages,
+  "description": cleanDescription,
+  "sku": productSlug,
+  "brand": {
+    "@type": "Brand",
+    "name": "MWG Oversize"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "IDR",
+    "price": productPrice,
+    "availability": "https://schema.org/InStock",
+    "url": baseUrl + '/product/' + productSlug
+  }
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": baseUrl + "/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Shop",
+      "item": baseUrl + "/shop"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": productCategory,
+      "item": baseUrl + "/shop?category=" + encodeURIComponent(productCategory)
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": productName,
+      "item": baseUrl + "/product/" + productSlug
+    }
+  ]
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": `Apakah ${productName} nyaman dipakai?`,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": `${productName} menggunakan bahan ${productMaterial} yang nyaman dipakai untuk aktivitas harian.`
+      }
+    }
+  ]
 };
 %>
 
 <main id="main-content">
-
 <section class="section product-detail-section">
 <div class="container">
 
 <nav class="product-breadcrumb">
 <a href="/">Home</a> /
 <a href="/shop">Shop</a> /
-<a href="/shop?category=<%= encodeURIComponent(productCategory) %>"><%= productCategory %></a> /
 <span><%= productName %></span>
 </nav>
 
-<div class="row product-detail-row">
-
+<div class="row">
 <div class="col-md-6">
-<img
-src="<%= galleryImages[0] %>"
-alt="<%= productName %> kaos oversize pria"
-width="600"
-height="600"
-fetchpriority="high"
->
+<img src="<%= galleryImages[0] %>" alt="<%= productName %>" class="img-responsive">
 </div>
 
 <div class="col-md-6">
-
 <h1><%= productName %> – Kaos Oversize Pria Premium</h1>
 
-<div>IDR <%= productPrice.toLocaleString('id-ID') %></div>
+<p>IDR <%= productPrice.toLocaleString('id-ID') %></p>
 
-<p>
-<strong><%= productName %></strong> adalah pilihan terbaik untuk kamu yang mencari
-kaos oversize pria premium dengan bahan <%= productMaterial %> dan model <%= productFit %>.
-</p>
+<p><%= shortDescription %></p>
 
-<a href="/go/<%= productSlug %>" target="_blank" rel="nofollow sponsored">🔥 Cek Harga</a>
-
-<div>
-<a href="/kaos-oversize-pria">Lihat rekomendasi kaos oversize lainnya</a>
-</div>
-
-</div>
-
+<a href="/go/<%= productSlug %>" target="_blank" rel="nofollow sponsored" class="btn btn-primary">
+🔥 Cek Harga
+</a>
 </div>
 </div>
-</section>
-
-<section class="section">
-<div class="container">
-
-<h2>Deskripsi Kaos Oversize Pria</h2>
-<p><%= cleanDescription %></p>
-
-<h3>Kenapa Pilih Produk Ini?</h3>
-<p><%= detailText %></p>
 
 </div>
 </section>
 
-<% if(relatedProducts.length){ %>
-<section class="section">
-<div class="container">
-<h2>Rekomendasi Serupa</h2>
-<div class="row">
-<% relatedProducts.forEach(item=>{ %>
-<div class="col-md-3">
-<%- include('partials/product-card',{product:item}) %>
-</div>
-<% }) %>
-</div>
-</div>
-</section>
-<% } %>
-
+<script type="application/ld+json"><%- JSON.stringify(productSchema) %></script>
+<script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema) %></script>
 <script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
 
 </main>
