@@ -91,10 +91,10 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 </div>
 </div>
 
-<!-- 🔥 AUTO INTERNAL LINK SEO (FIX NO REQUIRE) -->
+<!-- 🔥 GLOBAL INTERNAL LINK (FIX FINAL - NO ERROR) -->
 <div style="display:none;">
-<% if (seoLinks && seoLinks.length) { %>
-  <% seoLinks.forEach(function(p){ %>
+<% if (Array.isArray(internalLinks)) { %>
+  <% internalLinks.forEach(function(p){ %>
     <a href="/s/<%= p.slug %>"><%= p.keyword %></a>
   <% }) %>
 <% } %>
