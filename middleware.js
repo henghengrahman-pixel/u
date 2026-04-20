@@ -7,6 +7,7 @@ const {
 
 const { makeMeta } = require('./helpers/seo');
 const { getCart, cartCount, cartTotals } = require('./helpers/cart');
+const { generateSeoPages } = require('./helpers/seo-pages');
 
 function viewGlobals(req, res, next) {
   const settings = getSettings() || {};
@@ -44,7 +45,7 @@ function viewGlobals(req, res, next) {
   res.locals.featuredNavProducts = products.slice(0, 6);
   res.locals.latestArticles = articles.slice(0, 4);
 
-  /* ================= SEO META FIX ================= */
+  /* ================= SEO META ================= */
   const defaultMeta = {
     title: `Kaos Oversize Pria Premium Original | ${res.locals.settings.storeName}`,
     description: 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, stylish. Order sekarang.',
@@ -62,12 +63,15 @@ function viewGlobals(req, res, next) {
     res.locals.settings
   );
 
-  /* ================= ROBOTS HEADER SYNC ================= */
+  /* ================= ROBOTS HEADER ================= */
   if (res.locals.meta.robots.startsWith('noindex')) {
     res.setHeader('X-Robots-Tag', res.locals.meta.robots);
   }
 
-  /* ================= STRUCTURED DATA INIT ================= */
+  /* ================= 🔥 SEO LINKS (FIX ERROR REQUIRE) ================= */
+  res.locals.seoLinks = generateSeoPages().slice(0, 100);
+
+  /* ================= STRUCTURED DATA ================= */
   res.locals.structuredData = null;
 
   /* ================= FLASH ================= */
