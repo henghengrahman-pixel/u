@@ -2,107 +2,305 @@
 <%- include('partials/header') %>
 
 <%
-const safeText = (v='')=>String(v||'').trim();
-const productItems = Array.isArray(products)?products:[];
-const articleItems = Array.isArray(articles)?articles:[];
+const safeText = (v = '') => String(v || '').trim();
+const stripHtml = (v = '') => safeText(v).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const productItems = Array.isArray(products) ? products : [];
+const articleItems = Array.isArray(articles) ? articles : [];
+
+const landingTitle = 'Kaos Oversize Pria Premium Original Terbaik 2026';
+const landingDescription = 'Temukan rekomendasi kaos oversize pria premium original dengan bahan nyaman, model kekinian, dan pilihan terbaik untuk outfit harian.';
+const landingUrl = `${baseUrl}/kaos-oversize-pria`;
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: `${baseUrl}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Kaos Oversize Pria',
+      item: landingUrl
+    }
+  ]
+};
+
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: landingTitle,
+  description: landingDescription,
+  url: landingUrl
+};
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: productItems.slice(0, 12).map(function(p, index) {
+    return {
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `${baseUrl}/product/${safeText(p.slug)}`
+    };
+  })
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Apa itu kaos oversize pria?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Kaos oversize pria adalah kaos dengan potongan lebih longgar yang nyaman dipakai dan cocok untuk gaya casual modern.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Apakah kaos oversize pria nyaman dipakai harian?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Ya, kaos oversize pria nyaman dipakai harian karena potongannya lebih lega, tidak ketat, dan cocok untuk aktivitas santai maupun casual.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Bahan kaos oversize pria yang bagus apa?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Bahan yang banyak dicari biasanya cotton combed, premium cotton, atau bahan adem lain yang nyaman, tidak panas, dan tetap enak dipakai dalam waktu lama.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Bagaimana cara memilih kaos oversize pria yang bagus?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Pilih bahan yang nyaman, ukuran yang tetap proporsional, jahitan rapi, dan model yang mudah dipadukan untuk outfit harian.'
+      }
+    }
+  ]
+};
 %>
 
 <main id="main-content">
-<section class="section seo-landing-section">
-<div class="container">
+  <section class="section seo-landing-section">
+    <div class="container">
 
-<nav class="product-breadcrumb">
-<a href="/">Home</a> /
-<span>Kaos Oversize Pria</span>
-</nav>
+      <nav class="product-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span aria-current="page">Kaos Oversize Pria</span>
+      </nav>
 
-<div class="text-center">
+      <div class="text-center">
+        <h1><%= landingTitle %></h1>
 
-<!-- 🔥 H1 POWER -->
-<h1>Kaos Oversize Pria Premium Original Terbaik 2026</h1>
+        <p class="section-subtitle" style="max-width:860px;margin:16px auto 0;">
+          Temukan <strong>kaos oversize pria premium</strong> original dengan bahan nyaman, model kekinian,
+          dan pilihan terbaik untuk outfit harian. Halaman ini merangkum rekomendasi
+          <strong>kaos pria terbaik</strong> yang lebih mudah dipilih untuk gaya santai, casual, dan modern.
+        </p>
 
-<p>
-Temukan <strong>kaos oversize pria premium</strong> dengan bahan tebal,
-nyaman dipakai harian, dan model kekinian. Cocok untuk kamu yang cari
-kaos distro pria original dengan kualitas terbaik.
-</p>
+        <div style="margin-top:22px;">
+          <a href="/shop" class="primary-btn">Lihat Semua Kaos Pria</a>
+        </div>
+      </div>
 
-</div>
+      <div class="text-center" style="margin:22px 0 6px;">
+        <a href="/shop">Shop Kaos Pria</a> |
+        <a href="/">Home</a> |
+        <a href="/articles">Tips Fashion Pria</a>
+      </div>
 
-<!-- 🔥 INTERNAL LINK BOOST -->
-<div class="text-center" style="margin:20px 0;">
-<a href="/shop">Shop Kaos Pria</a> |
-<a href="/">Home</a> |
-<a href="/articles">Tips Fashion Pria</a>
-</div>
+      <section class="section" style="padding-bottom:10px;">
+        <div class="section-heading text-center">
+          <h2 class="title">Rekomendasi Kaos Oversize Pria Terbaik</h2>
+          <p class="section-subtitle">
+            Pilihan produk yang relevan untuk kamu yang cari kaos oversize pria nyaman, stylish, dan mudah dipadukan.
+          </p>
+        </div>
 
-<h2>Rekomendasi Kaos Oversize Pria Terbaik</h2>
+        <% if (productItems.length) { %>
+          <div class="row product-grid-row">
+            <% productItems.forEach(function(p){ %>
+              <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
+                <%- include('partials/product-card', { product: p }) %>
+              </div>
+            <% }) %>
+          </div>
 
-<% if(productItems.length){ %>
-<div class="row">
-<% productItems.forEach(p=>{ %>
-<div class="col-md-3">
-<%- include('partials/product-card',{product:p}) %>
-</div>
-<% }) %>
-</div>
-<% } %>
+          <div class="text-center" style="margin-top:24px;">
+            <a href="/shop" class="primary-btn">Lihat Rekomendasi Lainnya</a>
+          </div>
+        <% } else { %>
+          <div class="empty-box text-center">
+            <h3>Produk sedang diperbarui</h3>
+            <p>Rekomendasi kaos oversize pria akan segera tampil di halaman ini.</p>
+          </div>
+        <% } %>
+      </section>
 
-<h2>Cara Memilih Kaos Oversize Pria Premium</h2>
-<p>
-Pilih bahan cotton combed atau premium cotton agar nyaman dipakai.
-Pastikan ukuran oversize tetap proporsional agar terlihat rapi.
-Pilih model yang mudah dipadukan untuk outfit harian.
-</p>
+      <section class="section home-trust-section" style="padding-top:10px;">
+        <div class="section-heading text-center">
+          <h2>Kenapa Banyak Orang Cari Kaos Oversize Pria?</h2>
+          <p class="section-subtitle">
+            Model oversize jadi favorit karena nyaman dipakai, mudah dipadukan, dan cocok untuk banyak gaya harian.
+          </p>
+        </div>
 
-<h2>Kenapa Kaos Oversize Pria Banyak Dicari?</h2>
-<p>
-Karena nyaman, trend kekinian, dan cocok untuk berbagai gaya casual.
-Kaos oversize pria jadi pilihan utama untuk tampil santai tapi tetap stylish.
-</p>
+        <div class="row trust-grid-row">
+          <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+            <div class="trust-card">
+              <h3>Lebih Nyaman Dipakai</h3>
+              <p>Potongan yang lebih lega membuat kaos oversize pria nyaman untuk aktivitas santai dan pemakaian harian.</p>
+            </div>
+          </div>
 
-<% if(articleItems.length){ %>
-<h2>Artikel Terkait</h2>
-<div class="row">
-<% articleItems.forEach(a=>{ %>
-<div class="col-md-3">
-<a href="/article/<%= a.slug %>">
-<img
-src="<%= a.image || a.thumbnail || '/assets/images/og-image.jpg' %>"
-alt="<%= a.title %>"
-width="300"
-height="200"
-loading="lazy"
->
-<p><%= a.title %></p>
-</a>
-</div>
-<% }) %>
-</div>
-<% } %>
+          <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+            <div class="trust-card">
+              <h3>Gaya Lebih Kekinian</h3>
+              <p>Kaos oversize memberi tampilan modern, clean, dan lebih mudah dipadukan dengan jeans, chino, atau cargo.</p>
+            </div>
+          </div>
 
-<!-- 🔥 FAQ SCHEMA -->
-<script type="application/ld+json">
-{
-"@context":"https://schema.org",
-"@type":"FAQPage",
-"mainEntity":[
-{
-"@type":"Question",
-"name":"Apa itu kaos oversize pria?",
-"acceptedAnswer":{"@type":"Answer","text":"Kaos oversize pria adalah kaos dengan potongan lebih longgar yang nyaman dipakai dan cocok untuk gaya casual modern."}
-},
-{
-"@type":"Question",
-"name":"Apakah kaos oversize pria nyaman?",
-"acceptedAnswer":{"@type":"Answer","text":"Ya, kaos oversize pria sangat nyaman dipakai untuk aktivitas harian karena tidak ketat dan lebih breathable."}
-}
-]
-}
-</script>
+          <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
+            <div class="trust-card">
+              <h3>Mudah Dipilih untuk Outfit Harian</h3>
+              <p>Model ini cocok untuk outfit casual, nongkrong, jalan santai, sampai tampilan streetwear ringan.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-</div>
-</section>
+      <section class="section" style="padding-top:10px;">
+        <div class="section-heading text-center">
+          <h2>Cara Memilih Kaos Oversize Pria Premium</h2>
+        </div>
+
+        <div class="product-description-clean" style="max-width:920px;margin:0 auto;">
+          <p>
+            Pilih bahan yang nyaman seperti cotton combed, premium cotton, atau bahan adem lain yang enak dipakai
+            untuk aktivitas harian. Bahan yang bagus biasanya terasa lebih lembut, tidak panas, dan tetap nyaman
+            meski dipakai dalam waktu lama.
+          </p>
+          <p>
+            Selain bahan, perhatikan juga ukuran oversize yang tetap proporsional. Potongan yang terlalu besar bisa
+            terlihat kurang rapi, sedangkan ukuran yang pas akan membuat tampilan tetap santai namun lebih enak dilihat.
+          </p>
+          <p>
+            Pilih model kaos yang mudah dipadukan dengan outfit lain. Kaos oversize pria yang bagus biasanya fleksibel
+            dipakai dengan jeans, celana chino, jogger, atau outer sederhana untuk gaya harian yang lebih modern.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top:10px;">
+        <div class="section-heading text-center">
+          <h2>Rekomendasi untuk Pembeli yang Cari Kaos Pria Terbaik</h2>
+        </div>
+
+        <div class="product-description-clean" style="max-width:920px;margin:0 auto;">
+          <p>
+            Kalau kamu mencari <a href="/shop">kaos pria terbaik</a> dengan model modern, halaman ini bisa jadi titik
+            awal untuk memilih produk yang lebih nyaman dan sesuai kebutuhan. Fokus utama kami adalah membantu kamu
+            menemukan kaos yang mudah dipakai, tampil rapi, dan tetap cocok untuk gaya harian.
+          </p>
+          <p>
+            Untuk pilihan yang lebih spesifik, kamu juga bisa lihat halaman <a href="/kaos-oversize-pria-murah">kaos oversize pria murah</a>,
+            <a href="/kaos-oversize-pria-premium">kaos oversize pria premium</a>, dan artikel panduan di
+            <a href="/articles">tips fashion pria</a> agar keputusan beli jadi lebih yakin.
+          </p>
+        </div>
+      </section>
+
+      <% if (articleItems.length) { %>
+        <section class="section home-articles-section" style="padding-top:10px;">
+          <div class="section-heading text-center">
+            <h2>Artikel Terkait</h2>
+            <p class="section-subtitle">
+              Panduan tambahan untuk membantu memilih bahan, model, dan style kaos oversize pria yang lebih tepat.
+            </p>
+          </div>
+
+          <div class="row">
+            <% articleItems.forEach(function(a){ 
+              const articleTitle = safeText(a?.title || 'Artikel Fashion Pria');
+              const articleImage = a?.image || a?.thumbnail || settings?.logo || '/assets/images/logo.png';
+              const articleExcerpt = stripHtml(a?.excerpt || a?.description || a?.content || 'Baca panduan lengkap seputar kaos pria dan outfit harian.').slice(0, 120);
+            %>
+              <div class="col-md-3 col-sm-6 col-xs-12" style="margin-bottom:24px;">
+                <article class="article-card-modern articles-page-card">
+                  <a href="/article/<%= a.slug %>" class="article-card-thumb" aria-label="<%= articleTitle %>">
+                    <img
+                      src="<%= articleImage %>"
+                      alt="<%= articleTitle %>"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  </a>
+
+                  <div class="article-card-content">
+                    <h3 class="article-card-title">
+                      <a href="/article/<%= a.slug %>"><%= articleTitle %></a>
+                    </h3>
+
+                    <p class="article-card-excerpt">
+                      <%= articleExcerpt %><%= articleExcerpt.length >= 120 ? '...' : '' %>
+                    </p>
+
+                    <a href="/article/<%= a.slug %>" class="read-more">Baca Selengkapnya</a>
+                  </div>
+                </article>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <section class="section product-faq-section" style="padding-top:10px;">
+        <div class="section-heading text-center">
+          <h2>Pertanyaan yang Sering Ditanyakan</h2>
+        </div>
+
+        <div class="faq-list">
+          <article class="faq-item">
+            <h3>Apa itu kaos oversize pria?</h3>
+            <p>Kaos oversize pria adalah kaos dengan potongan lebih longgar yang nyaman dipakai dan cocok untuk gaya casual modern.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Apakah kaos oversize pria nyaman dipakai harian?</h3>
+            <p>Ya, model oversize nyaman dipakai harian karena lebih lega, tidak ketat, dan cocok untuk aktivitas santai.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Bahan kaos oversize pria yang bagus apa?</h3>
+            <p>Bahan yang banyak dicari biasanya cotton combed atau premium cotton karena lebih adem, lembut, dan nyaman.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Bagaimana cara memilih kaos oversize pria yang bagus?</h3>
+            <p>Pilih bahan nyaman, ukuran yang tetap proporsional, dan model yang mudah dipadukan untuk outfit harian.</p>
+          </article>
+        </div>
+      </section>
+
+      <script type="application/ld+json"><%- JSON.stringify(collectionSchema) %></script>
+      <script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema) %></script>
+      <script type="application/ld+json"><%- JSON.stringify(itemListSchema) %></script>
+      <script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
+
+    </div>
+  </section>
 </main>
 
 <%- include('partials/footer') %>
