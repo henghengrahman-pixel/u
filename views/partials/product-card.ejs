@@ -1,19 +1,29 @@
 <%
   const safeText = (value = '') => String(value || '').trim();
+  const ensureAbsolute = (value = '') => {
+    const raw = safeText(value);
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw;
+    return `${baseUrl}${raw.startsWith('/') ? raw : `/${raw}`}`;
+  };
 
   const productSlug = safeText(product?.slug);
   const productUrl = productSlug ? `/product/${productSlug}` : '#';
   const productGoUrl = productSlug ? `/go/${productSlug}` : '#';
+  const absoluteProductUrl = productSlug ? `${baseUrl}/product/${productSlug}` : baseUrl;
 
   const productName = safeText(product?.name || 'Produk Pilihan');
   const productCategory = safeText(product?.category || 'Kaos Pria');
   const productMaterial = safeText(product?.material || 'Bahan nyaman');
   const productFit = safeText(product?.fit || 'Fit terbaik');
 
-  const productImage =
+  const rawProductImage =
     safeText(product?.image) ||
     (Array.isArray(product?.images) && product.images.length ? safeText(product.images[0]) : '') ||
-    '/assets/images/og-image.jpg';
+    safeText(settings?.logo) ||
+    '/assets/images/logo.png';
+
+  const productImage = ensureAbsolute(rawProductImage);
 
   const price = Number(product?.price || 0);
   const compareAtPrice = Number(product?.compareAtPrice || 0);
@@ -28,6 +38,8 @@
   const shortCopy =
     safeText(product?.shortDescription) ||
     `Rekomendasi ${productCategory.toLowerCase()} dengan ${productMaterial.toLowerCase()} dan model ${productFit.toLowerCase()} yang nyaman dipakai harian.`;
+
+  const validUntil = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString().slice(0, 10);
 %>
 
 <article class="product product-card-clean" itemscope itemtype="https://schema.org/Product">
@@ -87,9 +99,30 @@
 
     <% if (price > 0) { %>
       <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+        <meta itemprop="url" content="<%= absoluteProductUrl %>">
         <meta itemprop="priceCurrency" content="IDR">
         <meta itemprop="price" content="<%= price %>">
+        <meta itemprop="priceValidUntil" content="<%= validUntil %>">
         <meta itemprop="availability" content="<%= isSoldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' %>">
+        <meta itemprop="itemCondition" content="https://schema.org/NewCondition">
+
+        <div itemprop="hasMerchantReturnPolicy" itemscope itemtype="https://schema.org/MerchantReturnPolicy">
+          <meta itemprop="applicableCountry" content="ID">
+          <meta itemprop="returnPolicyCategory" content="https://schema.org/MerchantReturnFiniteReturnWindow">
+          <meta itemprop="merchantReturnDays" content="7">
+          <meta itemprop="returnMethod" content="https://schema.org/ReturnByMail">
+          <meta itemprop="returnFees" content="https://schema.org/FreeReturn">
+        </div>
+
+        <div itemprop="shippingDetails" itemscope itemtype="https://schema.org/OfferShippingDetails">
+          <div itemprop="shippingDestination" itemscope itemtype="https://schema.org/DefinedRegion">
+            <meta itemprop="addressCountry" content="ID">
+          </div>
+          <div itemprop="shippingRate" itemscope itemtype="https://schema.org/MonetaryAmount">
+            <meta itemprop="value" content="0">
+            <meta itemprop="currency" content="IDR">
+          </div>
+        </div>
 
         <span class="product-price-current">
           IDR <%= price.toLocaleString('id-ID') %>
