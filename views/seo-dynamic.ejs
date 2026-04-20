@@ -1,0 +1,24 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main class="container">
+
+<h1><%= page.title %></h1>
+
+<p>
+Cari <strong><%= page.keyword %></strong> dengan kualitas terbaik dan nyaman dipakai harian.
+</p>
+
+<div class="row">
+<% products.forEach(p=>{ %>
+<div class="col-md-3">
+<%- include('partials/product-card',{product:p}) %>
+</div>
+<% }) %>
+</div>
+
+<a href="/kaos-oversize-pria">Lihat rekomendasi utama</a>
+
+</main>
+
+<%- include('partials/footer') %>
