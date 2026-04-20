@@ -26,9 +26,13 @@ app.disable('x-powered-by');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-/* ================= FORCE INDEX ================= */
+/* ================= 🔥 FORCE INDEX (FIX) ================= */
 app.use((req, res, next) => {
-  if (!req.path.startsWith('/go/')) {
+  if (req.path.startsWith('/go/')) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  } else if (req.path.startsWith('/admin')) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  } else {
     res.setHeader('X-Robots-Tag', 'index, follow');
   }
   next();
@@ -88,10 +92,22 @@ app.use((req, res, next) => {
 /* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
 
+/* ================= 🔥 ROBOTS.TXT (WAJIB) ================= */
+app.get('/robots.txt', (req, res) => {
+  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
+
+  res.type('text/plain');
+  res.send(
+`User-agent: *
+Allow: /
+
+Sitemap: ${baseUrl}/sitemap.xml`
+  );
+});
+
 /* ================= 🔥 SITEMAP INDEX ================= */
 app.get('/sitemap.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
-
   const total = Math.ceil(SEO_PAGES.length / 1000);
 
   res.set('Content-Type', 'application/xml');
@@ -104,11 +120,10 @@ app.get('/sitemap.xml', (req, res) => {
   }
 
   xml += `</sitemapindex>`;
-
   res.send(xml);
 });
 
-/* ================= 🔥 SITEMAP PART (1000 URL / FILE) ================= */
+/* ================= 🔥 SITEMAP PART ================= */
 app.get('/sitemap-:page.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
   const page = parseInt(req.params.page) || 1;
@@ -139,7 +154,6 @@ app.get('/sitemap-:page.xml', (req, res) => {
   });
 
   xml += `</urlset>`;
-
   res.send(xml);
 });
 
