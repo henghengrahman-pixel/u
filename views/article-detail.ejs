@@ -11,26 +11,29 @@
 
   const articleExcerptRaw = stripHtml(article?.excerpt || article?.description || article?.content || '');
   const articleExcerpt = articleExcerptRaw.length > 160
-    ? articleExcerptRaw.slice(0,160).trim() + '...'
+    ? articleExcerptRaw.slice(0, 160).trim() + '...'
     : articleExcerptRaw;
 
   const articleImage = safeText(article?.image || article?.thumbnail || settings?.logo || '/assets/images/logo.png');
+  const absoluteArticleImage = articleImage.startsWith('http') ? articleImage : `${baseUrl}${articleImage.startsWith('/') ? articleImage : '/' + articleImage}`;
+
+  const articleDatePublished = safeText(article?.created_at || article?.createdAt || '');
+  const articleDateModified = safeText(article?.updated_at || article?.updatedAt || article?.created_at || article?.createdAt || '');
 
   const relatedArticles = Array.isArray(articles)
-    ? articles.filter(a => a.slug !== articleSlug).slice(0,4)
+    ? articles.filter(a => a && a.slug !== articleSlug).slice(0, 4)
     : [];
 
   const relatedProducts = Array.isArray(products)
-    ? products.slice(0,4)
+    ? products.slice(0, 4)
     : [];
 
-  /* ================= SCHEMA ================= */
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": articleTitle,
     "description": articleExcerpt,
-    "image": articleImage.startsWith('http') ? articleImage : baseUrl + articleImage,
+    "image": absoluteArticleImage,
     "mainEntityOfPage": articleUrl,
     "author": {
       "@type": "Organization",
@@ -41,9 +44,11 @@
       "name": safeText(settings?.storeName || 'MWG Oversize'),
       "logo": {
         "@type": "ImageObject",
-        "url": baseUrl + '/assets/images/logo.png'
+        "url": `${baseUrl}/assets/images/logo.png`
       }
-    }
+    },
+    "datePublished": articleDatePublished || undefined,
+    "dateModified": articleDateModified || undefined
   };
 
   const breadcrumbSchema = {
@@ -54,13 +59,13 @@
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": baseUrl + '/'
+        "item": `${baseUrl}/`
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Artikel",
-        "item": baseUrl + '/articles'
+        "item": `${baseUrl}/articles`
       },
       {
         "@type": "ListItem",
@@ -81,16 +86,14 @@
           <article class="article-detail-card article-content">
             <div class="article-detail-body">
 
-              <!-- BREADCRUMB -->
               <nav class="article-detail-breadcrumb" aria-label="Breadcrumb">
                 <a href="/">Home</a>
                 <span>/</span>
                 <a href="/articles">Artikel</a>
                 <span>/</span>
-                <span><%= articleTitle %></span>
+                <span aria-current="page"><%= articleTitle %></span>
               </nav>
 
-              <!-- HEADER -->
               <header class="article-detail-header">
                 <h1 class="article-detail-title"><%= articleTitle %></h1>
 
@@ -101,7 +104,6 @@
                 <% } %>
               </header>
 
-              <!-- IMAGE -->
               <figure class="article-detail-thumb">
                 <img
                   src="<%= articleImage %>"
@@ -111,14 +113,25 @@
                 >
               </figure>
 
-              <!-- CONTENT -->
               <div class="article-detail-content">
                 <%- article?.content || '' %>
               </div>
 
-              <!-- INTERNAL LINK SEO -->
-              <div style="margin-top:30px;">
+              <section class="section" style="padding-top:18px; padding-bottom:10px;">
+                <div class="container text-center" style="padding-left:0; padding-right:0;">
+                  <p style="max-width:760px; margin:0 auto;">
+                    Setelah baca panduan ini, kamu bisa lanjut cek
+                    <a href="/kaos-oversize-pria">rekomendasi kaos oversize pria</a>,
+                    <a href="/kaos-oversize-pria-premium">kaos oversize premium</a>,
+                    atau langsung lihat <a href="/shop">shop kaos pria terbaik</a>
+                    untuk membandingkan pilihan yang paling cocok buat outfit harian.
+                  </p>
+                </div>
+              </section>
+
+              <div style="margin-top:22px;">
                 <a href="/kaos-oversize-pria">Lihat rekomendasi kaos oversize pria</a> |
+                <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Pria Terbaik</a> |
                 <a href="/shop">Shop kaos pria terbaik</a>
               </div>
 
@@ -134,7 +147,6 @@
     </div>
   </section>
 
-  <!-- RELATED ARTICLES -->
   <% if (relatedArticles.length) { %>
   <section class="section home-articles-section">
     <div class="container">
@@ -171,12 +183,14 @@
   </section>
   <% } %>
 
-  <!-- RELATED PRODUCTS -->
   <% if (relatedProducts.length) { %>
   <section class="section recommended-products-section">
     <div class="container">
       <div class="section-heading text-center">
         <h2 class="title">Rekomendasi Produk</h2>
+        <p class="section-subtitle">
+          Produk yang masih relevan dengan topik artikel ini dan layak dipertimbangkan untuk pembeli pria Indonesia.
+        </p>
       </div>
 
       <div class="row product-grid-row">
@@ -190,7 +204,6 @@
   </section>
   <% } %>
 
-  <!-- SCHEMA -->
   <script type="application/ld+json"><%- JSON.stringify(articleSchema) %></script>
   <script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema) %></script>
 
