@@ -6,6 +6,7 @@
   const productItems = Array.isArray(products) ? products : [];
   const currentQuery = safeText(query);
   const currentCategory = safeText(category);
+  const isFilteredPage = !!(currentQuery || currentCategory);
 
   const pageTitle = currentCategory
     ? `Rekomendasi Kaos ${currentCategory} Pria Pilihan`
@@ -16,6 +17,18 @@
     : (currentQuery
       ? `Menampilkan hasil pencarian untuk "${currentQuery}" dari koleksi rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik yang sudah kami kurasi.`
       : `Temukan rekomendasi kaos pria, kaos oversize original, dan pilihan fashion pria terbaik yang kami kurasi berdasarkan kenyamanan bahan, model yang kekinian, serta tampilan yang lebih rapi untuk membantu Anda memilih dengan lebih yakin.`);
+
+  const introTitle = currentCategory
+    ? `Pilihan Kaos ${currentCategory} Pria`
+    : (currentQuery ? `Pilihan yang Relevan untuk "${currentQuery}"` : 'Kenapa Halaman Ini Layak Dicek');
+
+  const introCopy = currentCategory
+    ? `Halaman ini membantu pembeli pria Indonesia menemukan rekomendasi kaos ${currentCategory} yang lebih nyaman dipakai, mudah dipadukan, dan layak dipertimbangkan untuk kebutuhan harian.`
+    : (currentQuery
+      ? `Kami tampilkan hasil yang paling relevan untuk membantu Anda menemukan produk yang lebih dekat dengan kebutuhan pencarian Anda.`
+      : `Kami kurasi produk yang lebih relevan untuk pembeli pria Indonesia yang mencari kaos nyaman, model modern, dan tampilan yang tetap rapi untuk outfit harian.`);
+
+  const productCountText = `${productItems.length} produk ditemukan`;
 %>
 
 <main id="main-content">
@@ -29,7 +42,29 @@
         <p class="shop-page-subtitle">
           <%= pageSubtitle %>
         </p>
+
+        <div class="text-center" style="margin-top:16px;">
+          <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+          <a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a> |
+          <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a> |
+          <a href="/articles">Tips Fashion Pria</a>
+        </div>
+
+        <% if (productItems.length) { %>
+          <p style="margin-top:14px; color:#6b7280;">
+            <strong><%= productCountText %></strong>
+          </p>
+        <% } %>
       </div>
+
+      <section class="section" style="padding-top:10px; padding-bottom:10px;">
+        <div class="section-heading text-center">
+          <h2 class="title"><%= introTitle %></h2>
+          <p class="section-subtitle" style="max-width:860px; margin:0 auto;">
+            <%= introCopy %>
+          </p>
+        </div>
+      </section>
 
       <% if (productItems.length) { %>
         <div class="row product-grid-row">
@@ -39,6 +74,30 @@
             </div>
           <% }) %>
         </div>
+
+        <% if (!isFilteredPage) { %>
+          <section class="section" style="padding-top:28px; padding-bottom:0;">
+            <div class="section-heading text-center">
+              <h2 class="title">Cara Memilih Kaos Pria yang Lebih Cocok</h2>
+              <p class="section-subtitle" style="max-width:860px; margin:0 auto;">
+                Perhatikan bahan, potongan, kenyamanan saat dipakai, dan kemudahan mix and match agar pilihan lebih pas untuk kebutuhan harian.
+              </p>
+            </div>
+
+            <div class="product-description-clean" style="max-width:920px; margin:0 auto;">
+              <p>
+                Kaos pria yang bagus bukan hanya soal model, tetapi juga soal kenyamanan saat dipakai dalam aktivitas harian. Bahan yang nyaman,
+                tidak terlalu panas, dan potongan yang pas akan membuat tampilan lebih rapi sekaligus tetap enak digunakan seharian.
+              </p>
+              <p>
+                Untuk pembeli pria Indonesia, pilihan yang paling aman biasanya adalah model yang mudah dipadukan dengan jeans, chino, cargo,
+                atau outer sederhana. Karena itu, halaman ini difokuskan untuk membantu Anda menemukan produk yang tidak hanya menarik dilihat,
+                tetapi juga realistis dipakai untuk style harian.
+              </p>
+            </div>
+          </section>
+        <% } %>
+
       <% } else { %>
         <div class="row">
           <div class="col-md-12">
@@ -53,6 +112,20 @@
           </div>
         </div>
       <% } %>
+
+      <section class="section" style="padding-top:24px;">
+        <div class="section-heading text-center">
+          <h2 class="title">Jelajahi Halaman Rekomendasi Lainnya</h2>
+        </div>
+
+        <div class="text-center" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+          <a href="/kaos-oversize-pria">Kaos Oversize Pria</a>
+          <a href="/kaos-oversize-pria-murah">Kaos Oversize Pria Murah</a>
+          <a href="/kaos-oversize-pria-premium">Kaos Oversize Pria Premium</a>
+          <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Pria Terbaik</a>
+          <a href="/articles">Artikel Fashion Pria</a>
+        </div>
+      </section>
     </div>
   </section>
 </main>
