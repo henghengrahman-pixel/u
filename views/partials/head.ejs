@@ -18,69 +18,72 @@ const ensureAbsolute = (v = '') => {
   return base ? `${base}${raw.startsWith('/') ? raw : `/${raw}`}` : raw;
 };
 
-const isAdmin = clean(currentPath).startsWith('/admin');
-const isArticle = clean(currentPath).startsWith('/article/');
-const isShopFilter = clean(currentPath) === '/shop' && clean(currentUrl).includes('?');
+const currentPathSafe = clean(currentPath || '/');
+const isAdmin = currentPathSafe.startsWith('/admin');
+const isArticle = currentPathSafe.startsWith('/article/');
+const isContact = currentPathSafe === '/contact';
+const isNoIndexPath =
+  isAdmin ||
+  isContact ||
+  currentPathSafe.startsWith('/go/') ||
+  currentPathSafe.startsWith('/cart') ||
+  currentPathSafe.startsWith('/checkout');
 
 const storeName = clean(settings?.storeName || 'MWG Oversize');
 const siteLogo = ensureAbsolute(settings?.logo || '/assets/images/logo.png');
+const fallbackImage = siteLogo || ensureAbsolute('/assets/images/logo.png');
 
-const fallbackImage =
-  siteLogo ||
-  ensureAbsolute('/assets/images/logo.png');
+const title = clean(meta?.title) || `Kaos Oversize Pria Premium Original | ${storeName}`;
+const desc = clean(meta?.description) || 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, stylish, dan cocok untuk outfit harian pria Indonesia.';
+const keywords = clean(meta?.keywords || settings?.seo?.keywords) || 'kaos oversize pria, kaos distro pria, baju oversize pria, kaos pria indonesia';
 
-const title = clean(meta?.title) || `Kaos Oversize Pria Premium | ${storeName}`;
-const desc = clean(meta?.description) || 'Beli kaos oversize pria premium kualitas distro. Nyaman, tebal, trendy. Order sekarang.';
-const keywords = clean(meta?.keywords) || 'kaos oversize pria, kaos distro pria, baju oversize pria';
-
-const canonical = ensureAbsolute(meta?.canonical || currentUrl);
+const canonical = ensureAbsolute(meta?.canonical || currentPathSafe || '/');
 const url = ensureAbsolute(meta?.url || canonical);
 const image = ensureAbsolute(meta?.image || fallbackImage);
 
 let robots = clean(meta?.robots);
-if (isAdmin) robots = 'noindex,nofollow,noarchive';
-if (isShopFilter) robots = 'noindex,follow';
 if (!robots) robots = 'index,follow';
+if (isNoIndexPath) {
+  robots = isAdmin || currentPathSafe.startsWith('/go/') || currentPathSafe.startsWith('/cart') || currentPathSafe.startsWith('/checkout')
+    ? 'noindex,nofollow,noarchive'
+    : 'noindex,follow';
+}
 
 const structuredList = Array.isArray(structuredData)
   ? structuredData.filter(Boolean)
   : (structuredData ? [structuredData] : []);
 
-const shouldPreloadImage =
-  !!image &&
-  image !== fallbackImage &&
-  !isAdmin;
+const shouldPreloadImage = !!image && image !== fallbackImage && !isAdmin;
+const ogType = isArticle ? 'article' : 'website';
 %>
 
 <title><%= title %></title>
 
 <meta name="description" content="<%= desc %>">
 <meta name="keywords" content="<%= keywords %>">
-
 <meta name="robots" content="<%= robots %>">
 <meta name="googlebot" content="<%= robots %>">
 
 <link rel="canonical" href="<%= canonical %>">
 
-<!-- OPEN GRAPH -->
-<meta property="og:type" content="<%= isArticle ? 'article' : 'website' %>">
+<meta property="og:locale" content="id_ID">
+<meta property="og:type" content="<%= ogType %>">
+<meta property="og:site_name" content="<%= storeName %>">
 <meta property="og:title" content="<%= title %>">
 <meta property="og:description" content="<%= desc %>">
 <meta property="og:url" content="<%= url %>">
 <meta property="og:image" content="<%= image %>">
 
-<!-- TWITTER -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<%= title %>">
 <meta name="twitter:description" content="<%= desc %>">
 <meta name="twitter:image" content="<%= image %>">
+<meta name="twitter:url" content="<%= url %>">
 
-<!-- PRELOAD -->
 <% if (shouldPreloadImage) { %>
 <link rel="preload" as="image" href="<%= image %>">
 <% } %>
 
-<!-- ================= GLOBAL SCHEMA ================= -->
 <script type="application/ld+json">
 <%- JSON.stringify({
   "@context": "https://schema.org",
@@ -105,12 +108,10 @@ const shouldPreloadImage =
 }) %>
 </script>
 
-<!-- ================= PAGE SCHEMA ================= -->
 <% structuredList.forEach(function(schema) { %>
 <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
 <% }) %>
 
-<!-- CSS -->
 <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
 <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
 <link rel="stylesheet" href="/assets/css/style.css">
