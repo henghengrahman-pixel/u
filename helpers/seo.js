@@ -15,15 +15,22 @@ function normalizeBaseUrl(value = '') {
   }
 }
 
+function normalizePath(value = '/') {
+  const raw = clean(value);
+  if (!raw) return '/';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return raw.startsWith('/') ? raw : `/${raw}`;
+}
+
 function absoluteUrl(value = '', baseUrl = '') {
   const raw = clean(value);
   const base = normalizeBaseUrl(baseUrl);
 
   if (!raw) return '';
   if (/^https?:\/\//i.test(raw)) return raw;
-  if (!base) return raw.startsWith('/') ? raw : `/${raw}`;
+  if (!base) return normalizePath(raw);
 
-  return `${base}/${raw.replace(/^\/+/, '')}`;
+  return `${base}${normalizePath(raw)}`;
 }
 
 function truncate(text = '', max = 160) {
@@ -41,11 +48,11 @@ function keywordsToString(value) {
     )].join(', ');
   }
 
-  return clean(value);
+  return clean(value).toLowerCase();
 }
 
 function normalizeRobots(value = 'index,follow') {
-  const robots = clean(value).toLowerCase();
+  const robots = clean(value).toLowerCase().replace(/\s+/g, '');
   return robots || 'index,follow';
 }
 
@@ -59,10 +66,9 @@ function siteName(settings = {}) {
 }
 
 function defaultDescription() {
-  return 'Temukan rekomendasi kaos pria terbaik, oversize premium, dan pilihan fashion pria kekinian dengan bahan nyaman serta model yang mudah dipadukan.';
+  return 'Temukan rekomendasi kaos pria terbaik, kaos oversize premium, dan pilihan fashion pria kekinian yang nyaman dipakai untuk outfit harian pria Indonesia.';
 }
 
-/* ================= FIX UTAMA ================= */
 function resolveBaseUrl(settings = {}) {
   return normalizeBaseUrl(
     settings?.baseUrl ||
@@ -71,27 +77,47 @@ function resolveBaseUrl(settings = {}) {
   );
 }
 
-function makeMeta(input = {}, settings = {}) {
-  const brand = siteName(settings);
+function appendBrand(title = '', brand = '') {
+  const safeTitle = clean(title);
+  const safeBrand = clean(brand);
+
+  if (!safeTitle) return safeBrand;
+  if (!safeBrand) return safeTitle;
+  if (safeTitle.toLowerCase().includes(safeBrand.toLowerCase())) return safeTitle;
+
+  return `${safeTitle} | ${safeBrand}`;
+}
+
+function resolveCanonical(input = {}, settings = {}) {
+  const baseUrl = resolveBaseUrl(settings);
+  const canonicalValue = clean(input.canonical || input.url || '/');
+
+  if (!canonicalValue) return absoluteUrl('/', baseUrl);
+  return absoluteUrl(canonicalValue, baseUrl);
+}
+
+function resolveImage(input = {}, settings = {}) {
   const baseUrl = resolveBaseUrl(settings);
 
-  const titleRaw = clean(input.title);
-  const descriptionRaw = clean(input.description);
-  const keywordsRaw = keywordsToString(input.keywords);
-
-  const canonicalPath = clean(input.canonical || input.url || '/');
-  const canonical = absoluteUrl(canonicalPath, baseUrl);
-
-  const image = absoluteUrl(
+  return absoluteUrl(
     input.image ||
     settings?.seo?.ogImage ||
     '/assets/images/og-image.jpg',
     baseUrl
   );
+}
+
+function makeMeta(input = {}, settings = {}) {
+  const brand = siteName(settings);
+  const titleRaw = clean(input.title);
+  const descriptionRaw = clean(input.description);
+  const keywordsRaw = keywordsToString(input.keywords);
+  const canonical = resolveCanonical(input, settings);
+  const image = resolveImage(input, settings);
 
   const title = titleRaw
-    ? (titleRaw.toLowerCase().includes(brand.toLowerCase()) ? titleRaw : `${titleRaw} | ${brand}`)
-    : `${brand} - Rekomendasi Kaos Pria Terbaik`;
+    ? appendBrand(titleRaw, brand)
+    : appendBrand('Rekomendasi Kaos Pria Terbaik', brand);
 
   return {
     title,
@@ -114,14 +140,15 @@ function productMeta(product = {}, settings = {}) {
   const category = clean(product.category || 'pria');
   const material = clean(product.material || 'premium');
   const fit = clean(product.fit || 'nyaman');
+  const slug = clean(product.slug);
 
   return makeMeta({
     title:
       clean(product.seoTitle) ||
-      `${name} - Rekomendasi Kaos ${category} Terbaik`,
+      `${name} - Kaos ${category} untuk Pria Indonesia`,
     description:
       clean(product.seoDescription) ||
-      `${name} merupakan salah satu rekomendasi kaos ${category} terbaik dengan bahan ${material} dan fit ${fit}. Cocok untuk outfit pria kekinian dan nyaman dipakai sehari-hari.`,
+      `${name} adalah rekomendasi kaos ${category} dengan bahan ${material} dan fit ${fit} yang nyaman dipakai untuk outfit harian pria Indonesia.`,
     keywords:
       keywordsToString(product.keywords) ||
       keywordsToString([
@@ -130,11 +157,12 @@ function productMeta(product = {}, settings = {}) {
         'kaos pria terbaik',
         'rekomendasi kaos pria',
         'kaos oversize pria',
+        'kaos pria indonesia',
         material,
         fit
       ]),
     image: product.image,
-    canonical: `/product/${clean(product.slug)}`,
+    canonical: slug ? `/product/${slug}` : '/shop',
     robots: 'index,follow'
   }, settings);
 }
@@ -143,15 +171,17 @@ function productMeta(product = {}, settings = {}) {
 function homeMeta(settings = {}) {
   return makeMeta({
     title: 'Rekomendasi Kaos Pria Terbaik, Oversize Premium & Fashion Kekinian',
-    description: 'Temukan rekomendasi kaos pria terbaik, kaos oversize premium, dan pilihan fashion pria kekinian yang nyaman dipakai untuk daily outfit.',
+    description: 'Temukan rekomendasi kaos pria terbaik, kaos oversize premium, dan pilihan fashion pria kekinian yang nyaman dipakai untuk daily outfit pria Indonesia.',
     keywords: [
       'rekomendasi kaos pria',
       'kaos oversize pria',
       'kaos pria terbaik',
       'kaos distro pria',
-      'fashion pria kekinian'
+      'fashion pria indonesia',
+      'kaos pria indonesia'
     ],
-    canonical: '/'
+    canonical: '/',
+    robots: 'index,follow'
   }, settings);
 }
 
@@ -168,10 +198,10 @@ function shopMeta(settings = {}, options = {}) {
       : 'Shop Rekomendasi Kaos Pria Terbaik';
 
   const description = category
-    ? `Kumpulan rekomendasi kaos ${category} pria terbaik dengan bahan nyaman, model kekinian, dan pilihan terbaik untuk style harian.`
+    ? `Kumpulan rekomendasi kaos ${category} pria terbaik dengan bahan nyaman, model kekinian, dan pilihan terbaik untuk outfit harian pria Indonesia.`
     : query
-      ? `Hasil pencarian untuk "${query}" pada koleksi rekomendasi kaos pria terbaik.`
-      : 'Jelajahi koleksi rekomendasi kaos pria terbaik, oversize premium, dan fashion pria kekinian yang sudah dikurasi.';
+      ? `Hasil pencarian untuk "${query}" pada koleksi rekomendasi kaos pria terbaik dan kaos oversize pria.`
+      : 'Jelajahi koleksi rekomendasi kaos pria terbaik, oversize premium, dan fashion pria kekinian yang sudah dikurasi untuk pembeli pria Indonesia.';
 
   return makeMeta({
     title,
@@ -181,6 +211,7 @@ function shopMeta(settings = {}, options = {}) {
       'rekomendasi kaos pria',
       'kaos oversize pria',
       'kaos pria terbaik',
+      'kaos pria indonesia',
       category,
       query
     ],
@@ -193,19 +224,23 @@ function shopMeta(settings = {}, options = {}) {
 function articleMeta(article = {}, settings = {}) {
   const title = clean(article.title);
   const description = clean(article.excerpt || article.summary || article.content);
+  const slug = clean(article.slug);
 
   return makeMeta({
-    title: title ? `${title} | Artikel Fashion Pria` : 'Artikel Fashion Pria',
-    description,
+    title: title ? `${title} - Artikel Fashion Pria` : 'Artikel Fashion Pria',
+    description: description || 'Baca artikel fashion pria, tips outfit, dan panduan memilih kaos pria yang lebih tepat untuk kebutuhan harian.',
     keywords: [
       'artikel fashion pria',
       'tips outfit pria',
+      'kaos pria',
+      'kaos oversize pria',
+      'fashion pria indonesia',
       title,
       clean(article.category),
       clean(article.keywords)
     ],
     image: article.image,
-    canonical: article.slug ? `/article/${clean(article.slug)}` : '/articles',
+    canonical: slug ? `/article/${slug}` : '/articles',
     robots: 'index,follow'
   }, settings);
 }
@@ -219,7 +254,7 @@ function organizationSchema(settings = {}) {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: brand,
-    url: baseUrl,
+    url: absoluteUrl('/', baseUrl),
     logo: absoluteUrl(settings?.logo || '/assets/images/logo.png', baseUrl)
   };
 }
