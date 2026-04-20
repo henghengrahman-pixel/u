@@ -50,7 +50,7 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 <% if (safeCategories.length) { %>
 <% safeCategories.slice(0, 8).forEach(function(cat){ %>
 <li>
-<a href="/shop?category=<%= encodeURIComponent(cat.name) %>">
+<a href="/shop?category=<%= encodeURIComponent(cat.name) %>" rel="nofollow">
 <%= cat.name %>
 </a>
 </li>
@@ -69,8 +69,10 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 <li><a href="/">Home</a></li>
 <li><a href="/shop">Rekomendasi Produk</a></li>
 <li><a href="/kaos-oversize-pria">Kaos Oversize Pria</a></li>
+<li><a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a></li>
+<li><a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a></li>
 <li><a href="/articles">Artikel Fashion Pria</a></li>
-<li><a href="/contact">Kontak</a></li>
+<li><a href="/contact" rel="nofollow">Kontak</a></li>
 </ul>
 </div>
 </div>
@@ -89,15 +91,6 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 
 </div>
 </div>
-</div>
-
-<!-- 🔥 GLOBAL INTERNAL LINK (FIX FINAL - NO ERROR) -->
-<div style="display:none;">
-<% if (Array.isArray(internalLinks)) { %>
-  <% internalLinks.forEach(function(p){ %>
-    <a href="/s/<%= p.slug %>"><%= p.keyword %></a>
-  <% }) %>
-<% } %>
 </div>
 
 <div id="bottom-footer" class="section">
