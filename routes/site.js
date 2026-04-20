@@ -18,6 +18,19 @@ seoPages.forEach(p => {
 
 /*
 |--------------------------------------------------------------------------
+| 🔥 SNIPER KEYWORDS (LOW COMP)
+|--------------------------------------------------------------------------
+*/
+const sniperKeywords = [
+  'kaos oversize pria bahan tebal murah',
+  'kaos oversize pria terbaik untuk nongkrong',
+  'kaos pria keren untuk sehari hari',
+  'kaos oversize pria nyaman dipakai harian',
+  'kaos pria kekinian harga terjangkau'
+];
+
+/*
+|--------------------------------------------------------------------------
 | MAIN PAGES
 |--------------------------------------------------------------------------
 */
@@ -37,7 +50,7 @@ router.get(PRIMARY_SEO_LANDING, siteController.seoKaosOversizePria);
 
 /*
 |--------------------------------------------------------------------------
-| 🔥 AUTO SEO 1000 PAGE (FAST LOOKUP)
+| 🔥 AUTO SEO 1000 PAGE
 |--------------------------------------------------------------------------
 */
 router.get('/s/:slug', (req, res) => {
@@ -48,8 +61,20 @@ router.get('/s/:slug', (req, res) => {
   }
 
   const products = getVisibleProducts();
-
   return siteController.seoDynamic(req, res, page, products);
+});
+
+/*
+|--------------------------------------------------------------------------
+| 🔥 SNIPER ROUTES (FAST RANKING)
+|--------------------------------------------------------------------------
+*/
+sniperKeywords.forEach(keyword => {
+  const slug = keyword.replace(/\s+/g, '-');
+
+  router.get(`/sniper/${slug}`, (req, res) => {
+    return siteController.seoSniper(req, res, keyword);
+  });
 });
 
 /*
