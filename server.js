@@ -6,6 +6,7 @@ const session = require('express-session');
 
 const { ensureDataFiles } = require('./helpers/jsonDb');
 const { viewGlobals } = require('./middleware');
+const { generateSeoPages } = require('./helpers/seo-pages');
 
 ensureDataFiles();
 
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(express.json({ limit: '2mb' }));
 
-/* ================= STATIC FIX ================= */
+/* ================= STATIC ================= */
 app.use(express.static(path.join(__dirname, 'public'), {
   index: false,
   redirect: false,
@@ -82,11 +83,11 @@ app.use((req, res, next) => {
 /* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
 
-/* ================= SITEMAP ================= */
+/* ================= 🔥 SITEMAP DINAMIS ================= */
 app.get('/sitemap.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
 
-  const urls = [
+  const staticUrls = [
     '/',
     '/shop',
     '/articles',
@@ -94,15 +95,21 @@ app.get('/sitemap.xml', (req, res) => {
     '/kaos-oversize-pria'
   ];
 
+  const seoPages = generateSeoPages();
+
+  const dynamicUrls = seoPages.map(p => `/s/${p.slug}`);
+
+  const allUrls = [...staticUrls, ...dynamicUrls];
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    ${urls.map(url => `
-      <url>
-        <loc>${baseUrl}${url}</loc>
-        <priority>0.8</priority>
-      </url>
-    `).join('')}
-  </urlset>`;
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${allUrls.map(url => `
+<url>
+<loc>${baseUrl}${url}</loc>
+<priority>0.8</priority>
+</url>
+`).join('')}
+</urlset>`;
 
   res.header('Content-Type', 'application/xml');
   res.send(xml);
