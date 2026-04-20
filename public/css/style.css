@@ -2907,3 +2907,19 @@ textarea.input {
     padding: 0 10px;
   }
 }
+.product-description-paragraphs p {
+  margin: 0 0 14px;
+  line-height: 1.8;
+  color: #4f5873;
+}
+
+.product-detail-notes {
+  margin: 0;
+  padding-left: 18px;
+  color: #4f5873;
+}
+
+.product-detail-notes li {
+  margin-bottom: 10px;
+  line-height: 1.8;
+}
