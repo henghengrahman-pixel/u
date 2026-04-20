@@ -12,6 +12,22 @@ const { generateSeoPages } = require('./helpers/seo-pages');
 /* ================= CACHE SEO PAGES (ANTI BERAT) ================= */
 const SEO_PAGES = generateSeoPages();
 
+/* ================= HELPER SHUFFLE (AMAN) ================= */
+function getRandomLinks(arr, total = 50) {
+  const result = [];
+  const used = new Set();
+
+  while (result.length < total && result.length < arr.length) {
+    const i = Math.floor(Math.random() * arr.length);
+    if (!used.has(i)) {
+      used.add(i);
+      result.push(arr[i]);
+    }
+  }
+
+  return result;
+}
+
 function viewGlobals(req, res, next) {
   const settings = getSettings() || {};
   const cart = getCart(req);
@@ -71,10 +87,9 @@ function viewGlobals(req, res, next) {
     res.setHeader('X-Robots-Tag', res.locals.meta.robots);
   }
 
-  /* ================= 🔥 GLOBAL INTERNAL LINK (FIX FINAL) ================= */
+  /* ================= 🔥 GLOBAL INTERNAL LINK (FIX AMAN) ================= */
   try {
-    const shuffled = SEO_PAGES.sort(() => 0.5 - Math.random());
-    res.locals.internalLinks = shuffled.slice(0, 50); // 50 link per page (optimal)
+    res.locals.internalLinks = getRandomLinks(SEO_PAGES, 50);
   } catch (e) {
     res.locals.internalLinks = [];
   }
