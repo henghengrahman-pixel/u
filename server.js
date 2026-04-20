@@ -17,6 +17,10 @@ const IS_PROD = NODE_ENV === 'production';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'mwg-secret-change-this';
 const BASE_URL = normalizeBaseUrl(process.env.BASE_URL || '');
 
+/* ================= CACHE SEO PAGES ================= */
+const SEO_PAGES = generateSeoPages();
+
+/* ================= CONFIG ================= */
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
@@ -83,30 +87,51 @@ app.use((req, res, next) => {
 /* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
 
-/* ================= 🔥 SITEMAP DINAMIS ================= */
+/* ================= 🔥 SITEMAP INDEX ================= */
 app.get('/sitemap.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const total = Math.ceil(SEO_PAGES.length / 500);
 
-  const staticUrls = [
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${Array.from({ length: total }).map((_, i) => `
+<sitemap>
+<loc>${baseUrl}/sitemap-${i + 1}.xml</loc>
+</sitemap>
+`).join('')}
+</sitemapindex>`;
+
+  res.header('Content-Type', 'application/xml');
+  res.send(xml);
+});
+
+/* ================= 🔥 SITEMAP PART (PER 500 URL) ================= */
+app.get('/sitemap-:page.xml', (req, res) => {
+  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const page = parseInt(req.params.page) || 1;
+
+  const start = (page - 1) * 500;
+  const chunk = SEO_PAGES.slice(start, start + 500);
+
+  const staticUrls = page === 1 ? [
     '/',
     '/shop',
     '/articles',
     '/contact',
     '/kaos-oversize-pria'
+  ] : [];
+
+  const urls = [
+    ...staticUrls,
+    ...chunk.map(p => `/s/${p.slug}`)
   ];
-
-  const seoPages = generateSeoPages();
-
-  const dynamicUrls = seoPages.map(p => `/s/${p.slug}`);
-
-  const allUrls = [...staticUrls, ...dynamicUrls];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls.map(url => `
+${urls.map(url => `
 <url>
 <loc>${baseUrl}${url}</loc>
-<priority>0.8</priority>
+<priority>0.7</priority>
 </url>
 `).join('')}
 </urlset>`;
