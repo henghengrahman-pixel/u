@@ -12,19 +12,31 @@
   <section class="section home-hero">
     <div class="container">
       <div class="home-hero-inner text-center">
-        <h1>Rekomendasi Kaos Oversize Pria Original &amp; Distro Premium Pilihan Terbaik</h1>
+
+        <!-- 🔥 H1 FIX -->
+        <h1>Kaos Oversize Pria Premium Original – Rekomendasi Terbaik 2025</h1>
+
+        <!-- 🔥 PARAGRAF SEO -->
         <p>
-          Temukan pilihan <a href="/kaos-oversize-pria">kaos oversize pria</a> original dan kaos distro premium
-          yang kami kurasi berdasarkan kualitas bahan, kenyamanan saat dipakai, model yang kekinian,
-          dan tampilan yang lebih rapi untuk menunjang gaya pria masa kini.
+          Temukan pilihan <a href="/kaos-oversize-pria">kaos oversize pria</a> premium original dengan bahan tebal,
+          nyaman dipakai harian, dan model kekinian. Cocok untuk kamu yang cari
+          <strong>kaos pria terbaik</strong> kualitas distro dengan harga terjangkau.
         </p>
 
         <div class="home-hero-cta">
           <a href="/shop" class="primary-btn">Lihat Rekomendasi Terbaik</a>
         </div>
+
       </div>
     </div>
   </section>
+
+  <!-- 🔥 INTERNAL LINK BOOST -->
+  <div class="container text-center" style="margin-top:20px;">
+    <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+    <a href="/shop">Shop Kaos Pria</a> |
+    <a href="/articles">Tips Fashion Pria</a>
+  </div>
 
   <section class="section home-featured-slider-section">
     <div class="container">
@@ -45,10 +57,6 @@
             <% }) %>
           </div>
         </div>
-      <% } else { %>
-        <div class="empty-state text-center">
-          <p>Rekomendasi unggulan sedang disiapkan.</p>
-        </div>
       <% } %>
     </div>
   </section>
@@ -56,7 +64,10 @@
   <section class="section home-products-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2 class="title">Rekomendasi Kaos Pria Terbaru</h2>
+
+        <!-- 🔥 KEYWORD BOOST -->
+        <h2 class="title">Rekomendasi Kaos Oversize Pria Terbaru & Terbaik</h2>
+
         <p class="section-subtitle">
           Kami rangkum pilihan kaos pria terbaik untuk memudahkan kamu menemukan model yang nyaman, keren, dan layak dipilih.
         </p>
@@ -74,10 +85,6 @@
         <div class="text-center home-products-cta">
           <a href="/shop" class="primary-btn">Lihat Semua Rekomendasi</a>
         </div>
-      <% } else { %>
-        <div class="empty-state text-center">
-          <p>Rekomendasi terbaru belum tersedia.</p>
-        </div>
       <% } %>
     </div>
   </section>
@@ -85,7 +92,10 @@
   <section class="section home-trust-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2>Kenapa Banyak Pria Lebih Suka Pilihan di Sini?</h2>
+
+        <!-- 🔥 KEYWORD BOOST -->
+        <h2>Kenapa Kaos Oversize Pria di Sini Lebih Banyak Dipilih?</h2>
+
         <p class="section-subtitle">
           Kami fokus pada kualitas, kenyamanan, dan model yang membuat kamu lebih yakin saat memilih.
         </p>
@@ -95,27 +105,21 @@
         <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
           <div class="trust-card">
             <h3>Kurasi Lebih Selektif</h3>
-            <p>
-              Setiap produk dipilih dari model yang menarik, bahan yang nyaman, dan tampilan yang layak jadi pilihan utama.
-            </p>
+            <p>Produk dipilih dari bahan nyaman dan model terbaik.</p>
           </div>
         </div>
 
         <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
           <div class="trust-card">
             <h3>Nyaman Dipakai Harian</h3>
-            <p>
-              Kami mengutamakan kaos pria yang enak dipakai, tidak mudah terasa gerah, dan tetap cocok untuk aktivitas sehari-hari.
-            </p>
+            <p>Cocok untuk aktivitas harian tanpa terasa gerah.</p>
           </div>
         </div>
 
         <div class="col-md-4 col-sm-4 col-xs-12 trust-grid-item">
           <div class="trust-card">
             <h3>Tampilan Lebih Meyakinkan</h3>
-            <p>
-              Pilihan model kekinian membantu kamu tampil lebih rapi, percaya diri, dan mudah dipadukan dengan outfit favorit.
-            </p>
+            <p>Model kekinian bikin lebih percaya diri.</p>
           </div>
         </div>
       </div>
@@ -125,10 +129,7 @@
   <section class="section home-articles-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2>Tips Outfit &amp; Rekomendasi Fashion Pria</h2>
-        <p class="section-subtitle">
-          Baca panduan memilih kaos pria, inspirasi outfit, dan referensi style agar penampilan makin pas.
-        </p>
+        <h2>Tips Outfit & Rekomendasi Fashion Pria</h2>
       </div>
 
       <% if (articleItems.length) { %>
@@ -136,35 +137,23 @@
           <% articleItems.forEach(function(article){ %>
             <div class="article-grid-item">
               <article class="article-card-modern">
-                <a href="/article/<%= article.slug %>" class="article-card-thumb" aria-label="<%= article.title %>">
+                <a href="/article/<%= article.slug %>">
+                  <!-- 🔥 IMAGE SEO -->
                   <img
                     src="<%= article.image || article.thumbnail || '/assets/images/og-image.jpg' %>"
                     alt="<%= article.title %>"
+                    width="400"
+                    height="300"
                     loading="lazy"
-                    decoding="async"
                   >
                 </a>
 
-                <div class="article-card-content">
-                  <h3 class="article-card-title">
-                    <a href="/article/<%= article.slug %>"><%= article.title %></a>
-                  </h3>
-
-                  <p class="article-card-excerpt">
-                    <%= article.excerpt || 'Baca artikel lengkap untuk mendapatkan referensi fashion pria yang lebih tepat dan menarik.' %>
-                  </p>
-
-                  <a href="/article/<%= article.slug %>" class="read-more">
-                    Baca Selengkapnya →
-                  </a>
-                </div>
+                <h3>
+                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                </h3>
               </article>
             </div>
           <% }) %>
-        </div>
-      <% } else { %>
-        <div class="empty-state text-center">
-          <p>Artikel pilihan sedang disiapkan.</p>
         </div>
       <% } %>
     </div>
@@ -174,9 +163,6 @@
     <div class="container">
       <div class="section-heading text-center">
         <h2>Kategori Favorit</h2>
-        <p class="section-subtitle">
-          Jelajahi kategori yang paling sering dicari untuk menemukan pilihan yang paling cocok.
-        </p>
       </div>
 
       <div class="popular-category-links text-center">
@@ -186,7 +172,7 @@
           <a href="/shop?category=<%= encodeURIComponent(category.name) %>"><%= category.name %></a>
         <% }) %>
 
-        <a href="/articles">Tips &amp; Artikel Fashion Pria</a>
+        <a href="/articles">Tips Fashion Pria</a>
       </div>
     </div>
   </section>
