@@ -91,7 +91,8 @@ app.use(viewGlobals);
 /* ================= 🔥 SITEMAP INDEX ================= */
 app.get('/sitemap.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
-  const total = Math.ceil(SEO_PAGES.length / 500);
+
+  const total = Math.ceil(SEO_PAGES.length / 1000);
 
   res.set('Content-Type', 'application/xml');
 
@@ -107,13 +108,13 @@ app.get('/sitemap.xml', (req, res) => {
   res.send(xml);
 });
 
-/* ================= 🔥 SITEMAP PART ================= */
+/* ================= 🔥 SITEMAP PART (1000 URL / FILE) ================= */
 app.get('/sitemap-:page.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
   const page = parseInt(req.params.page) || 1;
 
-  const start = (page - 1) * 500;
-  const chunk = SEO_PAGES.slice(start, start + 500);
+  const start = (page - 1) * 1000;
+  const chunk = SEO_PAGES.slice(start, start + 1000);
 
   const staticUrls = page === 1 ? [
     '/',
