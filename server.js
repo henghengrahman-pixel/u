@@ -16,101 +16,39 @@ const IS_PROD = NODE_ENV === 'production';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'mwg-secret-change-this';
 const BASE_URL = normalizeBaseUrl(process.env.BASE_URL || '');
 
-if (IS_PROD && SESSION_SECRET === 'mwg-secret-change-this') {
-  console.warn('[SECURITY] SESSION_SECRET masih default. Ganti di environment production.');
-}
-
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-/* ================= GLOBAL SECURITY + ROBOTS ================= */
+/* ================= FORCE INDEX ================= */
 app.use((req, res, next) => {
-  setSecurityHeaders(res);
-
-  const isAdminRoute = req.path.startsWith('/admin');
-  const isHealthRoute = req.path === '/healthz';
-
-  if (isAdminRoute || isHealthRoute) {
-    setRobotsHeader(res, 'noindex, nofollow, noarchive');
-  } else {
-    clearRobotsHeader(res);
-  }
-
-  return next();
-});
-
-/* ================= CANONICAL HOST / PROTOCOL ================= */
-app.use((req, res, next) => {
-  if (!IS_PROD || !BASE_URL) return next();
-
-  try {
-    const target = new URL(BASE_URL);
-    const forwardedProto = String(req.headers['x-forwarded-proto'] || req.protocol || 'http')
-      .split(',')[0]
-      .trim()
-      .toLowerCase();
-    const requestHost = String(req.get('host') || '').trim().toLowerCase();
-    const targetHost = String(target.host || '').trim().toLowerCase();
-    const targetProto = String(target.protocol || 'https:').replace(':', '').toLowerCase();
-
-    if (requestHost && (requestHost !== targetHost || forwardedProto !== targetProto)) {
-      const redirectUrl = new URL(req.originalUrl || '/', BASE_URL).toString();
-      return res.redirect(301, redirectUrl);
-    }
-  } catch (error) {
-    console.error('[BASE_URL REDIRECT ERROR]', error);
-  }
-
-  return next();
-});
-
-/* ================= TRAILING SLASH NORMALIZE ================= */
-app.use((req, res, next) => {
-  if (req.path.length > 1 && /\/$/.test(req.path)) {
-    const cleanPath = req.path.replace(/\/+$/, '');
-    const queryIndex = req.originalUrl.indexOf('?');
-    const query = queryIndex >= 0 ? req.originalUrl.slice(queryIndex) : '';
-    return res.redirect(301, `${cleanPath}${query}`);
-  }
-
-  return next();
+  res.setHeader('X-Robots-Tag', 'index, follow');
+  next();
 });
 
 /* ================= BODY ================= */
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(express.json({ limit: '2mb' }));
 
-/* ================= STATIC ================= */
-app.use('/assets', express.static(path.join(__dirname, 'public'), {
+/* ================= STATIC FIX ================= */
+app.use(express.static(path.join(__dirname, 'public'), {
   index: false,
   redirect: false,
   etag: true,
   lastModified: true,
-  maxAge: IS_PROD ? '7d' : 0,
-  setHeaders(res, filePath) {
-    if (/\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot)$/i.test(filePath)) {
-      res.setHeader(
-        'Cache-Control',
-        IS_PROD
-          ? 'public, max-age=604800, stale-while-revalidate=86400'
-          : 'no-cache'
-      );
-    }
-  }
+  maxAge: IS_PROD ? '7d' : 0
 }));
+
+app.use('/assets', express.static(path.join(__dirname, 'public')));
 
 /* ================= SESSION ================= */
 app.use(session({
   name: process.env.SESSION_NAME || 'mwg.sid',
   secret: SESSION_SECRET,
-  proxy: IS_PROD,
   resave: false,
   saveUninitialized: false,
-  rolling: false,
-  unset: 'destroy',
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
@@ -121,34 +59,53 @@ app.use(session({
 
 /* ================= DEFAULT LOCALS ================= */
 app.use((req, res, next) => {
-  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`.replace(/\/+$/, '');
-  const currentPath = req.path || '/';
+  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
   const currentUrl = `${baseUrl}${req.originalUrl || '/'}`;
-  const storeName = process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
+  const storeName = process.env.STORE_NAME || 'MWG Oversize';
 
   res.locals.baseUrl = baseUrl;
-  res.locals.currentPath = currentPath;
   res.locals.currentUrl = currentUrl;
+
   res.locals.meta = {
-    title: `${storeName} - Rekomendasi Kaos Pria Terbaik`,
-    description: 'Temukan rekomendasi kaos pria terbaik mulai dari oversize hingga distro premium dengan bahan nyaman dan desain kekinian.',
-    keywords: 'rekomendasi kaos pria, kaos oversize pria, kaos pria terbaik',
+    title: `Kaos Oversize Pria Premium Original | ${storeName}`,
+    description: 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, trendy. Order sekarang.',
+    keywords: 'kaos oversize pria, kaos distro pria, baju oversize pria',
     image: `${baseUrl}/assets/images/og-image.jpg`,
     url: currentUrl,
     canonical: currentUrl,
-    robots: currentPath.startsWith('/admin') ? 'noindex,nofollow,noarchive' : 'index,follow'
+    robots: 'index,follow'
   };
 
-  return next();
+  next();
 });
 
 /* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
 
-/* ================= HEALTH ================= */
-app.get('/healthz', (req, res) => {
-  setRobotsHeader(res, 'noindex, nofollow, noarchive');
-  return res.status(200).json({ ok: true });
+/* ================= SITEMAP ================= */
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
+
+  const urls = [
+    '/',
+    '/shop',
+    '/articles',
+    '/contact',
+    '/kaos-oversize-pria'
+  ];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    ${urls.map(url => `
+      <url>
+        <loc>${baseUrl}${url}</loc>
+        <priority>0.8</priority>
+      </url>
+    `).join('')}
+  </urlset>`;
+
+  res.header('Content-Type', 'application/xml');
+  res.send(xml);
 });
 
 /* ================= ROUTES ================= */
@@ -156,75 +113,12 @@ app.use('/', require('./routes/system'));
 app.use('/', require('./routes/site'));
 app.use('/admin', require('./routes/admin'));
 
-/* ================= 404 ================= */
-app.use((req, res) => {
-  const storeName = res.locals.settings?.storeName || process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
-
-  setRobotsHeader(res, 'noindex, follow');
-
-  res.status(404);
-  res.locals.meta = {
-    ...res.locals.meta,
-    title: `Halaman Tidak Ditemukan | ${storeName}`,
-    description: 'Halaman yang kamu cari tidak tersedia atau sudah dipindahkan.',
-    canonical: res.locals.currentUrl,
-    url: res.locals.currentUrl,
-    robots: 'noindex,follow'
-  };
-
-  return res.render('404');
-});
-
-/* ================= ERROR ================= */
-app.use((err, req, res, next) => {
-  const storeName = res.locals.settings?.storeName || process.env.STORE_NAME || process.env.APP_NAME || 'MWG Oversize';
-
-  console.error(err);
-
-  if (res.headersSent) {
-    return next(err);
-  }
-
-  setRobotsHeader(res, 'noindex, nofollow');
-
-  res.status(500);
-  res.locals.meta = {
-    ...res.locals.meta,
-    title: `Server Error | ${storeName}`,
-    description: 'Terjadi kesalahan pada server.',
-    canonical: res.locals.currentUrl,
-    url: res.locals.currentUrl,
-    robots: 'noindex,nofollow'
-  };
-
-  return res.render('500');
-});
-
 /* ================= START ================= */
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`[ENV] NODE_ENV=${NODE_ENV}`);
 });
 
-/* ================= SHUTDOWN ================= */
-function shutdown(signal) {
-  console.log(`[SERVER] ${signal} received. Closing server...`);
-
-  server.close(() => {
-    console.log('[SERVER] Closed cleanly.');
-    process.exit(0);
-  });
-
-  setTimeout(() => {
-    console.error('[SERVER] Force shutdown.');
-    process.exit(1);
-  }, 10000).unref();
-}
-
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-
-/* ================= HELPERS ================= */
+/* ================= HELPER ================= */
 function normalizeBaseUrl(value) {
   const clean = String(value || '').trim().replace(/\/+$/, '');
   if (!clean) return '';
@@ -234,24 +128,4 @@ function normalizeBaseUrl(value) {
   } catch (_) {
     return '';
   }
-}
-
-function setSecurityHeaders(res) {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  res.setHeader('Permissions-Policy', 'accelerometer=(), autoplay=(), camera=(), geolocation=(), microphone=(), payment=(), usb=()');
-
-  if (IS_PROD) {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-  }
-}
-
-function setRobotsHeader(res, value) {
-  res.setHeader('X-Robots-Tag', value);
-}
-
-function clearRobotsHeader(res) {
-  res.removeHeader('X-Robots-Tag');
 }
