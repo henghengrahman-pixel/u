@@ -9,28 +9,49 @@ function slugify(text) {
 function generateSeoPages() {
   const base = [
     'kaos oversize pria',
-    'kaos pria',
+    'kaos pria oversize',
     'kaos distro pria'
   ];
 
   const modifiers = [
-    'murah','premium','terbaik','terbaru','kekinian','original',
-    'bahan tebal','nyaman dipakai','lengan pendek','lengan panjang',
-    'import','lokal','branded','casual','simple','minimalis',
-    'outfit harian','streetwear','keren','gaul'
+    'murah',
+    'premium',
+    'terbaik',
+    'original',
+    'bahan tebal',
+    'cotton combed 30s',
+    'tidak panas',
+    'adem dipakai',
+    'kekinian',
+    'trending',
+    'import',
+    'lokal brand'
   ];
 
   const intents = [
-    'untuk sehari hari','untuk nongkrong','untuk kerja',
-    'untuk kuliah','untuk santai','untuk jalan jalan'
+    'beli sekarang',
+    'harga terbaik',
+    'diskon hari ini',
+    'termurah',
+    'review lengkap',
+    'rekomendasi terbaik'
   ];
 
   const locations = [
-    'jakarta','bandung','surabaya','medan','makassar',
-    'tangerang','bekasi','depok','semarang','palembang'
+    'jakarta',
+    'bandung',
+    'surabaya',
+    'medan',
+    'makassar',
+    'tangerang',
+    'bekasi',
+    'depok',
+    'semarang',
+    'palembang'
   ];
 
   const pages = [];
+  const used = new Set();
 
   base.forEach(b => {
     modifiers.forEach(m => {
@@ -40,11 +61,14 @@ function generateSeoPages() {
           const keyword = `${b} ${m} ${i} di ${l}`;
           const slug = slugify(keyword);
 
+          if (used.has(slug)) return;
+          used.add(slug);
+
           pages.push({
             keyword,
             slug,
-            title: `${keyword} terbaik 2026`,
-            desc: `Temukan ${keyword} dengan kualitas terbaik, bahan nyaman, dan model kekinian.`
+            title: `${b} ${m} ${i} di ${l} terbaik 2026`,
+            desc: `Beli ${b} ${m} ${i} di ${l}. Bahan nyaman, kualitas premium, cocok untuk outfit harian.`,
           });
 
         });
