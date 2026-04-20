@@ -9,6 +9,25 @@ const { makeMeta } = require('./helpers/seo');
 const { getCart, cartCount, cartTotals } = require('./helpers/cart');
 const { generateSeoPages } = require('./helpers/seo-pages');
 
+/* ================= CACHE SEO PAGES (ANTI BERAT) ================= */
+const SEO_PAGES = generateSeoPages();
+
+/* ================= HELPER SHUFFLE (AMAN) ================= */
+function getRandomLinks(arr, total = 50) {
+  const result = [];
+  const used = new Set();
+
+  while (result.length < total && result.length < arr.length) {
+    const i = Math.floor(Math.random() * arr.length);
+    if (!used.has(i)) {
+      used.add(i);
+      result.push(arr[i]);
+    }
+  }
+
+  return result;
+}
+
 function viewGlobals(req, res, next) {
   const settings = getSettings() || {};
   const cart = getCart(req);
@@ -68,8 +87,12 @@ function viewGlobals(req, res, next) {
     res.setHeader('X-Robots-Tag', res.locals.meta.robots);
   }
 
-  /* ================= 🔥 SEO LINKS (FIX ERROR REQUIRE) ================= */
-  res.locals.seoLinks = generateSeoPages().slice(0, 100);
+  /* ================= 🔥 GLOBAL INTERNAL LINK (FIX AMAN) ================= */
+  try {
+    res.locals.internalLinks = getRandomLinks(SEO_PAGES, 50);
+  } catch (e) {
+    res.locals.internalLinks = [];
+  }
 
   /* ================= STRUCTURED DATA ================= */
   res.locals.structuredData = null;
