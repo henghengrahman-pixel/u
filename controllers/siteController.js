@@ -19,6 +19,11 @@ function applySeo(res, meta) {
   };
 }
 
+/* ================= STRUCTURED DATA ================= */
+function setSchema(res, schema) {
+  res.locals.structuredData = schema;
+}
+
 /* ================= HOME ================= */
 exports.home = (req,res)=>{
   const products = getVisibleProducts();
@@ -26,9 +31,16 @@ exports.home = (req,res)=>{
 
   applySeo(res,{
     title:'Kaos Oversize Pria Premium Terbaik 2026',
-    description:'Beli kaos oversize pria premium bahan tebal dan nyaman dipakai harian.',
+    description:'Beli kaos oversize pria premium bahan tebal, nyaman, dan kekinian.',
     keywords:'kaos oversize pria, kaos pria premium',
     canonical:'/'
+  });
+
+  setSchema(res,{
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "name":"MWG Oversize",
+    "url":res.locals.baseUrl
   });
 
   res.render('home',{
@@ -47,17 +59,13 @@ exports.shop = (req,res)=>{
   const category = (req.query.category || '').trim();
 
   applySeo(res,{
-    title:'Shop Kaos Pria Terbaik',
-    description:'Temukan kaos pria terbaik dan oversize premium.',
+    title:'Shop Kaos Pria Oversize Terbaik',
+    description:'Temukan kaos pria oversize terbaik bahan nyaman dan stylish.',
     keywords:'kaos pria, kaos oversize pria',
     canonical:'/shop'
   });
 
-  res.render('shop',{
-    products,
-    query,
-    category
-  });
+  res.render('shop',{products,query,category});
 };
 
 /* ================= PRODUCT ================= */
@@ -73,6 +81,18 @@ exports.productDetail = (req,res)=>{
     canonical:`/product/${product.slug}`
   });
 
+  setSchema(res,{
+    "@context":"https://schema.org",
+    "@type":"Product",
+    "name":product.name,
+    "offers":{
+      "@type":"Offer",
+      "price":product.price || 0,
+      "priceCurrency":"IDR",
+      "availability":"https://schema.org/InStock"
+    }
+  });
+
   res.render('product-detail',{
     product,
     recommended:getVisibleProducts().slice(0,4)
@@ -84,8 +104,8 @@ exports.articles = (req,res)=>{
   const articles = getVisibleArticles();
 
   applySeo(res,{
-    title:'Artikel Fashion Pria',
-    description:'Tips outfit pria dan rekomendasi kaos terbaik.',
+    title:'Artikel Fashion Pria & Kaos Oversize',
+    description:'Tips outfit pria dan rekomendasi kaos oversize terbaik.',
     keywords:'fashion pria, kaos pria',
     canonical:'/articles'
   });
@@ -112,8 +132,8 @@ exports.articleDetail = (req,res)=>{
 /* ================= CONTACT ================= */
 exports.contact = (req,res)=>{
   applySeo(res,{
-    title:'Kontak',
-    description:'Hubungi kami',
+    title:'Kontak Kami',
+    description:'Hubungi kami untuk informasi lebih lanjut.',
     keywords:'kontak',
     canonical:'/contact'
   });
@@ -121,21 +141,67 @@ exports.contact = (req,res)=>{
   res.render('contact');
 };
 
-/* ================= SEO LANDING ================= */
+/* ================= HUB (MONEY PAGE) ================= */
 exports.seoKaosOversizePria = (req,res)=>{
   const products = getVisibleProducts();
 
   applySeo(res,{
     title:'Kaos Oversize Pria Premium Terbaik 2026',
-    description:'Rekomendasi kaos oversize pria terbaik, bahan tebal dan nyaman.',
+    description:'Rekomendasi kaos oversize pria terbaik bahan tebal dan nyaman.',
     keywords:'kaos oversize pria premium',
     canonical:'/kaos-oversize-pria'
+  });
+
+  setSchema(res,{
+    "@context":"https://schema.org",
+    "@type":"CollectionPage",
+    "name":"Kaos Oversize Pria"
   });
 
   res.render('seo-kaos-oversize',{
     products,
     articles:getVisibleArticles().slice(0,4)
   });
+};
+
+/* ================= 🔥 CATEGORY (TOPICAL CORE) ================= */
+exports.seoCategoryMurah = (req,res)=>{
+  const products = getVisibleProducts();
+
+  applySeo(res,{
+    title:'Kaos Oversize Pria Murah Terbaik 2026',
+    description:'Rekomendasi kaos oversize pria murah berkualitas bahan nyaman.',
+    keywords:'kaos oversize pria murah',
+    canonical:'/kaos-oversize-pria-murah'
+  });
+
+  res.render('seo-category',{products});
+};
+
+exports.seoCategoryPremium = (req,res)=>{
+  const products = getVisibleProducts();
+
+  applySeo(res,{
+    title:'Kaos Oversize Pria Premium Original Terbaik',
+    description:'Kaos oversize pria premium original kualitas terbaik.',
+    keywords:'kaos oversize pria premium',
+    canonical:'/kaos-oversize-pria-premium'
+  });
+
+  res.render('seo-category',{products});
+};
+
+exports.seoCategoryTerbaik = (req,res)=>{
+  const products = getVisibleProducts();
+
+  applySeo(res,{
+    title:'Kaos Oversize Pria Terbaik 2026',
+    description:'Daftar kaos oversize pria terbaik kualitas premium.',
+    keywords:'kaos oversize pria terbaik',
+    canonical:'/kaos-oversize-pria-terbaik'
+  });
+
+  res.render('seo-category',{products});
 };
 
 /* ================= AUTO SEO ================= */
@@ -147,27 +213,20 @@ exports.seoDynamic = (req,res,page,products)=>{
     canonical:`/s/${page.slug}`
   });
 
-  res.render('seo-dynamic',{
-    products,
-    page
-  });
+  res.render('seo-dynamic',{products,page});
 };
 
-/* ================= 🔥 SNIPER SEO ================= */
+/* ================= 🔥 SNIPER ================= */
 exports.seoSniper = (req,res,keyword)=>{
   const products = getVisibleProducts();
-
   const slug = keyword.replace(/\s+/g,'-');
 
   applySeo(res,{
     title: keyword + ' terbaik 2026',
-    description: 'Temukan ' + keyword + ' dengan kualitas terbaik dan nyaman dipakai.',
+    description: 'Temukan ' + keyword + ' dengan kualitas terbaik.',
     keywords: keyword,
     canonical: '/sniper/' + slug
   });
 
-  res.render('seo-sniper',{
-    products,
-    keyword
-  });
+  res.render('seo-sniper',{products,keyword});
 };
