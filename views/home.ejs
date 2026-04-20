@@ -32,6 +32,8 @@
 
   <div class="container text-center" style="margin-top:20px;">
     <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+    <a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a> |
+    <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a> |
     <a href="/shop">Shop Kaos Pria</a> |
     <a href="/articles">Tips Fashion Pria</a>
   </div>
@@ -118,6 +120,32 @@
     </div>
   </section>
 
+  <section class="section" style="padding-top:10px;">
+    <div class="container">
+      <div class="section-heading text-center">
+        <h2>Kenapa Halaman Ini Cocok untuk Pembeli Pria Indonesia?</h2>
+        <p class="section-subtitle" style="max-width:860px; margin:0 auto;">
+          Homepage ini dibuat untuk membantu pembeli pria Indonesia menemukan kaos yang nyaman, mudah dipadukan,
+          dan layak dipertimbangkan untuk outfit harian tanpa harus bingung memilih dari terlalu banyak opsi.
+        </p>
+      </div>
+
+      <div class="product-description-clean" style="max-width:920px; margin:0 auto;">
+        <p>
+          Fokus utama halaman ini adalah mempertemukan kamu dengan pilihan kaos pria yang lebih relevan untuk kebutuhan harian,
+          mulai dari model oversize, bahan yang nyaman dipakai, sampai referensi outfit yang lebih cocok untuk gaya casual modern.
+        </p>
+        <p>
+          Kalau kamu ingin langsung mengarah ke halaman yang lebih spesifik, kamu bisa buka
+          <a href="/kaos-oversize-pria">rekomendasi kaos oversize pria</a>,
+          <a href="/kaos-oversize-pria-premium">kategori premium</a>,
+          atau <a href="/kaos-oversize-pria-terbaik">pilihan terbaik</a>
+          agar proses memilih jadi lebih cepat dan lebih terarah.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <section class="section home-articles-section">
     <div class="container">
       <div class="section-heading text-center">
@@ -180,18 +208,25 @@
   <section class="section home-category-links-section">
     <div class="container">
       <div class="section-heading text-center">
-        <h2>Kategori Favorit</h2>
+        <h2>Halaman Favorit</h2>
       </div>
 
       <div class="popular-category-links text-center">
         <a href="/kaos-oversize-pria">Rekomendasi Kaos Oversize Pria</a>
-
-        <% categoryItems.slice(0, 4).forEach(function(category){ %>
-          <a href="/shop?category=<%= encodeURIComponent(category.name) %>"><%= category.name %></a>
-        <% }) %>
-
+        <a href="/kaos-oversize-pria-murah">Kaos Oversize Pria Murah</a>
+        <a href="/kaos-oversize-pria-premium">Kaos Oversize Pria Premium</a>
+        <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Pria Terbaik</a>
+        <a href="/shop">Shop Kaos Pria</a>
         <a href="/articles">Tips Fashion Pria</a>
       </div>
+
+      <% if (categoryItems.length) { %>
+        <div class="text-center" style="margin-top:14px; color:#6b7280;">
+          <% categoryItems.slice(0, 4).forEach(function(category, index){ %>
+            <span><%= category.name %><%= index < Math.min(categoryItems.slice(0, 4).length - 1, 3) ? ' • ' : '' %></span>
+          <% }) %>
+        </div>
+      <% } %>
     </div>
   </section>
 </main>
