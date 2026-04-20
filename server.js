@@ -17,7 +17,6 @@ const IS_PROD = NODE_ENV === 'production';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'mwg-secret-change-this';
 const BASE_URL = normalizeBaseUrl(process.env.BASE_URL || '');
 
-/* ================= CACHE SEO PAGES ================= */
 const SEO_PAGES = generateSeoPages();
 
 /* ================= CONFIG ================= */
@@ -29,7 +28,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 /* ================= FORCE INDEX ================= */
 app.use((req, res, next) => {
-  res.setHeader('X-Robots-Tag', 'index, follow');
+  if (!req.path.startsWith('/go/')) {
+    res.setHeader('X-Robots-Tag', 'index, follow');
+  }
   next();
 });
 
@@ -73,7 +74,7 @@ app.use((req, res, next) => {
 
   res.locals.meta = {
     title: `Kaos Oversize Pria Premium Original | ${storeName}`,
-    description: 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, trendy. Order sekarang.',
+    description: 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, trendy.',
     keywords: 'kaos oversize pria, kaos distro pria, baju oversize pria',
     image: `${baseUrl}/assets/images/og-image.jpg`,
     url: currentUrl,
@@ -92,20 +93,21 @@ app.get('/sitemap.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
   const total = Math.ceil(SEO_PAGES.length / 500);
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${Array.from({ length: total }).map((_, i) => `
-<sitemap>
-<loc>${baseUrl}/sitemap-${i + 1}.xml</loc>
-</sitemap>
-`).join('')}
-</sitemapindex>`;
+  res.set('Content-Type', 'application/xml');
 
-  res.header('Content-Type', 'application/xml');
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  xml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+  for (let i = 1; i <= total; i++) {
+    xml += `<sitemap><loc>${baseUrl}/sitemap-${i}.xml</loc></sitemap>\n`;
+  }
+
+  xml += `</sitemapindex>`;
+
   res.send(xml);
 });
 
-/* ================= 🔥 SITEMAP PART (PER 500 URL) ================= */
+/* ================= 🔥 SITEMAP PART ================= */
 app.get('/sitemap-:page.xml', (req, res) => {
   const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
   const page = parseInt(req.params.page) || 1;
@@ -126,17 +128,17 @@ app.get('/sitemap-:page.xml', (req, res) => {
     ...chunk.map(p => `/s/${p.slug}`)
   ];
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(url => `
-<url>
-<loc>${baseUrl}${url}</loc>
-<priority>0.7</priority>
-</url>
-`).join('')}
-</urlset>`;
+  res.set('Content-Type', 'application/xml');
 
-  res.header('Content-Type', 'application/xml');
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+  urls.forEach(url => {
+    xml += `<url><loc>${baseUrl}${url}</loc><priority>0.7</priority></url>\n`;
+  });
+
+  xml += `</urlset>`;
+
   res.send(xml);
 });
 
