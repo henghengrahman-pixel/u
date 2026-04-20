@@ -157,13 +157,18 @@
 
       <% if (articleItems.length) { %>
         <div class="row">
-          <% articleItems.forEach(function(article){ %>
+          <% articleItems.forEach(function(article, index){ %>
             <%
               const articleTitle = safeText(article.title || 'Artikel Fashion Pria');
               const articleExcerpt = stripHtml(article.excerpt || article.description || article.content || 'Baca panduan lengkap seputar outfit pria, kaos oversize, dan tips memilih produk yang lebih tepat.');
               const shortExcerpt = articleExcerpt.length > 110 ? articleExcerpt.slice(0, 110).trim() + '...' : articleExcerpt;
               const articleImage = article.image || article.thumbnail || settings?.logo || '/assets/images/logo.png';
             %>
+
+            <% if (index > 0 && index % 2 === 0) { %>
+              <div class="clearfix visible-md-block visible-lg-block"></div>
+              <div class="clearfix visible-sm-block"></div>
+            <% } %>
 
             <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:24px;">
               <article class="article-card-modern" style="height:100%; overflow:hidden; border-radius:18px; background:#fff; box-shadow:0 10px 28px rgba(15,19,32,.08);">
