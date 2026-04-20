@@ -45,6 +45,11 @@
     galleryImages.push('/assets/images/og-image.jpg');
   }
 
+  const productUrl = `${baseUrl}/product/${productSlug}`;
+  const absoluteGalleryImages = galleryImages.map(function(img) {
+    return /^https?:\/\//i.test(img) ? img : `${baseUrl}${img.startsWith('/') ? img : '/' + img}`;
+  });
+
   const sellingPoints = [
     `Bahan ${productMaterial} nyaman untuk dipakai harian`,
     `Model ${productFit} memberi tampilan lebih modern`,
@@ -79,6 +84,59 @@
           '@type': 'Answer',
           text: `Detail ukuran, variasi, dan review pembeli bisa langsung dicek melalui halaman marketplace dari tombol CTA di halaman ini.`
         }
+      }
+    ]
+  };
+
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: productName,
+    image: absoluteGalleryImages,
+    description: cleanDescription,
+    sku: productSlug,
+    category: productCategory,
+    brand: {
+      '@type': 'Brand',
+      name: safeText(settings?.storeName || 'MWG Oversize')
+    },
+    offers: {
+      '@type': 'Offer',
+      url: productUrl,
+      priceCurrency: 'IDR',
+      price: productPrice,
+      availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition'
+    }
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${baseUrl}/`
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Shop',
+        item: `${baseUrl}/shop`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: productCategory,
+        item: `${baseUrl}/shop?category=${encodeURIComponent(productCategory)}`
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: productName,
+        item: productUrl
       }
     ]
   };
@@ -303,6 +361,8 @@
     </section>
   <% } %>
 
+  <script type="application/ld+json"><%- JSON.stringify(productSchema) %></script>
+  <script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema) %></script>
   <script type="application/ld+json"><%- JSON.stringify(faqSchema) %></script>
 </main>
 
