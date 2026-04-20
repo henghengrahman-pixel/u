@@ -7,6 +7,17 @@ const PRIMARY_SEO_LANDING = '/kaos-oversize-pria';
 
 /*
 |--------------------------------------------------------------------------
+| 🔥 CACHE SEO PAGES (ANTI BERAT)
+|--------------------------------------------------------------------------
+*/
+const seoPages = generateSeoPages();
+const seoMap = {};
+seoPages.forEach(p => {
+  seoMap[p.slug] = p;
+});
+
+/*
+|--------------------------------------------------------------------------
 | MAIN PAGES
 |--------------------------------------------------------------------------
 */
@@ -19,19 +30,18 @@ router.get('/contact', siteController.contact);
 
 /*
 |--------------------------------------------------------------------------
-| SEO LANDING PAGE (MAIN MONEY PAGE)
+| SEO LANDING (MONEY PAGE)
 |--------------------------------------------------------------------------
 */
 router.get(PRIMARY_SEO_LANDING, siteController.seoKaosOversizePria);
 
 /*
 |--------------------------------------------------------------------------
-| 🔥 AUTO SEO PAGES (LONG TAIL TRAFFIC)
+| 🔥 AUTO SEO 1000 PAGE (FAST LOOKUP)
 |--------------------------------------------------------------------------
 */
 router.get('/s/:slug', (req, res) => {
-  const pages = generateSeoPages();
-  const page = pages.find(p => p.slug === req.params.slug);
+  const page = seoMap[req.params.slug];
 
   if (!page) {
     return res.redirect(301, PRIMARY_SEO_LANDING);
@@ -44,7 +54,7 @@ router.get('/s/:slug', (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| SEO ALIAS -> CANONICAL REDIRECT
+| SEO ALIAS → CENTRAL LANDING
 |--------------------------------------------------------------------------
 */
 [
@@ -52,7 +62,9 @@ router.get('/s/:slug', (req, res) => {
   '/kaos-pria-terbaik',
   '/kaos-distro-pria',
   '/kaos-oversize-pria-murah',
-  '/kaos-oversize-pria-premium'
+  '/kaos-oversize-pria-premium',
+  '/kaos-pria-murah',
+  '/kaos-pria-kekinian'
 ].forEach((path) => {
   router.get(path, (req, res) => {
     return res.redirect(301, PRIMARY_SEO_LANDING);
@@ -61,7 +73,7 @@ router.get('/s/:slug', (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| AFFILIATE REDIRECT (SAFE SEO)
+| AFFILIATE REDIRECT (SEO SAFE)
 |--------------------------------------------------------------------------
 */
 router.get('/go/:slug', (req, res) => {
@@ -78,9 +90,8 @@ router.get('/go/:slug', (req, res) => {
     }
 
     res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Cache-Control', 'no-store');
     res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
 
     return res.redirect(302, targetUrl);
   } catch (error) {
