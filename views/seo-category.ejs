@@ -1,0 +1,92 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<%
+const safeText = (v='') => String(v||'').trim();
+const title = safeText(meta?.title);
+const desc = safeText(meta?.description);
+const productItems = Array.isArray(products) ? products : [];
+%>
+
+<main id="main-content" class="section">
+<div class="container">
+
+<!-- ================= HERO ================= -->
+<div class="section-heading text-center">
+<h1><%= title %></h1>
+<p class="section-subtitle"><%= desc %></p>
+</div>
+
+<!-- ================= GRID PRODUK ================= -->
+<div class="row">
+<% productItems.forEach(function(product){ %>
+<div class="col-md-3 col-sm-6 col-xs-6">
+<%- include('partials/product-card',{product}) %>
+</div>
+<% }) %>
+</div>
+
+<!-- ================= SEO CONTENT ================= -->
+<section class="section" style="margin-top:40px;">
+<div class="row">
+<div class="col-md-12">
+
+<h2>Rekomendasi <%= title %></h2>
+
+<p>
+<%= title %> menjadi pilihan banyak pria karena menawarkan kombinasi antara kenyamanan, model kekinian, dan kemudahan dipadukan dengan berbagai outfit.
+</p>
+
+<p>
+Kaos oversize saat ini bukan hanya tren, tapi sudah menjadi bagian dari gaya hidup. Dengan bahan yang lebih tebal, cutting yang modern, dan tampilan clean, produk dalam kategori ini cocok digunakan untuk aktivitas harian.
+</p>
+
+<h3>Kenapa Memilih <%= title %>?</h3>
+<ul>
+<li>Bahan nyaman dipakai seharian</li>
+<li>Model oversize lebih modern dan stylish</li>
+<li>Mudah dipadukan dengan outfit apapun</li>
+<li>Cocok untuk casual hingga semi streetwear</li>
+</ul>
+
+<h3>Tips Memilih Kaos Oversize</h3>
+<p>
+Pilih bahan yang tidak panas, perhatikan ukuran yang sesuai dengan tubuh, dan pastikan model sesuai dengan gaya yang ingin kamu tampilkan.
+</p>
+
+</div>
+</div>
+</section>
+
+<!-- ================= INTERNAL LINK ================= -->
+<section class="section">
+<div class="container text-center">
+
+<h3>Jelajahi Kategori Lain</h3>
+
+<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:15px;">
+<a href="/kaos-oversize-pria">Kaos Oversize Pria</a>
+<a href="/kaos-oversize-pria-murah">Kaos Oversize Murah</a>
+<a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a>
+<a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a>
+<a href="/shop">Semua Produk</a>
+</div>
+
+</div>
+</section>
+
+<!-- ================= SCHEMA ================= -->
+<script type="application/ld+json">
+<%- JSON.stringify({
+  "@context":"https://schema.org",
+  "@type":"CollectionPage",
+  "name": title,
+  "description": desc,
+  "url": meta.url
+}) %>
+</script>
+
+</div>
+</main>
+
+<%- include('partials/footer') %>
