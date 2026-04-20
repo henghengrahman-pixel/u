@@ -50,6 +50,18 @@
     return /^https?:\/\//i.test(img) ? img : `${baseUrl}${img.startsWith('/') ? img : '/' + img}`;
   });
 
+  const descriptionParagraphs = cleanDescription
+    .split(/\.\s+/)
+    .map(function(item) { return item.trim(); })
+    .filter(Boolean)
+    .map(function(item) { return item.endsWith('.') ? item : item + '.'; });
+
+  const detailItems = detailText
+    .replace(/\s{2,}/g, ' ')
+    .split(/(?=Ukuran:|Warna:|Gender:|Style:|Size Chart:|Toleransi|Bahan:|Fit:|Material:)/i)
+    .map(function(item) { return item.trim(); })
+    .filter(Boolean);
+
   const sellingPoints = [
     `Bahan ${productMaterial} nyaman untuk dipakai harian`,
     `Model ${productFit} memberi tampilan lebih modern`,
@@ -305,11 +317,20 @@
 
       <div class="product-description-clean">
         <h2>Deskripsi Singkat</h2>
-        <p><%= cleanDescription %></p>
 
-        <% if (detailText) { %>
+        <div class="product-description-paragraphs">
+          <% descriptionParagraphs.forEach(function(paragraph){ %>
+            <p><%= paragraph %></p>
+          <% }) %>
+        </div>
+
+        <% if (detailItems.length) { %>
           <h3>Catatan Tambahan</h3>
-          <p><%= detailText %></p>
+          <ul class="product-detail-notes">
+            <% detailItems.forEach(function(item){ %>
+              <li><%= item %></li>
+            <% }) %>
+          </ul>
         <% } %>
       </div>
     </div>
