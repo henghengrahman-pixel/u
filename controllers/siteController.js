@@ -7,9 +7,6 @@ const {
 
 const { generateSeoPages } = require('../helpers/seo-pages');
 
-/* ================= HELPER ================= */
-const safe = (v='') => String(v||'').trim().toLowerCase();
-
 /* ================= SEO APPLY ================= */
 function applySeo(res, meta) {
   const base = res.locals.baseUrl;
@@ -44,9 +41,12 @@ exports.home = (req,res)=>{
   });
 };
 
-/* ================= SHOP ================= */
+/* ================= SHOP (FIX ERROR QUERY) ================= */
 exports.shop = (req,res)=>{
   const products = getVisibleProducts();
+
+  const query = (req.query.q || '').trim();
+  const category = (req.query.category || '').trim();
 
   applySeo(res,{
     title:'Shop Kaos Pria Terbaik',
@@ -55,7 +55,11 @@ exports.shop = (req,res)=>{
     canonical:'/shop'
   });
 
-  res.render('shop',{products});
+  res.render('shop',{
+    products,
+    query,
+    category
+  });
 };
 
 /* ================= PRODUCT ================= */
@@ -66,7 +70,7 @@ exports.productDetail = (req,res)=>{
 
   applySeo(res,{
     title:`${product.name} - Kaos Oversize Pria`,
-    description:product.shortDescription,
+    description:product.shortDescription || product.name,
     keywords:product.name,
     canonical:`/product/${product.slug}`
   });
@@ -99,7 +103,7 @@ exports.articleDetail = (req,res)=>{
 
   applySeo(res,{
     title:article.title,
-    description:article.excerpt,
+    description:article.excerpt || article.title,
     keywords:article.title,
     canonical:`/article/${article.slug}`
   });
