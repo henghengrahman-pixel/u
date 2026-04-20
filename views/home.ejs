@@ -134,7 +134,7 @@
               const articleTitle = safeText(article.title || 'Artikel Fashion Pria');
               const articleExcerpt = stripHtml(article.excerpt || article.description || article.content || 'Baca panduan lengkap seputar outfit pria, kaos oversize, dan tips memilih produk yang lebih tepat.');
               const shortExcerpt = articleExcerpt.length > 110 ? articleExcerpt.slice(0, 110).trim() + '...' : articleExcerpt;
-              const articleImage = article.image || article.thumbnail || '/assets/images/og-image.jpg';
+              const articleImage = article.image || article.thumbnail || settings?.logo || '/assets/images/logo.png';
             %>
 
             <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:24px;">
