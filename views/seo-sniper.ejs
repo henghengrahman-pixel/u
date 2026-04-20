@@ -1,0 +1,30 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<main class="container">
+
+<h1><%= keyword %></h1>
+
+<p>
+Cari <strong><%= keyword %></strong>?  
+Temukan rekomendasi terbaik dengan bahan nyaman, model kekinian, dan harga terjangkau.
+</p>
+
+<div class="row">
+<% products.forEach(p=>{ %>
+<div class="col-md-3">
+<%- include('partials/product-card',{product:p}) %>
+</div>
+<% }) %>
+</div>
+
+<h2>Kenapa Memilih <%= keyword %>?</h2>
+<p>
+Karena lebih nyaman dipakai harian, tidak panas, dan cocok untuk berbagai aktivitas.
+</p>
+
+<a href="/kaos-oversize-pria">Lihat semua rekomendasi</a>
+
+</main>
+
+<%- include('partials/footer') %>
