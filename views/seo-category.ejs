@@ -6,18 +6,55 @@ const safeText = (v='') => String(v||'').trim();
 const title = safeText(meta?.title);
 const desc = safeText(meta?.description);
 const productItems = Array.isArray(products) ? products : [];
+
+const categoryType = title.toLowerCase().includes('murah')
+  ? 'murah'
+  : title.toLowerCase().includes('premium')
+    ? 'premium'
+    : 'terbaik';
+
+const introHeading = categoryType === 'murah'
+  ? 'Pilihan untuk Pembeli yang Cari Harga Lebih Terjangkau'
+  : categoryType === 'premium'
+    ? 'Pilihan untuk Pembeli yang Utamakan Kualitas dan Tampilan'
+    : 'Pilihan untuk Pembeli yang Cari Produk Paling Layak Dipertimbangkan';
+
+const introText = categoryType === 'murah'
+  ? 'Halaman ini difokuskan untuk pembeli pria Indonesia yang ingin mendapatkan kaos oversize dengan harga lebih terjangkau tanpa mengorbankan kenyamanan dasar dan tampilan harian.'
+  : categoryType === 'premium'
+    ? 'Halaman ini difokuskan untuk pembeli pria Indonesia yang mencari kaos oversize premium original dengan bahan lebih nyaman, tampilan lebih rapi, dan kualitas yang terasa lebih meyakinkan.'
+    : 'Halaman ini difokuskan untuk pembeli pria Indonesia yang ingin langsung melihat pilihan kaos oversize pria terbaik berdasarkan kenyamanan, model, dan potensi dipakai untuk outfit harian.';
+
+const buyingReasonTitle = categoryType === 'murah'
+  ? 'Kenapa Banyak Orang Cari Versi Murah yang Tetap Layak?'
+  : categoryType === 'premium'
+    ? 'Kenapa Banyak Orang Cari Versi Premium?'
+    : 'Kenapa Banyak Orang Cari Versi Terbaik?';
+
+const buyingReasonText = categoryType === 'murah'
+  ? 'Karena banyak pembeli ingin tetap tampil rapi dan nyaman tanpa harus keluar budget terlalu tinggi. Selama bahan, fit, dan model masih masuk akal, kategori murah tetap jadi pilihan yang sangat diminati.'
+  : categoryType === 'premium'
+    ? 'Karena pembeli yang masuk ke kategori premium biasanya mengejar kualitas bahan, feel saat dipakai, dan tampilan yang terlihat lebih matang untuk dipakai harian atau nongkrong.'
+    : 'Karena pembeli yang cari versi terbaik biasanya ingin mempersingkat waktu memilih. Mereka ingin langsung melihat pilihan yang paling layak dipertimbangkan tanpa harus buka terlalu banyak produk satu per satu.';
 %>
 
 <main id="main-content" class="section">
 <div class="container">
 
-<!-- ================= HERO ================= -->
 <div class="section-heading text-center">
 <h1><%= title %></h1>
 <p class="section-subtitle"><%= desc %></p>
+
+<div class="text-center" style="margin-top:16px;">
+<a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+<a href="/kaos-oversize-pria-murah">Kaos Oversize Murah</a> |
+<a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a> |
+<a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a> |
+<a href="/shop">Semua Produk</a>
+</div>
 </div>
 
-<!-- ================= GRID PRODUK ================= -->
+<% if (productItems.length) { %>
 <div class="row">
 <% productItems.forEach(function(product){ %>
 <div class="col-md-3 col-sm-6 col-xs-6">
@@ -25,13 +62,22 @@ const productItems = Array.isArray(products) ? products : [];
 </div>
 <% }) %>
 </div>
+<% } else { %>
+<div class="empty-box text-center">
+<h2>Produk sedang diperbarui</h2>
+<p>Produk untuk kategori ini akan segera tampil di halaman ini.</p>
+</div>
+<% } %>
 
-<!-- ================= SEO CONTENT ================= -->
 <section class="section" style="margin-top:40px;">
 <div class="row">
 <div class="col-md-12">
 
-<h2>Rekomendasi <%= title %></h2>
+<h2><%= introHeading %></h2>
+
+<p>
+<%= introText %>
+</p>
 
 <p>
 <%= title %> menjadi pilihan banyak pria karena menawarkan kombinasi antara kenyamanan, model kekinian, dan kemudahan dipadukan dengan berbagai outfit.
@@ -39,6 +85,11 @@ const productItems = Array.isArray(products) ? products : [];
 
 <p>
 Kaos oversize saat ini bukan hanya tren, tapi sudah menjadi bagian dari gaya hidup. Dengan bahan yang lebih tebal, cutting yang modern, dan tampilan clean, produk dalam kategori ini cocok digunakan untuk aktivitas harian.
+</p>
+
+<h3><%= buyingReasonTitle %></h3>
+<p>
+<%= buyingReasonText %>
 </p>
 
 <h3>Kenapa Memilih <%= title %>?</h3>
@@ -54,11 +105,17 @@ Kaos oversize saat ini bukan hanya tren, tapi sudah menjadi bagian dari gaya hid
 Pilih bahan yang tidak panas, perhatikan ukuran yang sesuai dengan tubuh, dan pastikan model sesuai dengan gaya yang ingin kamu tampilkan.
 </p>
 
+<p>
+Kalau kamu masih membandingkan banyak pilihan, gunakan halaman ini sebagai titik seleksi awal. Setelah itu kamu bisa lanjut melihat
+<a href="/kaos-oversize-pria">halaman utama kaos oversize pria</a>,
+<a href="/shop">semua rekomendasi produk</a>,
+atau baca <a href="/articles">artikel fashion pria</a> untuk memperkuat keputusan beli.
+</p>
+
 </div>
 </div>
 </section>
 
-<!-- ================= INTERNAL LINK ================= -->
 <section class="section">
 <div class="container text-center">
 
@@ -70,12 +127,12 @@ Pilih bahan yang tidak panas, perhatikan ukuran yang sesuai dengan tubuh, dan pa
 <a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a>
 <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a>
 <a href="/shop">Semua Produk</a>
+<a href="/articles">Artikel Fashion Pria</a>
 </div>
 
 </div>
 </section>
 
-<!-- ================= SCHEMA ================= -->
 <script type="application/ld+json">
 <%- JSON.stringify({
   "@context":"https://schema.org",
