@@ -32,8 +32,12 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 <% } %>
 
 <% if (safeTelegram) { %>
-<li><a href="https://t.me/<%= safeTelegram %>" target="_blank" rel="noopener noreferrer">
-<i class="fa fa-telegram"></i><span>@<%= safeTelegram %></span></a></li>
+<li>
+<a href="https://t.me/<%= safeTelegram %>" target="_blank" rel="noopener noreferrer">
+<i class="fa fa-telegram"></i>
+<span>@<%= safeTelegram %></span>
+</a>
+</li>
 <% } %>
 </ul>
 </div>
@@ -45,7 +49,11 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 <ul class="footer-links">
 <% if (safeCategories.length) { %>
 <% safeCategories.slice(0, 8).forEach(function(cat){ %>
-<li><a href="/shop?category=<%= encodeURIComponent(cat.name) %>"><%= cat.name %></a></li>
+<li>
+<a href="/shop?category=<%= encodeURIComponent(cat.name) %>">
+<%= cat.name %>
+</a>
+</li>
 <% }) %>
 <% } else { %>
 <li><span>Kategori segera diperbarui</span></li>
@@ -83,15 +91,13 @@ const safeCategories = Array.isArray(categories) ? categories.filter(item => ite
 </div>
 </div>
 
-<!-- 🔥 AUTO INTERNAL LINK 1000 PAGE (HIDDEN SEO BOOST) -->
+<!-- 🔥 AUTO INTERNAL LINK SEO (FIX NO REQUIRE) -->
 <div style="display:none;">
-<%
-const { generateSeoPages } = require('../helpers/seo-pages');
-const pages = generateSeoPages().slice(0,100);
-pages.forEach(p=>{
-%>
-<a href="/s/<%= p.slug %>"><%= p.keyword %></a>
-<% }) %>
+<% if (seoLinks && seoLinks.length) { %>
+  <% seoLinks.forEach(function(p){ %>
+    <a href="/s/<%= p.slug %>"><%= p.keyword %></a>
+  <% }) %>
+<% } %>
 </div>
 
 <div id="bottom-footer" class="section">
