@@ -81,17 +81,8 @@ exports.productDetail = (req, res) => {
     canonical: `/product/${product.slug}`
   });
 
-  setSchema(res, {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    offers: {
-      '@type': 'Offer',
-      price: product.price || 0,
-      priceCurrency: 'IDR',
-      availability: 'https://schema.org/InStock'
-    }
-  });
+  /* penting: kosongkan schema global product yang minim */
+  res.locals.structuredData = null;
 
   res.render('product-detail', {
     product,
