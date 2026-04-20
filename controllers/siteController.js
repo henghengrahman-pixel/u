@@ -5,8 +5,6 @@ const {
   getArticleBySlug
 } = require('../helpers/store');
 
-const { generateSeoPages } = require('../helpers/seo-pages');
-
 /* ================= SEO APPLY ================= */
 function applySeo(res, meta) {
   const base = res.locals.baseUrl;
@@ -41,7 +39,7 @@ exports.home = (req,res)=>{
   });
 };
 
-/* ================= SHOP (FIX ERROR QUERY) ================= */
+/* ================= SHOP ================= */
 exports.shop = (req,res)=>{
   const products = getVisibleProducts();
 
@@ -140,7 +138,7 @@ exports.seoKaosOversizePria = (req,res)=>{
   });
 };
 
-/* ================= 🔥 AUTO SEO DYNAMIC ================= */
+/* ================= AUTO SEO ================= */
 exports.seoDynamic = (req,res,page,products)=>{
   applySeo(res,{
     title:page.title,
@@ -152,5 +150,24 @@ exports.seoDynamic = (req,res,page,products)=>{
   res.render('seo-dynamic',{
     products,
     page
+  });
+};
+
+/* ================= 🔥 SNIPER SEO ================= */
+exports.seoSniper = (req,res,keyword)=>{
+  const products = getVisibleProducts();
+
+  const slug = keyword.replace(/\s+/g,'-');
+
+  applySeo(res,{
+    title: keyword + ' terbaik 2026',
+    description: 'Temukan ' + keyword + ' dengan kualitas terbaik dan nyaman dipakai.',
+    keywords: keyword,
+    canonical: '/sniper/' + slug
+  });
+
+  res.render('seo-sniper',{
+    products,
+    keyword
   });
 };
