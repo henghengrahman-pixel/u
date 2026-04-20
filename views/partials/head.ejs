@@ -65,10 +65,36 @@ const structuredList = Array.isArray(structuredData)
 <meta name="twitter:description" content="<%= desc %>">
 <meta name="twitter:image" content="<%= image %>">
 
-<!-- PRELOAD (LCP FIX) -->
+<!-- PRELOAD -->
 <link rel="preload" as="image" href="<%= image %>">
 
-<!-- SCHEMA -->
+<!-- ================= 🔥 GLOBAL SCHEMA ================= -->
+
+<script type="application/ld+json">
+<%- JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": storeName,
+  "url": baseUrl,
+  "logo": ensureAbsolute(settings?.logo || '/assets/images/logo.png')
+}) %>
+</script>
+
+<script type="application/ld+json">
+<%- JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": storeName,
+  "url": baseUrl,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${baseUrl}/shop?q={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  }
+}) %>
+</script>
+
+<!-- ================= PAGE SCHEMA ================= -->
 <% structuredList.forEach(schema => { %>
 <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
 <% }) %>
