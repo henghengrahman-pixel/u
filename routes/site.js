@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const siteController = require('../controllers/siteController');
-const { getProductBySlug } = require('../helpers/store');
+const { getProductBySlug, getVisibleProducts } = require('../helpers/store');
+const { generateSeoPages } = require('../helpers/seo-pages');
 
 const PRIMARY_SEO_LANDING = '/kaos-oversize-pria';
 
@@ -18,21 +19,40 @@ router.get('/contact', siteController.contact);
 
 /*
 |--------------------------------------------------------------------------
-| SEO LANDING PAGES
+| SEO LANDING PAGE (MAIN MONEY PAGE)
 |--------------------------------------------------------------------------
 */
 router.get(PRIMARY_SEO_LANDING, siteController.seoKaosOversizePria);
 
 /*
 |--------------------------------------------------------------------------
+| 🔥 AUTO SEO PAGES (LONG TAIL TRAFFIC)
+|--------------------------------------------------------------------------
+*/
+router.get('/s/:slug', (req, res) => {
+  const pages = generateSeoPages();
+  const page = pages.find(p => p.slug === req.params.slug);
+
+  if (!page) {
+    return res.redirect(301, PRIMARY_SEO_LANDING);
+  }
+
+  const products = getVisibleProducts();
+
+  return siteController.seoDynamic(req, res, page, products);
+});
+
+/*
+|--------------------------------------------------------------------------
 | SEO ALIAS -> CANONICAL REDIRECT
 |--------------------------------------------------------------------------
-| Hindari duplicate content. Semua keyword alias diarahkan ke 1 landing utama.
 */
 [
   '/rekomendasi-kaos-pria',
   '/kaos-pria-terbaik',
-  '/kaos-distro-pria'
+  '/kaos-distro-pria',
+  '/kaos-oversize-pria-murah',
+  '/kaos-oversize-pria-premium'
 ].forEach((path) => {
   router.get(path, (req, res) => {
     return res.redirect(301, PRIMARY_SEO_LANDING);
@@ -41,9 +61,8 @@ router.get(PRIMARY_SEO_LANDING, siteController.seoKaosOversizePria);
 
 /*
 |--------------------------------------------------------------------------
-| AFFILIATE REDIRECT
+| AFFILIATE REDIRECT (SAFE SEO)
 |--------------------------------------------------------------------------
-| 302 tetap, aman untuk affiliate clickout dan tidak mengalihkan equity.
 */
 router.get('/go/:slug', (req, res) => {
   try {
@@ -62,35 +81,24 @@ router.get('/go/:slug', (req, res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
-    res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-    console.log(`[AFFILIATE CLICK] ${product.slug} -> ${targetUrl}`);
 
     return res.redirect(302, targetUrl);
   } catch (error) {
-    console.error('[AFFILIATE REDIRECT ERROR]', error);
+    console.error('[AFFILIATE ERROR]', error);
     return res.redirect(302, '/shop');
   }
 });
 
 /*
 |--------------------------------------------------------------------------
-| LEGACY ROUTES -> PERMANENT REDIRECT
+| LEGACY CLEAN
 |--------------------------------------------------------------------------
 */
-[
-  '/cart',
-  '/checkout'
-].forEach((path) => {
+['/cart', '/checkout'].forEach((path) => {
   router.get(path, (req, res) => res.redirect(301, '/shop'));
 });
 
-[
-  '/cart/add',
-  '/buy-now',
-  '/cart/update',
-  '/checkout'
-].forEach((path) => {
+['/cart/add', '/buy-now', '/cart/update', '/checkout'].forEach((path) => {
   router.post(path, (req, res) => res.redirect(301, '/shop'));
 });
 
@@ -100,6 +108,11 @@ router.post('/cart/remove/:productId', (req, res) => {
 
 module.exports = router;
 
+/*
+|--------------------------------------------------------------------------
+| HELPER
+|--------------------------------------------------------------------------
+*/
 function normalizeAffiliateUrl(value) {
   const raw = String(value || '').trim();
   if (!raw) return '';
@@ -107,11 +120,7 @@ function normalizeAffiliateUrl(value) {
   try {
     const parsed = new URL(raw);
     const protocol = parsed.protocol.toLowerCase();
-
-    if (protocol !== 'http:' && protocol !== 'https:') {
-      return '';
-    }
-
+    if (protocol !== 'http:' && protocol !== 'https:') return '';
     return parsed.toString();
   } catch (_) {
     return '';
