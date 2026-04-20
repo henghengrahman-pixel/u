@@ -69,6 +69,10 @@
     `Bisa cek ukuran, variasi, dan ulasan langsung di marketplace`
   ];
 
+  const stockAvailability = safeText(product?.status) === 'sold_out'
+    ? 'https://schema.org/OutOfStock'
+    : 'https://schema.org/InStock';
+
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -116,8 +120,9 @@
       '@type': 'Offer',
       url: productUrl,
       priceCurrency: 'IDR',
-      price: productPrice,
-      availability: 'https://schema.org/InStock',
+      price: productPrice > 0 ? productPrice : 0,
+      priceValidUntil: '2026-12-31',
+      availability: stockAvailability,
       itemCondition: 'https://schema.org/NewCondition'
     }
   };
@@ -141,12 +146,6 @@
       {
         '@type': 'ListItem',
         position: 3,
-        name: productCategory,
-        item: `${baseUrl}/shop?category=${encodeURIComponent(productCategory)}`
-      },
-      {
-        '@type': 'ListItem',
-        position: 4,
         name: productName,
         item: productUrl
       }
@@ -161,10 +160,6 @@
         <a href="/">Home</a>
         <span>/</span>
         <a href="/shop">Shop</a>
-        <% if (productCategory) { %>
-          <span>/</span>
-          <a href="/shop?category=<%= encodeURIComponent(productCategory) %>"><%= productCategory %></a>
-        <% } %>
         <span>/</span>
         <span aria-current="page"><%= productName %></span>
       </nav>
@@ -225,7 +220,7 @@
                 </div>
               <% } %>
 
-              <span class="product-available">✔ Stok tersedia</span>
+              <span class="product-available"><%= safeText(product?.status) === 'sold_out' ? 'Stok habis' : '✔ Stok tersedia' %></span>
             </div>
 
             <p class="product-short-description">
@@ -262,14 +257,16 @@
 
             <div class="product-meta-card">
               <ul class="product-links product-links-clean">
-                <li><span>Kategori</span><strong><a href="/shop?category=<%= encodeURIComponent(productCategory) %>"><%= productCategory %></a></strong></li>
+                <li><span>Kategori</span><strong><%= productCategory %></strong></li>
                 <li><span>Fit</span><strong><%= productFit %></strong></li>
                 <li><span>Material</span><strong><%= productMaterial %></strong></li>
               </ul>
             </div>
 
             <div class="product-inline-link">
-              <a href="/kaos-oversize-pria">Lihat rekomendasi kaos oversize lainnya</a>
+              <a href="/kaos-oversize-pria">Lihat rekomendasi kaos oversize lainnya</a> |
+              <a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a> |
+              <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a>
             </div>
           </article>
         </div>
@@ -333,6 +330,17 @@
           </ul>
         <% } %>
       </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:10px;">
+    <div class="container text-center">
+      <p style="max-width:720px; margin:0 auto;">
+        Produk ini termasuk dalam kategori <strong>kaos oversize pria</strong> yang paling banyak dicari karena
+        kenyamanan bahan dan kemudahan dipadukan untuk outfit harian.
+        Jika kamu masih membandingkan, kamu bisa lihat juga
+        <a href="/kaos-oversize-pria-terbaik">rekomendasi terbaik lainnya</a>.
+      </p>
     </div>
   </section>
 
