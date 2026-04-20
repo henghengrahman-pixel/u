@@ -3,6 +3,7 @@
 
 <%
   const safeText = (value = '') => String(value || '').trim();
+  const stripHtml = (value = '') => safeText(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
   const articleItems = Array.isArray(articles) ? articles : [];
 %>
 
@@ -24,16 +25,29 @@
       <% if (articleItems.length) { %>
         <div class="article-grid-responsive">
           <% articleItems.forEach(function(article){ %>
+            <%
+              const articleTitle = safeText(article?.title || 'Artikel Fashion Pria');
+              const articleSlug = safeText(article?.slug || '');
+              const articleUrl = articleSlug ? `/article/${articleSlug}` : '/articles';
+              const articleImage = safeText(article?.image || article?.thumbnail || settings?.logo || '/assets/images/logo.png');
+              const articleExcerptRaw =
+                stripHtml(article?.excerpt || article?.description || article?.content || 'Baca panduan lengkap untuk mendapatkan referensi fashion pria yang lebih tepat, menarik, dan mudah diterapkan.');
+              const articleExcerpt =
+                articleExcerptRaw.length > 165
+                  ? articleExcerptRaw.slice(0, 165).trim() + '...'
+                  : articleExcerptRaw;
+            %>
+
             <div class="article-grid-item">
               <article class="article-card-modern articles-page-card">
                 <a
-                  href="/article/<%= article.slug %>"
+                  href="<%= articleUrl %>"
                   class="article-card-thumb"
-                  aria-label="<%= safeText(article.title) %>"
+                  aria-label="<%= articleTitle %>"
                 >
                   <img
-                    src="<%= article.image || article.thumbnail || '/assets/images/og-image.jpg' %>"
-                    alt="<%= safeText(article.title) %>"
+                    src="<%= articleImage %>"
+                    alt="<%= articleTitle %>"
                     loading="lazy"
                     decoding="async"
                   >
@@ -41,17 +55,17 @@
 
                 <div class="article-card-content">
                   <h2 class="article-card-title">
-                    <a href="/article/<%= article.slug %>"><%= article.title %></a>
+                    <a href="<%= articleUrl %>"><%= articleTitle %></a>
                   </h2>
 
                   <p class="article-card-excerpt">
-                    <%= article.excerpt || 'Baca panduan lengkap untuk mendapatkan referensi fashion pria yang lebih tepat, menarik, dan mudah diterapkan.' %>
+                    <%= articleExcerpt %>
                   </p>
 
                   <a
-                    href="/article/<%= article.slug %>"
+                    href="<%= articleUrl %>"
                     class="read-more"
-                    aria-label="Baca artikel <%= safeText(article.title) %>"
+                    aria-label="Baca artikel <%= articleTitle %>"
                   >
                     Baca Selengkapnya <i class="fa fa-arrow-right"></i>
                   </a>
