@@ -1,23 +1,90 @@
 <%- include('partials/head') %>
 <%- include('partials/header') %>
 
-<main class="container">
+<%
+const safeText = (value = '') => String(value || '').trim();
+const productItems = Array.isArray(products) ? products : [];
+const pageTitle = safeText(page?.title || 'Rekomendasi Kaos Pria');
+const pageKeyword = safeText(page?.keyword || 'kaos pria');
+const pageDesc = safeText(page?.desc || `Cari ${pageKeyword} dengan kualitas terbaik dan nyaman dipakai harian.`);
+%>
 
-<h1><%= page.title %></h1>
+<main id="main-content" class="container">
 
-<p>
-Cari <strong><%= page.keyword %></strong> dengan kualitas terbaik dan nyaman dipakai harian.
-</p>
+<section class="section" style="padding-top:20px; padding-bottom:10px;">
+  <div class="text-center" style="max-width:920px; margin:0 auto;">
+    <h1><%= pageTitle %></h1>
 
-<div class="row">
-<% products.forEach(p=>{ %>
-<div class="col-md-3">
-<%- include('partials/product-card',{product:p}) %>
-</div>
-<% }) %>
-</div>
+    <p class="section-subtitle" style="margin-top:14px;">
+      <%= pageDesc %>
+    </p>
 
-<a href="/kaos-oversize-pria">Lihat rekomendasi utama</a>
+    <div style="margin-top:16px;">
+      <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
+      <a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a> |
+      <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a> |
+      <a href="/shop">Shop Kaos Pria</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:10px; padding-bottom:10px;">
+  <div class="text-center" style="max-width:920px; margin:0 auto;">
+    <h2>Mencari <%= pageKeyword %> yang Lebih Layak Dipilih</h2>
+    <p>
+      Halaman ini dibuat untuk membantu pembeli pria Indonesia menemukan <strong><%= pageKeyword %></strong>
+      yang lebih nyaman dipakai, mudah dipadukan, dan tetap cocok untuk outfit harian.
+      Fokus utamanya adalah memberi pilihan yang lebih relevan tanpa harus membuang waktu membuka terlalu banyak produk.
+    </p>
+  </div>
+</section>
+
+<% if (productItems.length) { %>
+<section class="section" style="padding-top:10px; padding-bottom:10px;">
+  <div class="row product-grid-row">
+    <% productItems.forEach(function(p){ %>
+      <div class="col-md-3 col-sm-6 col-xs-6 product-grid-item">
+        <%- include('partials/product-card',{product:p}) %>
+      </div>
+    <% }) %>
+  </div>
+</section>
+<% } else { %>
+<section class="section" style="padding-top:10px; padding-bottom:10px;">
+  <div class="empty-box text-center">
+    <h2>Produk sedang diperbarui</h2>
+    <p>Rekomendasi untuk halaman ini akan segera ditampilkan.</p>
+  </div>
+</section>
+<% } %>
+
+<section class="section" style="padding-top:20px; padding-bottom:10px;">
+  <div class="text-center" style="max-width:920px; margin:0 auto;">
+    <h2>Tips Memilih Produk yang Tepat</h2>
+    <p>
+      Saat memilih produk, perhatikan bahan, potongan, dan kenyamanan saat dipakai.
+      Untuk pembeli pria Indonesia, pilihan yang paling aman biasanya adalah model yang mudah dipadukan
+      dengan jeans, chino, cargo, atau outer sederhana untuk kebutuhan harian.
+    </p>
+    <p>
+      Kalau kamu masih ingin membandingkan, lanjutkan ke
+      <a href="/kaos-oversize-pria">halaman rekomendasi utama</a>,
+      <a href="/shop">shop kaos pria</a>,
+      atau lihat <a href="/articles">artikel fashion pria</a>
+      agar keputusan beli jadi lebih yakin.
+    </p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:10px; padding-bottom:20px;">
+  <div class="text-center" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+    <a href="/kaos-oversize-pria">Lihat rekomendasi utama</a>
+    <a href="/kaos-oversize-pria-murah">Kaos Oversize Murah</a>
+    <a href="/kaos-oversize-pria-premium">Kaos Oversize Premium</a>
+    <a href="/kaos-oversize-pria-terbaik">Kaos Oversize Terbaik</a>
+    <a href="/shop">Semua Produk</a>
+  </div>
+</section>
 
 </main>
 
