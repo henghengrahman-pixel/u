@@ -1,88 +1,82 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0f1320">
-  <meta name="format-detection" content="telephone=no">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1320">
+<meta name="format-detection" content="telephone=no">
 
-  <%
-    const clean = (value = '') => String(value || '').trim();
+<%
+const clean = (v='') => String(v||'').trim();
 
-    const ensureAbsolute = (value = '') => {
-      const raw = clean(value);
-      if (!raw) return '';
+const ensureAbsolute = (v='')=>{
+  const raw = clean(v);
+  if(!raw) return '';
+  if(/^https?:\/\//i.test(raw)) return raw;
+  const base = clean(baseUrl).replace(/\/+$/,'');
+  return base ? `${base}${raw.startsWith('/')?raw:`/${raw}`}` : raw;
+};
 
-      if (/^https?:\/\//i.test(raw)) return raw;
+const isAdmin = clean(currentPath).startsWith('/admin');
+const isArticle = clean(currentPath).startsWith('/article/');
+const isShopFilter = clean(currentPath)==='/shop' && clean(currentUrl).includes('?');
 
-      const base = clean(baseUrl).replace(/\/+$/, '');
-      if (!base) return raw.startsWith('/') ? raw : `/${raw}`;
+const storeName = clean(settings?.storeName || 'MWG Oversize');
 
-      return `${base}${raw.startsWith('/') ? raw : `/${raw}`}`;
-    };
+const title = clean(meta?.title) || `Kaos Oversize Pria Premium | ${storeName}`;
+const desc = clean(meta?.description) || 'Beli kaos oversize pria premium kualitas distro. Nyaman, tebal, trendy. Order sekarang.';
+const keywords = clean(meta?.keywords) || 'kaos oversize pria, kaos distro pria, baju oversize pria';
 
-    const isAdminPage = clean(currentPath).startsWith('/admin');
-    const isArticlePage = clean(currentPath).startsWith('/article/');
-    const isShopFilter = clean(currentPath) === '/shop' && (clean(currentUrl).includes('?'));
+const canonical = ensureAbsolute(meta?.canonical || currentUrl);
+const url = ensureAbsolute(meta?.url || canonical);
+const image = ensureAbsolute(meta?.image || '/assets/images/og-image.jpg');
 
-    const storeName = clean(settings?.storeName || 'MWG Oversize');
-    const defaultOgImage = ensureAbsolute(settings?.seo?.ogImage || '/assets/images/og-image.jpg');
+let robots = clean(meta?.robots);
+if(isAdmin) robots='noindex,nofollow,noarchive';
+if(isShopFilter) robots='noindex,follow';
+if(!robots) robots='index,follow';
 
-    const pageTitle = clean(meta?.title);
-    const pageDescription = clean(meta?.description);
-    const pageKeywords = clean(meta?.keywords);
+const structuredList = Array.isArray(structuredData)
+  ? structuredData.filter(Boolean)
+  : (structuredData ? [structuredData] : []);
+%>
 
-    const canonicalUrl = ensureAbsolute(meta?.canonical || currentUrl);
-    const pageUrl = ensureAbsolute(meta?.url || canonicalUrl);
-    const pageImage = ensureAbsolute(meta?.image || defaultOgImage);
+<title><%= title %></title>
 
-    let robotsValue = clean(meta?.robots);
+<meta name="description" content="<%= desc %>">
+<meta name="keywords" content="<%= keywords %>">
 
-    if (isAdminPage) robotsValue = 'noindex,nofollow,noarchive';
-    if (isShopFilter) robotsValue = 'noindex,follow';
-    if (!robotsValue) robotsValue = 'index,follow';
+<meta name="robots" content="<%= robots %>">
+<meta name="googlebot" content="<%= robots %>">
 
-    const bodyClass = isAdminPage ? 'admin-page' : '';
+<link rel="canonical" href="<%= canonical %>">
 
-    /* ================= FIX DI SINI ================= */
-    const safeStructuredData =
-      typeof structuredData !== 'undefined'
-        ? structuredData
-        : null;
+<!-- OPEN GRAPH -->
+<meta property="og:type" content="<%= isArticle ? 'article' : 'website' %>">
+<meta property="og:title" content="<%= title %>">
+<meta property="og:description" content="<%= desc %>">
+<meta property="og:url" content="<%= url %>">
+<meta property="og:image" content="<%= image %>">
 
-    const structuredList = Array.isArray(safeStructuredData)
-      ? safeStructuredData.filter(Boolean)
-      : (safeStructuredData ? [safeStructuredData] : []);
-  %>
+<!-- TWITTER -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= title %>">
+<meta name="twitter:description" content="<%= desc %>">
+<meta name="twitter:image" content="<%= image %>">
 
-  <title><%= pageTitle %></title>
+<!-- PRELOAD (LCP FIX) -->
+<link rel="preload" as="image" href="<%= image %>">
 
-  <meta name="description" content="<%= pageDescription %>">
-  <meta name="keywords" content="<%= pageKeywords %>">
+<!-- SCHEMA -->
+<% structuredList.forEach(schema => { %>
+<script type="application/ld+json"><%- JSON.stringify(schema) %></script>
+<% }) %>
 
-  <meta name="robots" content="<%= robotsValue %>">
-  <meta name="googlebot" content="<%= robotsValue %>">
+<!-- CSS -->
+<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/css/style.css">
 
-  <link rel="canonical" href="<%= canonicalUrl %>">
-
-  <meta property="og:type" content="<%= isArticlePage ? 'article' : 'website' %>">
-  <meta property="og:title" content="<%= pageTitle %>">
-  <meta property="og:description" content="<%= pageDescription %>">
-  <meta property="og:url" content="<%= pageUrl %>">
-  <meta property="og:image" content="<%= pageImage %>">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="<%= pageTitle %>">
-  <meta name="twitter:description" content="<%= pageDescription %>">
-  <meta name="twitter:image" content="<%= pageImage %>">
-
-  <% structuredList.forEach((schema) => { %>
-    <script type="application/ld+json"><%- JSON.stringify(schema) %></script>
-  <% }) %>
-
-  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body class="<%= bodyClass %>">
+<body class="<%= isAdmin ? 'admin-page' : '' %>">
