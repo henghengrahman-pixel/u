@@ -6,17 +6,17 @@
   const recommendedItems = Array.isArray(typeof recommended !== 'undefined' ? recommended : []) ? recommended : [];
   const articleItems = Array.isArray(typeof articles !== 'undefined' ? articles : []) ? articles : [];
   const categoryItems = Array.isArray(typeof categories !== 'undefined' ? categories : []) ? categories.filter(item => item && item.visible !== false) : [];
+
+  const safeText = (value = '') => String(value || '').trim();
+  const stripHtml = (value = '') => safeText(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 %>
 
 <main id="main-content">
   <section class="section home-hero">
     <div class="container">
       <div class="home-hero-inner text-center">
-
-        <!-- 🔥 H1 FIX -->
         <h1>Kaos Oversize Pria Premium Original – Rekomendasi Terbaik 2026</h1>
 
-        <!-- 🔥 PARAGRAF SEO -->
         <p>
           Temukan pilihan <a href="/kaos-oversize-pria">kaos oversize pria</a> premium original dengan bahan tebal,
           nyaman dipakai harian, dan model kekinian. Cocok untuk kamu yang cari
@@ -26,12 +26,10 @@
         <div class="home-hero-cta">
           <a href="/shop" class="primary-btn">Lihat Rekomendasi Terbaik</a>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- 🔥 INTERNAL LINK BOOST -->
   <div class="container text-center" style="margin-top:20px;">
     <a href="/kaos-oversize-pria">Kaos Oversize Pria</a> |
     <a href="/shop">Shop Kaos Pria</a> |
@@ -64,10 +62,7 @@
   <section class="section home-products-section">
     <div class="container">
       <div class="section-heading text-center">
-
-        <!-- 🔥 KEYWORD BOOST -->
         <h2 class="title">Rekomendasi Kaos Oversize Pria Terbaru & Terbaik</h2>
-
         <p class="section-subtitle">
           Kami rangkum pilihan kaos pria terbaik untuk memudahkan kamu menemukan model yang nyaman, keren, dan layak dipilih.
         </p>
@@ -92,10 +87,7 @@
   <section class="section home-trust-section">
     <div class="container">
       <div class="section-heading text-center">
-
-        <!-- 🔥 KEYWORD BOOST -->
         <h2>Kenapa Kaos Oversize Pria di Sini Lebih Banyak Dipilih?</h2>
-
         <p class="section-subtitle">
           Kami fokus pada kualitas, kenyamanan, dan model yang membuat kamu lebih yakin saat memilih.
         </p>
@@ -130,27 +122,53 @@
     <div class="container">
       <div class="section-heading text-center">
         <h2>Tips Outfit & Rekomendasi Fashion Pria</h2>
+        <p class="section-subtitle">
+          Baca panduan singkat untuk memilih kaos oversize pria yang lebih cocok, nyaman, dan tetap stylish dipakai harian.
+        </p>
       </div>
 
       <% if (articleItems.length) { %>
-        <div class="article-grid-responsive">
+        <div class="row">
           <% articleItems.forEach(function(article){ %>
-            <div class="article-grid-item">
-              <article class="article-card-modern">
-                <a href="/article/<%= article.slug %>">
-                  <!-- 🔥 IMAGE SEO -->
+            <%
+              const articleTitle = safeText(article.title || 'Artikel Fashion Pria');
+              const articleExcerpt = stripHtml(article.excerpt || article.description || article.content || 'Baca panduan lengkap seputar outfit pria, kaos oversize, dan tips memilih produk yang lebih tepat.');
+              const shortExcerpt = articleExcerpt.length > 110 ? articleExcerpt.slice(0, 110).trim() + '...' : articleExcerpt;
+              const articleImage = article.image || article.thumbnail || '/assets/images/og-image.jpg';
+            %>
+
+            <div class="col-md-6 col-sm-6 col-xs-12" style="margin-bottom:24px;">
+              <article class="article-card-modern" style="height:100%; overflow:hidden; border-radius:18px; background:#fff; box-shadow:0 10px 28px rgba(15,19,32,.08);">
+                <a
+                  href="/article/<%= article.slug %>"
+                  style="display:block; overflow:hidden; border-radius:18px 18px 0 0;"
+                  aria-label="<%= articleTitle %>"
+                >
                   <img
-                    src="<%= article.image || article.thumbnail || '/assets/images/og-image.jpg' %>"
-                    alt="<%= article.title %>"
-                    width="400"
-                    height="300"
+                    src="<%= articleImage %>"
+                    alt="<%= articleTitle %>"
+                    width="800"
+                    height="450"
                     loading="lazy"
+                    style="display:block; width:100%; height:260px; object-fit:cover;"
                   >
                 </a>
 
-                <h3>
-                  <a href="/article/<%= article.slug %>"><%= article.title %></a>
-                </h3>
+                <div style="padding:18px 18px 20px;">
+                  <h3 style="margin:0 0 10px; font-size:18px; line-height:1.35; min-height:48px;">
+                    <a href="/article/<%= article.slug %>" style="color:inherit; text-decoration:none;">
+                      <%= articleTitle %>
+                    </a>
+                  </h3>
+
+                  <p style="margin:0 0 14px; color:#5f6780; line-height:1.7; min-height:48px;">
+                    <%= shortExcerpt %>
+                  </p>
+
+                  <a href="/article/<%= article.slug %>" style="font-weight:700; text-decoration:none;">
+                    Baca Selengkapnya →
+                  </a>
+                </div>
               </article>
             </div>
           <% }) %>
