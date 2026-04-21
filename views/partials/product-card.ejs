@@ -50,7 +50,6 @@ const validUntil = new Date(Date.now()+1000*60*60*24*30).toISOString().slice(0,1
 <meta itemprop="description" content="<%= shortCopy %>">
 <meta itemprop="image" content="<%= productImage %>">
 
-<!-- BRAND -->
 <div itemprop="brand" itemscope itemtype="https://schema.org/Brand">
 <meta itemprop="name" content="<%= brandName %>">
 </div>
@@ -108,12 +107,10 @@ IDR <%= compareAtPrice.toLocaleString('id-ID') %>
 </div>
 <% } %>
 
-<!-- TRUST -->
 <div class="product-card-trust">
 <span><%= isSoldOut ? 'Stok habis' : '🔥 Banyak dibeli' %></span>
 </div>
 
-<!-- CTA -->
 <div class="product-actions">
 
 <% if(isSoldOut){ %>
@@ -127,7 +124,14 @@ Lihat Detail
 <% } %>
 
 <% if(productSlug){ %>
-<a href="<%= productGoUrl %>" target="_blank" rel="nofollow sponsored noopener" class="buy-now-btn">
+<a 
+  href="<%= productGoUrl %>" 
+  target="_blank" 
+  rel="nofollow sponsored noopener" 
+  class="buy-now-btn track-go"
+  data-name="<%= productName %>"
+  data-price="<%= price %>"
+>
 🔥 Cek Harga
 </a>
 <% } %>
@@ -138,3 +142,24 @@ Lihat Detail
 
 </div>
 </article>
+
+<!-- 🔥 TRACKING KLIK SHOPEE (AUTO) -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  document.querySelectorAll('.track-go').forEach(function(btn){
+    btn.addEventListener('click', function(){
+
+      const price = parseInt(this.dataset.price || 0);
+
+      gtag('event', 'conversion', {
+        'send_to': 'AW-18034747528/0287CLPAhaAcEIjR0ZdD',
+        'value': price,
+        'currency': 'IDR'
+      });
+
+    });
+  });
+
+});
+</script>
