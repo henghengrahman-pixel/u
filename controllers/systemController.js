@@ -1,4 +1,5 @@
 const { getVisibleProducts, getVisibleArticles } = require('../helpers/store');
+const { generateSeoPages } = require('../helpers/seo-pages');
 
 function normalizeBaseUrl(value = '') {
   const raw = String(value || '').trim().replace(/\/+$/, '');
@@ -13,7 +14,10 @@ function normalizeBaseUrl(value = '') {
 
 function absoluteUrl(baseUrl, pathname = '/') {
   const base = normalizeBaseUrl(baseUrl);
-  const path = String(pathname || '/').startsWith('/') ? String(pathname || '/') : `/${String(pathname || '/')}`;
+  const path = String(pathname || '/').startsWith('/')
+    ? String(pathname || '/')
+    : `/${String(pathname || '/')}`;
+
   return `${base}${path}`;
 }
 
@@ -46,11 +50,6 @@ function uniqueByUrl(items = []) {
   return [...map.values()];
 }
 
-/*
-|--------------------------------------------------------------------------
-| SITEMAP XML
-|--------------------------------------------------------------------------
-*/
 function sitemap(req, res) {
   try {
     const baseUrl = normalizeBaseUrl(res.locals.baseUrl || process.env.BASE_URL || '');
@@ -58,13 +57,25 @@ function sitemap(req, res) {
       return res.status(500).send('Base URL is not configured');
     }
 
+    const seoPages = generateSeoPages().slice(0, 12);
+
     const staticPages = [
       { url: '/', priority: '1.0', changefreq: 'daily' },
       { url: '/shop', priority: '0.9', changefreq: 'daily' },
-      { url: '/kaos-oversize-pria', priority: '0.9', changefreq: 'weekly' },
       { url: '/articles', priority: '0.8', changefreq: 'daily' },
-      { url: '/contact', priority: '0.5', changefreq: 'monthly' }
+      { url: '/kaos-oversize-pria', priority: '0.9', changefreq: 'weekly' },
+      { url: '/kaos-oversize-pria-murah', priority: '0.8', changefreq: 'weekly' },
+      { url: '/kaos-oversize-pria-premium', priority: '0.8', changefreq: 'weekly' },
+      { url: '/kaos-oversize-pria-terbaik', priority: '0.8', changefreq: 'weekly' }
     ];
+
+    const dynamicSeoPages = seoPages
+      .filter((item) => item && item.slug)
+      .map((item) => ({
+        url: `/s/${String(item.slug).trim()}`,
+        priority: '0.6',
+        changefreq: 'weekly'
+      }));
 
     const productPages = getVisibleProducts()
       .filter((item) => item && item.slug)
@@ -86,6 +97,7 @@ function sitemap(req, res) {
 
     const urls = uniqueByUrl([
       ...staticPages,
+      ...dynamicSeoPages,
       ...productPages,
       ...articlePages
     ]);
@@ -110,11 +122,6 @@ ${urls.map((item) => {
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| ROBOTS.TXT
-|--------------------------------------------------------------------------
-*/
 function robots(req, res) {
   try {
     const baseUrl = normalizeBaseUrl(res.locals.baseUrl || process.env.BASE_URL || '');
