@@ -7,13 +7,15 @@ const productItems = Array.isArray(products) ? products : [];
 const pageTitle = safeText(page?.title || 'Rekomendasi Kaos Pria');
 const pageKeyword = safeText(page?.keyword || 'kaos pria');
 const pageDesc = safeText(page?.desc || `Cari ${pageKeyword} dengan kualitas terbaik dan nyaman dipakai harian.`);
+const pageSlug = safeText(page?.slug || '');
+const pageUrl = `${baseUrl}/s/${pageSlug}`;
 %>
 
 <main id="main-content" class="container">
 
 <section class="section" style="padding-top:20px; padding-bottom:10px;">
   <div class="text-center" style="max-width:920px; margin:0 auto;">
-    <h1><%= pageTitle %></h1>
+    <h1><%= pageKeyword %> Terbaik 2026</h1>
 
     <p class="section-subtitle" style="margin-top:14px;">
       <%= pageDesc %>
@@ -60,7 +62,13 @@ const pageDesc = safeText(page?.desc || `Cari ${pageKeyword} dengan kualitas ter
 
 <section class="section" style="padding-top:20px; padding-bottom:10px;">
   <div class="text-center" style="max-width:920px; margin:0 auto;">
-    <h2>Tips Memilih Produk yang Tepat</h2>
+    <h2>Kenapa Banyak Orang Cari <%= pageKeyword %>?</h2>
+    <p>
+      Karena pembeli biasanya ingin produk yang nyaman dipakai, modelnya tetap enak dilihat,
+      dan cocok untuk dipakai harian tanpa terasa ribet saat dipadukan dengan outfit lain.
+    </p>
+
+    <h3 style="margin-top:22px;">Tips Memilih Produk yang Tepat</h3>
     <p>
       Saat memilih produk, perhatikan bahan, potongan, dan kenyamanan saat dipakai.
       Untuk pembeli pria Indonesia, pilihan yang paling aman biasanya adalah model yang mudah dipadukan
@@ -85,6 +93,16 @@ const pageDesc = safeText(page?.desc || `Cari ${pageKeyword} dengan kualitas ter
     <a href="/shop">Semua Produk</a>
   </div>
 </section>
+
+<script type="application/ld+json">
+<%- JSON.stringify({
+  "@context":"https://schema.org",
+  "@type":"CollectionPage",
+  "name": pageKeyword,
+  "description": pageDesc,
+  "url": pageUrl
+}) %>
+</script>
 
 </main>
 
