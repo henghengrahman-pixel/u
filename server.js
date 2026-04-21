@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const path = require('path');
+const https = require('https');
 const express = require('express');
 const session = require('express-session');
 
@@ -23,9 +24,10 @@ app.disable('x-powered-by');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-/* ================= 🔥 ROBOTS HEADER (FIX FINAL) ================= */
+/* ================= ROBOTS HEADER ================= */
 app.use((req, res, next) => {
-  const pathUrl = req.path;
+  const pathUrl = req.path || '/';
+  const hasQuery = !!(req.query && Object.keys(req.query).length > 0);
 
   if (
     pathUrl.startsWith('/admin') ||
@@ -36,7 +38,7 @@ app.use((req, res, next) => {
     res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
   } else if (pathUrl === '/contact') {
     res.setHeader('X-Robots-Tag', 'noindex, follow');
-  } else if (req.query && Object.keys(req.query).length > 0) {
+  } else if (hasQuery) {
     res.setHeader('X-Robots-Tag', 'noindex, follow');
   } else {
     res.setHeader('X-Robots-Tag', 'index, follow');
@@ -74,15 +76,14 @@ app.use(session({
   }
 }));
 
-/* ================= 🔥 URL NORMALIZATION ================= */
+/* ================= URL NORMALIZATION ================= */
 app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
 
-  let url = req.originalUrl;
+  const originalUrl = req.originalUrl || '/';
 
-  // hapus trailing slash kecuali root
-  if (url.length > 1 && url.endsWith('/')) {
-    return res.redirect(301, url.replace(/\/+$/, ''));
+  if (originalUrl.length > 1 && originalUrl.endsWith('/')) {
+    return res.redirect(301, originalUrl.replace(/\/+$/, ''));
   }
 
   next();
@@ -113,8 +114,43 @@ app.use((req, res, next) => {
 /* ================= VIEW GLOBALS ================= */
 app.use(viewGlobals);
 
+/* ================= BOOST INDEXING ================= */
+app.get('/ping-search', async (req, res) => {
+  try {
+    const baseUrl = BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const sitemapUrl = `${baseUrl}/sitemap.xml`;
+
+    const targets = [
+      `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
+      `https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`
+    ];
+
+    const results = [];
+    for (const target of targets) {
+      const result = await pingUrl(target);
+      results.push({
+        target,
+        ok: result.ok,
+        statusCode: result.statusCode
+      });
+    }
+
+    res.set('Cache-Control', 'no-store');
+    return res.status(200).json({
+      success: true,
+      sitemap: sitemapUrl,
+      results
+    });
+  } catch (error) {
+    console.error('[PING SEARCH ERROR]', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Ping search error'
+    });
+  }
+});
+
 /* ================= ROUTES ================= */
-/* robots + sitemap pakai systemController (SUDAH FIX) */
 app.use('/', require('./routes/system'));
 app.use('/', require('./routes/site'));
 app.use('/admin', require('./routes/admin'));
@@ -124,7 +160,7 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-/* ================= HELPER ================= */
+/* ================= HELPERS ================= */
 function normalizeBaseUrl(value) {
   const clean = String(value || '').trim().replace(/\/+$/, '');
   if (!clean) return '';
@@ -134,4 +170,24 @@ function normalizeBaseUrl(value) {
   } catch (_) {
     return '';
   }
+}
+
+function pingUrl(url) {
+  return new Promise((resolve) => {
+    try {
+      https
+        .get(url, (response) => {
+          response.resume();
+          resolve({
+            ok: response.statusCode >= 200 && response.statusCode < 400,
+            statusCode: response.statusCode || 0
+          });
+        })
+        .on('error', () => {
+          resolve({ ok: false, statusCode: 0 });
+        });
+    } catch (_) {
+      resolve({ ok: false, statusCode: 0 });
+    }
+  });
 }
