@@ -7,13 +7,12 @@
 <meta name="theme-color" content="#0f1320">
 <meta name="format-detection" content="telephone=no">
 
-<!-- 🔴 GOOGLE TAG FIX (WAJIB DI HEAD) -->
+<!-- GOOGLE TAG -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18034747528"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-
 gtag('config', 'AW-18034747528');
 </script>
 
@@ -32,6 +31,7 @@ const currentPathSafe = clean(currentPath || '/');
 const isAdmin = currentPathSafe.startsWith('/admin');
 const isArticle = currentPathSafe.startsWith('/article/');
 const isContact = currentPathSafe === '/contact';
+
 const isNoIndexPath =
   isAdmin ||
   isContact ||
@@ -51,8 +51,7 @@ const canonical = ensureAbsolute(meta?.canonical || currentPathSafe || '/');
 const url = ensureAbsolute(meta?.url || canonical);
 const image = ensureAbsolute(meta?.image || fallbackImage);
 
-let robots = clean(meta?.robots);
-if (!robots) robots = 'index,follow';
+let robots = clean(meta?.robots) || 'index,follow';
 if (isNoIndexPath) {
   robots = isAdmin || currentPathSafe.startsWith('/go/') || currentPathSafe.startsWith('/cart') || currentPathSafe.startsWith('/checkout')
     ? 'noindex,nofollow,noarchive'
@@ -60,8 +59,8 @@ if (isNoIndexPath) {
 }
 
 const structuredList = Array.isArray(structuredData)
-  ? structuredData.filter(Boolean)
-  : (structuredData ? [structuredData] : []);
+  ? structuredData.filter(s => s && typeof s === 'object')
+  : (structuredData && typeof structuredData === 'object' ? [structuredData] : []);
 
 const shouldPreloadImage = !!image && image !== fallbackImage && !isAdmin;
 const ogType = isArticle ? 'article' : 'website';
@@ -94,18 +93,20 @@ const ogType = isArticle ? 'article' : 'website';
 <link rel="preload" as="image" href="<%= image %>">
 <% } %>
 
+<!-- ✅ ORGANIZATION -->
 <script type="application/ld+json">
-<%- JSON.stringify({
+<%= JSON.stringify({
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": storeName,
   "url": clean(baseUrl),
   "logo": siteLogo
-}) %>
+}).replace(/</g, '\\u003c') %>
 </script>
 
+<!-- ✅ WEBSITE -->
 <script type="application/ld+json">
-<%- JSON.stringify({
+<%= JSON.stringify({
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": storeName,
@@ -115,11 +116,14 @@ const ogType = isArticle ? 'article' : 'website';
     "target": `${clean(baseUrl)}/shop?q={search_term_string}`,
     "query-input": "required name=search_term_string"
   }
-}) %>
+}).replace(/</g, '\\u003c') %>
 </script>
 
+<!-- ✅ DYNAMIC SCHEMA (ANTI ERROR) -->
 <% structuredList.forEach(function(schema) { %>
-<script type="application/ld+json"><%- JSON.stringify(schema) %></script>
+<script type="application/ld+json">
+<%= JSON.stringify(schema).replace(/</g, '\\u003c') %>
+</script>
 <% }) %>
 
 <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
