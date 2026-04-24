@@ -2,13 +2,22 @@
 <%- include('partials/header') %>
 
 <%
-const safeText = (value = '') => String(value || '').trim();
+const safeText = (value) => String(value == null ? '' : value).trim();
 const productItems = Array.isArray(products) ? products : [];
-const pageTitle = safeText(page?.title || 'Rekomendasi Kaos Pria');
-const pageKeyword = safeText(page?.keyword || 'kaos pria');
-const pageDesc = safeText(page?.desc || `Cari ${pageKeyword} dengan kualitas terbaik dan nyaman dipakai harian.`);
-const pageSlug = safeText(page?.slug || '');
-const pageUrl = `${baseUrl}/s/${pageSlug}`;
+const pageTitle   = safeText(page && page.title   ? page.title   : 'Rekomendasi Kaos Pria');
+const pageKeyword = safeText(page && page.keyword  ? page.keyword : 'kaos pria');
+const pageDesc    = safeText(page && page.desc     ? page.desc    : ('Cari ' + pageKeyword + ' dengan kualitas terbaik dan nyaman dipakai harian.'));
+const pageSlug    = safeText(page && page.slug     ? page.slug    : '');
+const _pageUrl    = (typeof baseUrl !== 'undefined' ? baseUrl : '') + '/s/' + pageSlug;
+
+// ✅ Build JSON-LD di sini, bukan di dalam tag <script>
+const schemaCollectionPage = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": pageKeyword,
+  "description": pageDesc,
+  "url": _pageUrl
+}).replace(/</g, '\\u003c');
 %>
 
 <main id="main-content" class="container">
@@ -94,15 +103,8 @@ const pageUrl = `${baseUrl}/s/${pageSlug}`;
   </div>
 </section>
 
-<script type="application/ld+json">
-<%- JSON.stringify({
-  "@context":"https://schema.org",
-  "@type":"CollectionPage",
-  "name": pageKeyword,
-  "description": pageDesc,
-  "url": pageUrl
-}) %>
-</script>
+<!-- ✅ JSON-LD pakai <%- bukan langsung JSON.stringify di dalam tag script -->
+<script type="application/ld+json"><%- schemaCollectionPage %></script>
 
 </main>
 
