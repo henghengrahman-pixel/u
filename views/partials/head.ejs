@@ -17,53 +17,83 @@ gtag('config', 'AW-18034747528');
 </script>
 
 <%
-const clean = (v = '') => String(v || '').trim();
+const clean = (v) => String(v == null ? '' : v).trim();
 
-const ensureAbsolute = (v = '') => {
+const ensureAbsolute = (v) => {
   const raw = clean(v);
   if (!raw) return '';
   if (/^https?:\/\//i.test(raw)) return raw;
-  const base = clean(baseUrl).replace(/\/+$/, '');
-  return base ? `${base}${raw.startsWith('/') ? raw : `/${raw}`}` : raw;
+  const base = clean(typeof baseUrl !== 'undefined' ? baseUrl : '').replace(/\/+$/, '');
+  return base ? `${base}${raw.startsWith('/') ? raw : '/' + raw}` : raw;
 };
 
-const currentPathSafe = clean(currentPath || '/');
-const isAdmin = currentPathSafe.startsWith('/admin');
-const isArticle = currentPathSafe.startsWith('/article/');
-const isContact = currentPathSafe === '/contact';
+const _baseUrl     = clean(typeof baseUrl     !== 'undefined' ? baseUrl     : '');
+const _settings    = (typeof settings         !== 'undefined' && settings)  ? settings : {};
+const _meta        = (typeof meta             !== 'undefined' && meta)      ? meta     : {};
+const _currentPath = clean(typeof currentPath !== 'undefined' ? currentPath : '/');
 
-const isNoIndexPath =
-  isAdmin ||
-  isContact ||
-  currentPathSafe.startsWith('/go/') ||
-  currentPathSafe.startsWith('/cart') ||
-  currentPathSafe.startsWith('/checkout');
+// structuredData bisa null, object, atau array — handle semua kasus
+const _rawSD = (typeof structuredData !== 'undefined') ? structuredData : null;
+const _structuredList = Array.isArray(_rawSD)
+  ? _rawSD.filter(s => s && typeof s === 'object')
+  : (_rawSD && typeof _rawSD === 'object' ? [_rawSD] : []);
 
-const storeName = clean(settings?.storeName || 'MWG Oversize');
-const siteLogo = ensureAbsolute(settings?.logo || '/assets/images/logo.png');
-const fallbackImage = siteLogo || ensureAbsolute('/assets/images/logo.png');
+const isAdmin   = _currentPath.startsWith('/admin');
+const isArticle = _currentPath.startsWith('/article/');
+const isContact = _currentPath === '/contact';
+const isNoIndexPath = isAdmin || isContact ||
+  _currentPath.startsWith('/go/') ||
+  _currentPath.startsWith('/cart') ||
+  _currentPath.startsWith('/checkout');
 
-const title = clean(meta?.title) || `Kaos Oversize Pria Premium Original | ${storeName}`;
-const desc = clean(meta?.description) || 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, stylish, dan cocok untuk outfit harian pria Indonesia.';
-const keywords = clean(meta?.keywords || settings?.seo?.keywords) || 'kaos oversize pria, kaos distro pria, baju oversize pria, kaos pria indonesia';
+const storeName   = clean(_settings.storeName || 'MWG Oversize');
+const siteLogo    = ensureAbsolute(_settings.logo || '/assets/images/logo.png');
+const fallbackImg = siteLogo || ensureAbsolute('/assets/images/logo.png');
 
-const canonical = ensureAbsolute(meta?.canonical || currentPathSafe || '/');
-const url = ensureAbsolute(meta?.url || canonical);
-const image = ensureAbsolute(meta?.image || fallbackImage);
+const title    = clean(_meta.title)       || ('Kaos Oversize Pria Premium Original | ' + storeName);
+const desc     = clean(_meta.description) || 'Beli kaos oversize pria premium kualitas distro. Bahan tebal, nyaman, stylish, dan cocok untuk outfit harian pria Indonesia.';
+const keywords = clean(_meta.keywords || (_settings.seo && _settings.seo.keywords)) || 'kaos oversize pria, kaos distro pria, baju oversize pria, kaos pria indonesia';
 
-let robots = clean(meta?.robots) || 'index,follow';
+const canonical = ensureAbsolute(_meta.canonical || _currentPath || '/');
+const pageUrl   = ensureAbsolute(_meta.url || canonical);
+const image     = ensureAbsolute(_meta.image || fallbackImg);
+
+let robots = clean(_meta.robots) || 'index,follow';
 if (isNoIndexPath) {
-  robots = isAdmin || currentPathSafe.startsWith('/go/') || currentPathSafe.startsWith('/cart') || currentPathSafe.startsWith('/checkout')
+  robots = (isAdmin || _currentPath.startsWith('/go/') || _currentPath.startsWith('/cart') || _currentPath.startsWith('/checkout'))
     ? 'noindex,nofollow,noarchive'
     : 'noindex,follow';
 }
 
-const structuredList = Array.isArray(structuredData)
-  ? structuredData.filter(s => s && typeof s === 'object')
-  : (structuredData && typeof structuredData === 'object' ? [structuredData] : []);
-
-const shouldPreloadImage = !!image && image !== fallbackImage && !isAdmin;
+const shouldPreloadImage = !!image && image !== fallbackImg && !isAdmin;
 const ogType = isArticle ? 'article' : 'website';
+
+const _safeStringify = (obj) => {
+  try { return JSON.stringify(obj).replace(/</g, '\\u003c'); }
+  catch(e) { return '{}'; }
+};
+
+const schemaOrg = _safeStringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": storeName,
+  "url": _baseUrl,
+  "logo": siteLogo
+});
+
+const schemaWebsite = _safeStringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": storeName,
+  "url": _baseUrl,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": _baseUrl + "/shop?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+});
+
+const schemaDynamicList = _structuredList.map(s => _safeStringify(s));
 %>
 
 <title><%= title %></title>
@@ -80,50 +110,28 @@ const ogType = isArticle ? 'article' : 'website';
 <meta property="og:site_name" content="<%= storeName %>">
 <meta property="og:title" content="<%= title %>">
 <meta property="og:description" content="<%= desc %>">
-<meta property="og:url" content="<%= url %>">
+<meta property="og:url" content="<%= pageUrl %>">
 <meta property="og:image" content="<%= image %>">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<%= title %>">
 <meta name="twitter:description" content="<%= desc %>">
 <meta name="twitter:image" content="<%= image %>">
-<meta name="twitter:url" content="<%= url %>">
+<meta name="twitter:url" content="<%= pageUrl %>">
 
 <% if (shouldPreloadImage) { %>
 <link rel="preload" as="image" href="<%= image %>">
 <% } %>
 
 <!-- ✅ ORGANIZATION -->
-<script type="application/ld+json">
-<%= JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": storeName,
-  "url": clean(baseUrl),
-  "logo": siteLogo
-}).replace(/</g, '\\u003c') %>
-</script>
+<script type="application/ld+json"><%- schemaOrg %></script>
 
 <!-- ✅ WEBSITE -->
-<script type="application/ld+json">
-<%= JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": storeName,
-  "url": clean(baseUrl),
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": `${clean(baseUrl)}/shop?q={search_term_string}`,
-    "query-input": "required name=search_term_string"
-  }
-}).replace(/</g, '\\u003c') %>
-</script>
+<script type="application/ld+json"><%- schemaWebsite %></script>
 
-<!-- ✅ DYNAMIC SCHEMA (ANTI ERROR) -->
-<% structuredList.forEach(function(schema) { %>
-<script type="application/ld+json">
-<%= JSON.stringify(schema).replace(/</g, '\\u003c') %>
-</script>
+<!-- ✅ DYNAMIC SCHEMA (dari res.locals.structuredData) -->
+<% schemaDynamicList.forEach(function(schemaStr) { %>
+<script type="application/ld+json"><%- schemaStr %></script>
 <% }) %>
 
 <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
